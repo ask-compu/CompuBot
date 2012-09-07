@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-"""
+'''
 tell.py - Phenny Tell and Ask Module
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
 http://inamidst.com/phenny/
-"""
+
+"Pinkie" personality modifications by Jordan Kinsley <jordan@jordantkinsley.org>
+'''
 
 import os, re, time, random
 import web

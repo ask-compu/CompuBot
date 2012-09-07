@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 '''
 party.py - Pinkie's new nick greeting module
-(C) 2012 Jordan Kinsley <jordantkinsley@gmail.com>
+(C) 2012 Jordan Kinsley <jordan@jordantkinsley.org>
 GPLv2 or later
 
 This module checks for when a new nick joins the channel, and if the nick 

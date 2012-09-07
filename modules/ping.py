@@ -6,7 +6,7 @@ About: http://inamidst.com/phenny/
 
 Modified from ping.py by Amos
 
-Modified by Jordan Kinsley
+Modified by Jordan Kinsley <jordan@jordantkinsley.org>
 '''
 
 import random

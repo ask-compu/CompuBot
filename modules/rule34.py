@@ -1,8 +1,10 @@
 #!/usr/bin/python3
-"""
+'''
 rule34.py - rule 34 module
 author: mutantmonkey <mutantmonkey@mutantmonkey.in>
-"""
+
+e621 and twentypercentcooler modifications by Jordan Kinsley <jordan@jordantkinsley.org>
+'''
 
 from urllib.parse import quote as urlquote
 from urllib.parse import quote_plus as urlquoteplus
@@ -40,12 +42,6 @@ def rule34(phenny, input):
     phenny.reply(response)
 rule34.rule = (['rule34'], r'(.*)')
 
-'''
-TODO:
-	add e621 command
-	add twentypercentcooler (tpc) command
-'''
-
 def e621(phenny, input):
     '''.e621 <query> - returns the first image for any query from e621.net (all links tagged as NSFW). 
     Query must be formatted like a normal e621 search: all tags have their spaces replaced with 
@@ -71,7 +67,8 @@ def e621(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    
+    # TODO: check Rating:<> tag to see if the link is really NSFW
+    # For now, keep this because we have no idea, and it's better to ere on the side of caution
     response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
     phenny.reply(response)
 e621.rule = (['e621'], r'(.*)')
@@ -101,7 +98,8 @@ def tpc(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    
+    # TODO: check Rating:<> tag to see if the link is really NSFW
+    # For now, keep this because we have no idea, and it's better to ere on the side of caution
     response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
     phenny.reply(response)
     

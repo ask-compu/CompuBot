@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 img.py - PinkiePyBot character image storage module
-(C) 2012 Jordan T Kinsley (jordantkinsley@gmail.com)
+(C) 2012 Jordan T Kinsley (jordan@jordantkinsley.org)
 GPLv2 or later
 
 This module will store an image for a roleplay character. 
