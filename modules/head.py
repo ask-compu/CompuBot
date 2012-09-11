@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-"""
+'''
 head.py - Phenny HTTP Metadata Utilities
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
 http://inamidst.com/phenny/
-"""
+
+Modified by Jordan Kinsley <jordan@jordantkinsley.org>
+'''
 
 import re
 import urllib.request
@@ -14,8 +16,10 @@ import urllib.error
 import http.client
 import http.cookiejar
 import time
+from datetime import timedelta
 from html.entities import name2codepoint
 import web
+import lxml.html
 from tools import deprecated
 
 cj = http.cookiejar.LWPCookieJar()
@@ -131,7 +135,15 @@ def gettitle(uri):
     for s in localhost: 
         if uri.startswith(s): 
             return phenny.reply('Sorry, access forbidden.')
-
+    
+    youtube = re.compile('http(s)?://(www.)?youtu(.be|be.)(com|co.uk|ca)?/')
+    if youtube.match(uri):
+        return get_youtube_title(uri)
+    
+    fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
+    if fimfiction.match(uri):
+        return get_story_title(uri)
+    
     try: 
         redirects = 0
         while True: 
@@ -193,6 +205,61 @@ def gettitle(uri):
             title = title.replace('\n', '')
             title = title.replace('\r', '')
         else: title = None
+    return title
+    
+def query(vid):
+    ''' returns the title, viewcount, time, and uploader of a Youtube video. vid is the Youtube video ID at the end of the Youtube URL.'''
+    main = 'http://gdata.youtube.com/feeds/api/videos/'
+    ext = '?v=2&alt=jsonc'
+    conn = urllib.request.urlopen(main + vid + ext)
+    html = str(conn.read()) # We just a bunch of bytes and we need a string for the following operations.
+    # We seem to have received a JSON response to our request. Using the standard library to decode JSON
+    # just results in a string, so we're going to just not bother with it today.
+    # For each of the following operations, we are:
+    # 1. splitting the string in half at the first split operation;
+    # 2. taking the second half of the string;
+    # 3. splitting the string again at the first comma;
+    # 4. taking the first result of the now split string
+    title = html.split('"title":')[1].split(',')[0].strip('"')
+    uploader = html.split('"uploader":')[1].split(',')[0].strip('"')
+    viewcount = html.split('"viewCount":')[1].split(',')[0]
+    duration = html.split('"duration":')[1].split(',')[0]
+    likes = html.split('"likeCount":')[1].split(',')[0].strip('"')
+    ratings = html.split('"ratingCount":')[1].split(',')[0]
+    time = str(timedelta(seconds=int(duration)))
+    return title, viewcount, time, uploader, likes, ratings
+
+def get_youtube_title(uri):
+    vid = None
+    if 'youtu.be' in uri:
+        vid = uri[uri.rindex('/'):]
+    else:
+        if '?v=' in uri:
+            vid = uri[uri.index('?v=')+3:uri.index('?v=') + 14]
+        elif '&v=' in uri:
+            vid = uri[uri.index('&v=')+3:uri.index('&v=') + 14]
+        else:
+            raise GrumbleError('That\'s not a fucking correct Youtube URL!')
+    title, views, time, uploader, likes, ratings = query(vid)
+    percentage = str(round((float(likes) / float(ratings)) * 100,2))
+    # Not including the uploader in the title info; it's rarely important in determining a link's quality.
+    return title + " - " + views + " views - " + time + " long - " + likes + " likes - " + percentage + "%"
+
+    
+def get_story_title(uri):
+    # TODO: get word count, views, categories
+    # Word count can't be found by lxml.html
+    # Views can't be found by lxml.html
+    # Categories can't be found by lxml.html
+    story_page = lxml.html.fromstring(web.get(uri))
+    likes = story_page.find_class('likes')[0].text_content()
+    dislikes = story_page.find_class('dislikes')[0].text_content()
+    percentage = (float(likes) / (float(dislikes) + float(likes))) * 100
+    percentage = str(round(percentage, 2))
+    author = story_page.find_class('name name_author')[0].text_content().strip()
+    head = story_page.head.text_content()
+    story = head[0:head.index('-')].rstrip()
+    title = story + " by " + author + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "%"
     return title
 
 if __name__ == '__main__': 
