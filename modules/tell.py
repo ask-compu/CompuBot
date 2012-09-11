@@ -93,7 +93,7 @@ def f_remind(phenny, input):
         #                              "your message may get lost.")
 
         rand = random.random()
-        if rand > 0.9999: response = "yeah, yeah"
+        if rand <= 0.9999: response = "yeah, yeah"
         elif rand > 0.999: response = "yeah, sure, whatever"
 
         phenny.reply(response)
@@ -102,7 +102,7 @@ def f_remind(phenny, input):
     else: phenny.say("Hey, I'm not as stupid as Monty you know!")
 
     dumpReminders(phenny.tell_filename, phenny.reminders) # @@ tell
-f_remind.rule = ('$nick', ['tell', 'ask'], r'(\S+) (.*)')
+f_remind.rule = (r'(Pi|I|Bli)nkie(Pie)?(Bot)?', ['tell', 'ask'], r'(\S+) (.*)')
 f_remind.thread = False
 
 def getReminders(phenny, channel, key, tellee): 
