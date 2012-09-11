@@ -67,10 +67,15 @@ def e621(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    # TODO: check Rating:<> tag to see if the link is really NSFW
-    # For now, keep this because we have no idea, and it's better to ere on the side of caution
-    response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
-    phenny.reply(response)
+    page = lxml.html.fromstring(link)
+    stats = page.get_element_by_id('stats')
+    words = stats.text_content().split()
+    rating = words[words.index('Rating:') + 1]
+    if rating in ('Questionable','Explicit'):
+        response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
+        phenny.reply(response)
+    else:
+        phenny.reply(link)
 e621.rule = (['e621'], r'(.*)')
 
 def tpc(phenny, input):
@@ -98,11 +103,15 @@ def tpc(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    # TODO: check Rating:<> tag to see if the link is really NSFW
-    # For now, keep this because we have no idea, and it's better to ere on the side of caution
-    response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
-    phenny.reply(response)
-    
+    page = lxml.html.fromstring(link)
+    stats = page.get_element_by_id('stats')
+    words = stats.text_content().split()
+    rating = words[words.index('Rating:') + 1]
+    if rating in ('Questionable','Explicit'):
+        response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
+        phenny.reply(response)
+    else:
+        phenny.reply(link)
 tpc.rule = (['tpc','twentypercentcooler','ponies'], r'(.*)')
 
 if __name__ == '__main__':
