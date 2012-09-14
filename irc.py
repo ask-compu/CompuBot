@@ -200,6 +200,7 @@ class Bot(asynchat.async_chat):
         self.sending.release()
 
     def action(self, recipient, text):
+        #TODO: add support for actions longer than 512 bytes
         text = "\x01ACTION {0}\x01".format(text)
         return self.msg(recipient, text)
 
