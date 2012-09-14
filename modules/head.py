@@ -22,7 +22,10 @@ import web
 import lxml.html
 try:
     import bs4
-    if bs4.__version__ not in ('4.1.2','4.1.3'): # TODO: make this work with possible future versions
+    version = []
+    for x in bs4.__version__.split('.'):
+        version.append(int(x))
+    if version[1] < 1 or version[2] < 2:
         raise ImportError
     from bs4 import BeautifulSoup as Soup
 except ImportError:
