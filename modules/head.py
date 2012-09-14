@@ -20,6 +20,14 @@ from datetime import timedelta
 from html.entities import name2codepoint
 import web
 import lxml.html
+try:
+    import bs4
+    if bs4.__version__ not in ('4.1.2','4.1.3'): # TODO: make this work with possible future versions
+        raise ImportError
+    from bs4 import BeautifulSoup as Soup
+except ImportError:
+    print('Can\'t import BeautifulSoup 4.1.2 or greater; we will only be able to get minimal FimFiction.net stats.')
+    print('Check your Python path and local packages to make sure BeautifulSoup 4 is installed.')
 from tools import deprecated
 
 cj = http.cookiejar.LWPCookieJar()
@@ -251,7 +259,8 @@ def get_story_title(uri):
     # Word count can't be found by lxml.html
     # Views can't be found by lxml.html
     # Categories can't be found by lxml.html
-    story_page = lxml.html.fromstring(web.get(uri))
+    raw_page = web.get(uri)
+    story_page = lxml.html.fromstring(raw_page)
     likes = story_page.find_class('likes')[0].text_content()
     dislikes = story_page.find_class('dislikes')[0].text_content()
     percentage = (float(likes) / (float(dislikes) + float(likes))) * 100
@@ -259,7 +268,40 @@ def get_story_title(uri):
     author = story_page.find_class('name name_author')[0].text_content().strip()
     head = story_page.head.text_content()
     story = head[0:head.index('-')].rstrip()
-    title = story + " by " + author + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "%"
+    
+    views = None
+    categories = []
+    word_count = None
+    chapters = None
+    
+    if Soup:
+        soup = Soup(raw_page)
+        categories = soup.find_all(class_='story_category')
+        views = soup.find(class_='views').get_text().strip()
+        views = views[:views.index('(')].strip()
+        wc = soup.find_all(class_='word_count')
+        word_count = wc[len(wc) - 1].get_text().strip()
+        chapters = len(soup.find_all(class_='chapter_link'))
+    title = story + " by " + author
+    
+    if chapters:
+        title = title + ' - ' + str(chapters)
+        if chapters > 1:
+            title = title + ' chapters'
+        else:
+            title = title + ' chapter'
+    if views:
+        title = title + " - " + views + " views"
+    if len(categories) > 0:
+        str_categories = ""
+        # each category is a Tag; we need to use get_text to get the actual category name
+        for category in categories:
+            str_categories = str_categories + "[" + category.get_text() + "]"
+        title = title + " - " + str_categories
+    if word_count:
+        title = title + ' - ' + word_count
+    
+    title = title + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "%"
     return title
 
 if __name__ == '__main__': 
