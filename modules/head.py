@@ -222,12 +222,7 @@ def query(vid):
     conn = urllib.request.urlopen(main + vid + ext)
     html = str(conn.read()) # We just a bunch of bytes and we need a string for the following operations.
     # We seem to have received a JSON response to our request. Using the standard library to decode JSON
-    # just results in a string, so we're going to just not bother with it today.
-    # For each of the following operations, we are:
-    # 1. splitting the string in half at the first split operation;
-    # 2. taking the second half of the string;
-    # 3. splitting the string again at the first comma;
-    # 4. taking the first result of the now split string
+    # just results in a string, so we're going to just not bother with it.
     title = html.split('"title":')[1].split(',')[0].strip('"')
     uploader = html.split('"uploader":')[1].split(',')[0].strip('"')
     viewcount = html.split('"viewCount":')[1].split(',')[0]
@@ -255,10 +250,7 @@ def get_youtube_title(uri):
 
     
 def get_story_title(uri):
-    # TODO: get word count, views, categories
-    # Word count can't be found by lxml.html
-    # Views can't be found by lxml.html
-    # Categories can't be found by lxml.html
+    # just in case, we want to get the page once so we don't have to wait for a second HTTP request
     raw_page = web.get(uri)
     story_page = lxml.html.fromstring(raw_page)
     likes = story_page.find_class('likes')[0].text_content()
