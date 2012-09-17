@@ -9,7 +9,7 @@ http://inamidst.com/phenny/
 Modified by Jordan Kinsley <jordan@jordantkinsley.org>
 '''
 
-import re
+import re, os.path
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -33,7 +33,7 @@ except ImportError:
     print('Check your Python path and local packages to make sure BeautifulSoup 4 is installed.')
 from tools import deprecated
 
-cj = http.cookiejar.LWPCookieJar()
+cj = http.cookiejar.LWPCookieJar(os.path.join(os.path.expanduser('~/.phenny'), 'cookies.lwp'))
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
 urllib.request.install_opener(opener)
 
@@ -155,6 +155,9 @@ def gettitle(uri):
     if fimfiction.match(uri):
         return get_story_title(uri)
     
+    if re.compile('http(s)?://(www.)?bad-dragon.com/').match(uri) and not check_cookie('baddragon_age_checked'):
+        urllib.request.urlopen('http://bad-dragon.com/agecheck/accept')
+    
     try: 
         redirects = 0
         while True: 
@@ -217,6 +220,15 @@ def gettitle(uri):
             title = title.replace('\r', '')
         else: title = None
     return title
+
+def check_cookie(name):
+    ''' checks the given name against the names of cookies in the cookie
+    jar; returns true iff it finds an exact match.'''
+    for cookie in cj:
+        if cookie.name == name:
+            return True
+        else: continue
+    return False
     
 def query(vid):
     ''' returns the title, viewcount, time, and uploader of a Youtube video. vid is the Youtube video ID at the end of the Youtube URL.'''
