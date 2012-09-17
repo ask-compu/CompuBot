@@ -13,17 +13,6 @@ import os, re, time, random
 import web
 
 maximum = 4
-lispchannels = frozenset([ '#lisp', '#scheme', '#opendarwin', '#macdev',
-'#fink', '#jedit', '#dylan', '#emacs', '#xemacs', '#colloquy', '#adium',
-'#growl', '#chicken', '#quicksilver', '#svn', '#slate', '#squeak', '#wiki',
-'#nebula', '#myko', '#lisppaste', '#pearpc', '#fpc', '#hprog',
-'#concatenative', '#slate-users', '#swhack', '#ud', '#t', '#compilers',
-'#erights', '#esp', '#scsh', '#sisc', '#haskell', '#rhype', '#sicp', '#darcs',
-'#hardcider', '#lisp-it', '#webkit', '#launchd', '#mudwalker', '#darwinports',
-'#muse', '#chatkit', '#kowaleba', '#vectorprogramming', '#opensolaris',
-'#oscar-cluster', '#ledger', '#cairo', '#idevgames', '#hug-bunny', '##parsers',
-'#perl6', '#sdlperl', '#ksvg', '#rcirc', '#code4lib', '#linux-quebec',
-'#programmering', '#maxima', '#robin', '##concurrency', '#paredit' ])
 
 def loadReminders(fn): 
     result = {}
@@ -88,21 +77,16 @@ def f_remind(phenny, input):
             #     warn = True
             phenny.reminders[tellee].append((teller, verb, timenow, msg))
         # @@ Stephanie's augmentation
-        response = "I'll pass that on when %s is around." % tellee_original
+        response = "I'll pass that on when {0} is around.".format(tellee_original)
         # if warn: response += (" I'll have to use a pastebin, though, so " + 
         #                              "your message may get lost.")
 
-        rand = random.random()
-        if rand <= 0.9999: response = "yeah, yeah"
-        elif rand > 0.999: response = "yeah, sure, whatever"
-
         phenny.reply(response)
     elif teller.lower() == tellee: 
-        phenny.say('You can %s yourself that.' % verb)
-    else: phenny.say("Hey, I'm not as stupid as Monty you know!")
+        phenny.say('You can {0} yourself that.'.format(verb))
 
     dumpReminders(phenny.tell_filename, phenny.reminders) # @@ tell
-f_remind.rule = (r'(Pi|I|Bli)nkie(Pie)?(Bot)?', ['tell', 'ask'], r'(\S+) (.*)')
+f_remind.rule = (r'$nick', ['tell', 'ask'], r'(\S+) (.*)')
 f_remind.thread = False
 
 def getReminders(phenny, channel, key, tellee): 
