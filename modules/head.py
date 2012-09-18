@@ -242,8 +242,15 @@ def query(vid):
     uploader = html.split('"uploader":')[1].split(',')[0].strip('"')
     viewcount = html.split('"viewCount":')[1].split(',')[0]
     duration = html.split('"duration":')[1].split(',')[0]
-    likes = html.split('"likeCount":')[1].split(',')[0].strip('"')
-    ratings = html.split('"ratingCount":')[1].split(',')[0]
+    # a video with no likes results in IndexErrors (assuming true for ratingCount, too)
+    try:
+        likes = html.split('"likeCount":')[1].split(',')[0].strip('"')
+    except IndexError:
+        likes = '0'    
+    try:
+        ratings = html.split('"ratingCount":')[1].split(',')[0]
+    except: IndexError:
+        ratings = '0'
     time = str(timedelta(seconds=int(duration)))
     return title, viewcount, time, uploader, likes, ratings
 
