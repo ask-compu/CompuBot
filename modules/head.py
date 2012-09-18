@@ -249,7 +249,7 @@ def query(vid):
         likes = '0'    
     try:
         ratings = html.split('"ratingCount":')[1].split(',')[0]
-    except: IndexError:
+    except IndexError:
         ratings = '0'
     time = str(timedelta(seconds=int(duration)))
     return title, viewcount, time, uploader, likes, ratings
