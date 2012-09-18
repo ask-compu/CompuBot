@@ -266,7 +266,10 @@ def get_youtube_title(uri):
         else:
             raise GrumbleError('That\'s not a fucking correct Youtube URL!')
     title, views, time, uploader, likes, ratings = query(vid)
-    percentage = str(round((float(likes) / float(ratings)) * 100,2))
+    if int(ratings) > 0:
+        percentage = str(round((float(likes) / float(ratings)) * 100,2))
+    else:
+        percentage = '0.00'
     # Not including the uploader in the title info; it's rarely important in determining a link's quality.
     return title + " - " + views + " views - " + time + " long - " + likes + " likes - " + percentage + "%"
 
