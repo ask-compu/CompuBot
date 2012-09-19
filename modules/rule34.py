@@ -6,6 +6,9 @@ author: mutantmonkey <mutantmonkey@mutantmonkey.in>
 e621 and twentypercentcooler modifications by Jordan Kinsley <jordan@jordantkinsley.org>
 '''
 
+# TODO: extract duplicate and make it into a seperate function. 
+# code duplication is killing this module.
+
 from urllib.parse import quote as urlquote
 from urllib.parse import quote_plus as urlquoteplus
 from urllib.error import HTTPError
@@ -67,8 +70,7 @@ def e621(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    page = lxml.html.fromstring(link)
-    stats = page.get_element_by_id('stats')
+    stats = doc.get_element_by_id('stats')
     words = stats.text_content().split()
     rating = words[words.index('Rating:') + 1]
     if rating in ('Questionable','Explicit'):
@@ -103,8 +105,7 @@ def tpc(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    page = lxml.html.fromstring(link)
-    stats = page.get_element_by_id('stats')
+    stats = doc.get_element_by_id('stats')
     words = stats.text_content().split()
     rating = words[words.index('Rating:') + 1]
     if rating in ('Questionable','Explicit'):
