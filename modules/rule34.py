@@ -19,8 +19,7 @@ import lxml.html
 def rule34(phenny, input):
     """.rule34 <query> - Rule 34: If it exists there is porn of it."""
     
-    if input.sender not in phenny.config.nsfw:
-        phenny.say("Oopsie, looks like I can't do that in here!")
+    if check_nsfw(phenny, input):
         return
     q = input.group(2)
     if not q:
@@ -52,8 +51,7 @@ def e621(phenny, input):
     '''.e621 <query> - returns the first image for any query from e621.net (all links tagged as NSFW). 
     Query must be formatted like a normal e621 search: all tags have their spaces replaced with 
     underscores.'''
-    if input.sender not in phenny.config.nsfw:
-        phenny.say("Oopsie, looks like I can't do that in here!")
+    if check_nsfw(phenny, input):
         return
     q = input.group(2)
     if not q:
@@ -91,8 +89,7 @@ def tpc(phenny, input):
     '''.tpc <query> - returns the image for any query from twentypercentcooler.net 
     (all links tagged as NSFW)Query must be formatted like a normal e621 search: all 
     tags have their spaces replaced with underscores.'''
-    if input.sender not in phenny.config.nsfw:
-        phenny.say("Oopsie, looks like I can't do that in here!")
+    if check_nsfw(phenny, input):
         return
     q = input.group(2)
     if not q:
@@ -125,6 +122,13 @@ def tpc(phenny, input):
     else:
         phenny.reply(link)
 tpc.rule = (['tpc','twentypercentcooler','ponies'], r'(.*)')
+
+def check_nsfw(phenny, input):
+    if input.sender not in phenny.config.nsfw:
+        phenny.say("Oopsie, looks like I can't do that in here!")
+        phenny.msg('MemoServ', 'SEND {0} {1} in {2} tried to break the rules!'.format(phenny.config.owner, input.sender, input.nick)
+        return True
+    else return False
 
 if __name__ == '__main__':
     print(__doc__.strip())
