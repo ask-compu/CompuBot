@@ -18,7 +18,10 @@ import lxml.html
 
 def rule34(phenny, input):
     """.rule34 <query> - Rule 34: If it exists there is porn of it."""
-
+    
+    if input.sender not in phenny.config.nsfw
+        phenny.say("Oopsie, looks like I can't do that in here!")
+        return
     q = input.group(2)
     if not q:
         phenny.say(rule34.__doc__.strip())
@@ -49,6 +52,9 @@ def e621(phenny, input):
     '''.e621 <query> - returns the first image for any query from e621.net (all links tagged as NSFW). 
     Query must be formatted like a normal e621 search: all tags have their spaces replaced with 
     underscores.'''
+    if input.sender not in phenny.config.nsfw
+        phenny.say("Oopsie, looks like I can't do that in here!")
+        return
     q = input.group(2)
     if not q:
         phenny.say(e621.__doc__.strip())
@@ -84,6 +90,9 @@ def tpc(phenny, input):
     '''.tpc <query> - returns the image for any query from twentypercentcooler.net 
     (all links tagged as NSFW)Query must be formatted like a normal e621 search: all 
     tags have their spaces replaced with underscores.'''
+    if input.sender not in phenny.config.nsfw
+        phenny.say("Oopsie, looks like I can't do that in here!")
+        return
     q = input.group(2)
     if not q:
         phenny.say(tpc.__doc__.strip())
