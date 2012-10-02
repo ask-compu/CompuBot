@@ -19,7 +19,7 @@ import lxml.html
 def rule34(phenny, input):
     """.rule34 <query> - Rule 34: If it exists there is porn of it."""
     
-    if input.sender not in phenny.config.nsfw
+    if input.sender not in phenny.config.nsfw:
         phenny.say("Oopsie, looks like I can't do that in here!")
         return
     q = input.group(2)
@@ -52,7 +52,7 @@ def e621(phenny, input):
     '''.e621 <query> - returns the first image for any query from e621.net (all links tagged as NSFW). 
     Query must be formatted like a normal e621 search: all tags have their spaces replaced with 
     underscores.'''
-    if input.sender not in phenny.config.nsfw
+    if input.sender not in phenny.config.nsfw:
         phenny.say("Oopsie, looks like I can't do that in here!")
         return
     q = input.group(2)
@@ -76,7 +76,8 @@ def e621(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    stats = doc.get_element_by_id('stats')
+    page = lxml.html.fromstring(web.get(link))
+    stats = page.get_element_by_id('stats')
     words = stats.text_content().split()
     rating = words[words.index('Rating:') + 1]
     if rating in ('Questionable','Explicit'):
@@ -90,7 +91,7 @@ def tpc(phenny, input):
     '''.tpc <query> - returns the image for any query from twentypercentcooler.net 
     (all links tagged as NSFW)Query must be formatted like a normal e621 search: all 
     tags have their spaces replaced with underscores.'''
-    if input.sender not in phenny.config.nsfw
+    if input.sender not in phenny.config.nsfw:
         phenny.say("Oopsie, looks like I can't do that in here!")
         return
     q = input.group(2)
@@ -114,7 +115,8 @@ def tpc(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    stats = doc.get_element_by_id('stats')
+    page = lxml.html.fromstring(web.get(link))
+    stats = page.get_element_by_id('stats')
     words = stats.text_content().split()
     rating = words[words.index('Rating:') + 1]
     if rating in ('Questionable','Explicit'):
