@@ -301,7 +301,7 @@ def get_story_title(uri):
     story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories = get_api_story_title(uri)
     title = ''
     if content_rating > 1:
-        title = title + '!!*NSFW*!! '
+        title = title + '\u0002!!*NSFW*!!\u000F - '
     title = title + story_title + " by " + author
     if chapters:
         title = title + ' - ' + str(chapters)
