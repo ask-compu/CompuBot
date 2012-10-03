@@ -126,9 +126,9 @@ tpc.rule = (['tpc','twentypercentcooler','ponies'], r'(.*)')
 def check_nsfw(phenny, input):
     if input.sender not in phenny.config.nsfw:
         phenny.say("Oopsie, looks like I can't do that in here!")
-        phenny.msg('MemoServ', 'SEND {0} {1} in {2} tried to break the rules!'.format(phenny.config.owner, input.sender, input.nick)
+        phenny.msg('MemoServ', 'SEND {0} {1} in {2} tried to break the rules!'.format(phenny.config.owner, input.sender, input.nick))
         return True
-    else return False
+    else: return False
 
 if __name__ == '__main__':
     print(__doc__.strip())

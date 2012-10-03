@@ -229,13 +229,13 @@ def check_cookie(name):
             return True
         else: continue
     return False
-    
+
 def query(vid):
     ''' returns the title, viewcount, time, and uploader of a Youtube video. vid is the Youtube video ID at the end of the Youtube URL.'''
     main = 'http://gdata.youtube.com/feeds/api/videos/'
     ext = '?v=2&alt=jsonc'
     conn = urllib.request.urlopen(main + vid + ext)
-    html = str(conn.read()) # We just a bunch of bytes and we need a string for the following operations.
+    html = conn.read().decode() # We just a bunch of bytes and we need a string for the following operations.
     # We seem to have received a JSON response to our request. Using the standard library to decode JSON
     # just results in a string, so we're going to just not bother with it.
     title = html.split('"title":')[1].split(',')[0].strip('"')
@@ -280,8 +280,14 @@ def get_story_title(uri):
     story_page = lxml.html.fromstring(raw_page)
     likes = story_page.find_class('likes')[0].text_content()
     dislikes = story_page.find_class('dislikes')[0].text_content()
-    percentage = (float(likes) / (float(dislikes) + float(likes))) * 100
-    percentage = str(round(percentage, 2))
+    if int(likes) > 0 or int(dislikes) > 0:
+        if int(dislikes) > int(likes):
+            percentage = ((float(dislikes) - float(likes)) / (float(dislikes) + float(likes))) * 100
+        else:
+            percentage = (float(likes) / (float(dislikes) + float(likes))) * 100
+        percentage = str(round(percentage, 2))
+    else:
+        percentage = '0.00'
     author = story_page.find_class('name name_author')[0].text_content().strip()
     head = story_page.head.text_content()
     story = head[0:head.index('-')].rstrip()
