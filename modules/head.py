@@ -9,7 +9,7 @@ http://inamidst.com/phenny/
 Modified by Jordan Kinsley <jordan@jordantkinsley.org>
 '''
 
-import re, os.path
+import re, os.path, json
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -235,20 +235,20 @@ def query(vid):
     main = 'http://gdata.youtube.com/feeds/api/videos/'
     ext = '?v=2&alt=jsonc'
     conn = urllib.request.urlopen(main + vid + ext)
-    html = conn.read().decode() # We just a bunch of bytes and we need a string for the following operations.
+    data = conn.read().decode() # We just a bunch of bytes and we need a string for the following operations.
     # We seem to have received a JSON response to our request. Using the standard library to decode JSON
     # just results in a string, so we're going to just not bother with it.
-    title = html.split('"title":')[1].split(',')[0].strip('"')
-    uploader = html.split('"uploader":')[1].split(',')[0].strip('"')
-    viewcount = html.split('"viewCount":')[1].split(',')[0]
-    duration = html.split('"duration":')[1].split(',')[0]
+    title = data.split('"title":')[1].split(',')[0].strip('"')
+    uploader = data.split('"uploader":')[1].split(',')[0].strip('"')
+    viewcount = data.split('"viewCount":')[1].split(',')[0]
+    duration = data.split('"duration":')[1].split(',')[0]
     # a video with no likes results in IndexErrors (assuming true for ratingCount, too)
     try:
-        likes = html.split('"likeCount":')[1].split(',')[0].strip('"')
+        likes = data.split('"likeCount":')[1].split(',')[0].strip('"')
     except IndexError:
-        likes = '0'    
+        likes = '0'
     try:
-        ratings = html.split('"ratingCount":')[1].split(',')[0]
+        ratings = data.split('"ratingCount":')[1].split(',')[0]
     except IndexError:
         ratings = '0'
     time = str(timedelta(seconds=int(duration)))
@@ -273,57 +273,54 @@ def get_youtube_title(uri):
     # Not including the uploader in the title info; it's rarely important in determining a link's quality.
     return title + " - " + views + " views - " + time + " long - " + likes + " likes - " + percentage + "%"
 
+def get_api_story_title(uri):
+    story_id = uri.split('story/')[1]
+    if story_id.find('/') > 1:
+        story_id = story_id.split('/')[0]
+    print(story_id)
+    data = urllib.request.urlopen('http://fimfiction.net/api/story.php?story=' + story_id).read().decode()
+    story = json.loads(data, encoding='utf-8')['story']
     
-def get_story_title(uri):
-    # just in case, we want to get the page once so we don't have to wait for a second HTTP request
-    raw_page = web.get(uri)
-    story_page = lxml.html.fromstring(raw_page)
-    likes = story_page.find_class('likes')[0].text_content()
-    dislikes = story_page.find_class('dislikes')[0].text_content()
+    story_title = story['title'].strip('"')
+    likes = str(story['likes'])
+    dislikes = str(story['dislikes'])
+    percentage = get_percentage(likes, dislikes)
+    author = story['author']['name'].strip('"')
+    views = str(story['views'])
+    words = str(story['words'])
+    content_rating = int(story['content_rating'])
+    chapters = str(story['chapter_count'])
+    categories = ''
+    
+    cat_dict = story['categories']
+    for k in cat_dict:
+        if cat_dict[k] is True:
+            categories = categories + '[' + k + ']'
+    return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories
+    
+def get_percentage(likes, dislikes):
+    percentage = ''
     if int(likes) > 0 or int(dislikes) > 0:
-        if int(dislikes) > int(likes):
-            percentage = ((float(dislikes) - float(likes)) / (float(dislikes) + float(likes))) * 100
-        else:
-            percentage = (float(likes) / (float(dislikes) + float(likes))) * 100
+        percentage = (float(likes) / (float(dislikes) + float(likes))) * 100
         percentage = str(round(percentage, 2))
     else:
+        # no likes and dislikes
         percentage = '0.00'
-    author = story_page.find_class('name name_author')[0].text_content().strip()
-    head = story_page.head.text_content()
-    story = head[0:head.index('-')].rstrip()
-    
-    views = None
-    categories = []
-    word_count = None
-    chapters = None
-    
-    if Soup:
-        soup = Soup(raw_page)
-        categories = soup.find_all(class_='story_category')
-        views = soup.find(class_='views').get_text().strip()
-        views = views[:views.index('(')].strip()
-        wc = soup.find_all(class_='word_count')
-        word_count = wc[len(wc) - 1].get_text().strip()
-        chapters = len(soup.find_all(class_='chapter_link'))
-    title = story + " by " + author
-    
+    return percentage
+
+def get_story_title(uri):
+    story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories = get_api_story_title(uri)
+    title = ''
+    if content_rating > 1:
+        title = title + '!!*NSFW*!! '
+    title = title + story_title + " by " + author
     if chapters:
         title = title + ' - ' + str(chapters)
-        if chapters > 1:
+        if int(chapters) > 1:
             title = title + ' chapters'
         else:
             title = title + ' chapter'
-    if views:
-        title = title + " - " + views + " views"
-    if len(categories) > 0:
-        str_categories = ""
-        # each category is a Tag; we need to use get_text to get the actual category name
-        for category in categories:
-            str_categories = str_categories + "[" + category.get_text() + "]"
-        title = title + " - " + str_categories
-    if word_count:
-        title = title + ' - ' + word_count
-    
+    title = title + " - " + views + " views" + " - " + categories + ' - ' + words
     title = title + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "%"
     return title
 
