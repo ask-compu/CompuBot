@@ -20,17 +20,6 @@ from datetime import timedelta
 from html.entities import name2codepoint
 import web
 import lxml.html
-try:
-    import bs4
-    version = []
-    for x in bs4.__version__.split('.'):
-        version.append(int(x))
-    if version[1] < 1 or version[2] < 2:
-        raise ImportError
-    from bs4 import BeautifulSoup as Soup
-except ImportError:
-    print('Can\'t import BeautifulSoup 4.1.2 or greater; we will only be able to get minimal FimFiction.net stats.')
-    print('Check your Python path and local packages to make sure BeautifulSoup 4 is installed.')
 from tools import deprecated
 
 cj = http.cookiejar.LWPCookieJar(os.path.join(os.path.expanduser('~/.phenny'), 'cookies.lwp'))
@@ -320,7 +309,7 @@ def get_story_title(uri):
             title = title + ' chapters'
         else:
             title = title + ' chapter'
-    title = title + " - " + views + " views" + " - " + categories + ' - ' + words
+    title = title + " - " + views + " views - " + categories + ' - ' + words + ' words'
     title = title + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "%"
     return title
 
