@@ -136,7 +136,7 @@ def gettitle(uri):
         if uri.startswith(s): 
             return phenny.reply('Sorry, access forbidden.')
     
-    youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)?v(.*)?')
+    youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)\?v(.*)')
     if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
         return get_youtube_title(uri)
     
