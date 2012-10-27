@@ -136,8 +136,8 @@ def gettitle(uri):
         if uri.startswith(s): 
             return phenny.reply('Sorry, access forbidden.')
     
-    youtube = re.compile('http(s)?://(www.)?youtu(.be|be.)(com|co.uk|ca)?/')
-    if youtube.match(uri):
+    youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)?v(.*)?')
+    if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
         return get_youtube_title(uri)
     
     fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
@@ -223,7 +223,10 @@ def query(vid):
     ''' returns the title, viewcount, time, and uploader of a Youtube video. vid is the Youtube video ID at the end of the Youtube URL.'''
     main = 'http://gdata.youtube.com/feeds/api/videos/'
     ext = '?v=2&alt=jsonc'
-    conn = urllib.request.urlopen(main + vid + ext)
+    try:
+        conn = urllib.request.urlopen(main + vid + ext)
+    except urllib.error.HTTPError:
+        return '', '', '', '', '', ''
     data = conn.read().decode() # We just a bunch of bytes and we need a string for the following operations.
     # We seem to have received a JSON response to our request. Using the standard library to decode JSON
     # just results in a string, so we're going to just not bother with it.
@@ -253,8 +256,10 @@ def get_youtube_title(uri):
         elif '&v=' in uri:
             vid = uri[uri.index('&v=')+3:uri.index('&v=') + 14]
         else:
-            raise GrumbleError('That\'s not a fucking correct Youtube URL!')
+            return None
     title, views, time, uploader, likes, ratings = query(vid)
+    if title == '':
+        return None
     if int(ratings) > 0:
         percentage = str(round((float(likes) / float(ratings)) * 100,2))
     else:
