@@ -47,16 +47,21 @@ def rule34(phenny, input):
     phenny.reply(response)
 rule34.rule = (['rule34'], r'(.*)')
 
+def get_id(link):
+    exp = '(.*)show/(?P<id>[0-9]*)/?'
+    return re.search(exp, link).group('id')
+
 def e621(phenny, input):
     '''.e621 <query> - returns the first image for any query from e621.net (all links tagged as NSFW). 
     Query must be formatted like a normal e621 search: all tags have their spaces replaced with 
     underscores.'''
-    if check_nsfw(phenny, input):
-        return
+    
     q = input.group(2)
     if not q:
         phenny.say(e621.__doc__.strip())
         return
+    if check_nsfw(phenny, input):
+        q.append('rating:safe')
     # we're going to assume users know what to search for. :S
     try:
         req = web.get("http://e621.net/post?tags={0}".format(urlquoteplus(q)))
@@ -74,11 +79,11 @@ def e621(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    page = lxml.html.fromstring(web.get(link))
-    stats = page.get_element_by_id('stats')
-    words = stats.text_content().split()
-    rating = words[words.index('Rating:') + 1]
-    if rating in ('Questionable','Explicit'):
+    id = get_id(link)
+    json_data = get('http://e621.net/post/show.json?id={0}'.format(id))
+    tags = json.loads(json_data, encoding='utf-8')
+    rating = tags['rating']
+    if rating in ('q','e'):
         response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
         phenny.reply(response)
     else:
@@ -89,12 +94,14 @@ def tpc(phenny, input):
     '''.tpc <query> - returns the image for any query from twentypercentcooler.net 
     (all links tagged as NSFW)Query must be formatted like a normal e621 search: all 
     tags have their spaces replaced with underscores.'''
-    if check_nsfw(phenny, input):
-        return
+    
     q = input.group(2)
+    
     if not q:
         phenny.say(tpc.__doc__.strip())
         return
+    if check_nsfw(phenny, input):
+        q.append('rating:safe')
     # we're going to assume users know what to search for. :S
     try:
         req = web.get("http://twentypercentcooler.net/post?tags={0}".format(urlquoteplus(q)))
@@ -112,11 +119,11 @@ def tpc(phenny, input):
         link = thumbs[0].find('a').attrib['href']
     except AttributeError:
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
-    page = lxml.html.fromstring(web.get(link))
-    stats = page.get_element_by_id('stats')
-    words = stats.text_content().split()
-    rating = words[words.index('Rating:') + 1]
-    if rating in ('Questionable','Explicit'):
+    id = get_id(link)
+    json_data = get('http://twentypercentcooler.net/post/show.json?id={0}'.format(id))
+    tags = json.loads(json_data, encoding='utf-8')
+    rating = tags['rating']
+    if rating in ('q','e'):
         response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
         phenny.reply(response)
     else:
@@ -125,8 +132,10 @@ tpc.rule = (['tpc','twentypercentcooler','ponies'], r'(.*)')
 
 def check_nsfw(phenny, input):
     if input.sender not in phenny.config.nsfw:
-        phenny.say("Oopsie, looks like I can't do that in here!")
-        phenny.msg('MemoServ', 'SEND {0} {1} in {2} tried to break the rules!'.format(phenny.config.owner, input.sender, input.nick))
+        q = input.group(2) # we can assume q has a value because we wouldn't call this function if it didn't
+        if q.lower() in ('rating:explicit','rating:questionable'):
+            # if someone is legit trying to break the rules by searching for an explicit image
+            phenny.msg('MemoServ', 'SEND {0} {2} in {1} tried to break the rules!'.format(phenny.config.owner, input.sender, input.nick))
         return True
     else: return False
 
