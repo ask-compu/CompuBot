@@ -64,7 +64,7 @@ def e621(phenny, input):
             q.replace('rating:questionable','rating:safe')
             q.replace('rating:e','rating:s')
             q.replace('rating:q','rating:s')
-        else: q.append('rating:safe')
+        else: q = q + ' rating:safe'
         sfw = True
     # we're going to assume users know what to search for. :S
     try:
