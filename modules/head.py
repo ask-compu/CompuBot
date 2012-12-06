@@ -144,6 +144,8 @@ def gettitle(uri):
     if fimfiction.match(uri):
         return get_story_title(uri)
     
+    # TODO: add e621, twentypercentcooler and derpibooru support
+
     if re.compile('http(s)?://(www.)?bad-dragon.com/').match(uri) and not check_cookie('baddragon_age_checked'):
         urllib.request.urlopen('http://bad-dragon.com/agecheck/accept')
     
@@ -301,6 +303,26 @@ def get_percentage(likes, dislikes):
         # no likes and dislikes
         percentage = '0.00'
     return percentage
+
+def ouroboros(site, uri):
+    # e621 and twentypercentcooler use the same software
+    # TODO: load tag file; compare tags, generate title
+    #load a list of unimportant tags from a file. possible regex?
+    title = ''
+    def get_id(link):
+        exp = '(.*)show/(?P<id>[0-9]*)/?'
+        return re.search(exp, link).group('id')
+    id = get_id(uri)
+    json_data = web.get('http://{0}.net/post/show.json?id={1}'.format(site, id))
+    postdata = json.loads(json_data, encoding='utf-8')
+    tags = postdata['tags']
+    #compare tags to a list of uniportant tags and drop some/most
+    return title
+
+def derpibooru(uri):
+    title = ''
+    # TODO: research derpibooru's API and get data
+    return title
 
 def get_story_title(uri):
     story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories = get_api_story_title(uri)

@@ -47,10 +47,6 @@ def rule34(phenny, input):
     phenny.reply(response)
 rule34.rule = (['rule34'], r'(.*)')
 
-def get_id(link):
-    exp = '(.*)show/(?P<id>[0-9]*)/?'
-    return re.search(exp, link).group('id')
-
 def e621(phenny, input):
     '''.e621 <query> - returns the first image for any query from e621.net (all links tagged as NSFW). 
     Query must be formatted like a normal e621 search: all tags have their spaces replaced with 
