@@ -69,9 +69,8 @@ def e621(phenny, input):
     # we're going to assume users know what to search for. :S
     try:
         #the json api is super efficient compared to loading a whole page.
-        #less than 800 bytes compared to tens or hundreds of kilobytes
-        #having less data to parse also makes everything else faster
-        req = web.get("http://e621.net/post/index.json?limit=1?tags={0}".format(urlquoteplus(q)))
+        #having less data to parse makes everything else faster
+        req = web.get("http://e621.net/post/index.json?tags={0}".format(urlquoteplus(q)))
     except (HTTPError, IOError):
         phenny.say('Oopsies, looks like the Internet is broken.')
     
@@ -118,7 +117,7 @@ def tpc(phenny, input):
         sfw = True
     # we're going to assume users know what to search for. :S
     try:
-        req = web.get("http://twentypercentcooler.net/post/index.json?limit=1?tags={0}".format(urlquoteplus(q)))
+        req = web.get("http://twentypercentcooler.net/post/index.json?tags={0}".format(urlquoteplus(q)))
     except (HTTPError, IOError):
         phenny.say('Oopsies, looks like the Internet is broken.')
     
