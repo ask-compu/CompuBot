@@ -109,10 +109,10 @@ def tpc(phenny, input):
     sfw = False
     if check_nsfw(phenny, input):
         if q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
-            q.replace('rating:explicit','rating:safe')
-            q.replace('rating:questionable','rating:safe')
-            q.replace('rating:e','rating:s')
-            q.replace('rating:q','rating:s')
+            q = q.replace('rating:explicit','rating:safe')
+            q = q.replace('rating:questionable','rating:safe')
+            q = q.replace('rating:e','rating:s')
+            q = q.replace('rating:q','rating:s')
         else: q.append('rating:safe')
         sfw = True
     # we're going to assume users know what to search for. :S
