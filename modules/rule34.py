@@ -16,11 +16,12 @@ from tools import GrumbleError
 import web
 import json
 import lxml.html
+from random import choice 
 
 def rule34(phenny, input):
     """.rule34 <query> - Rule 34: If it exists there is porn of it."""
     
-    if check_nsfw(phenny, input):
+    if check_nsfw(phenny, input.sender, None, input.nick):
         return
     q = input.group(2)
     if not q:
@@ -58,7 +59,7 @@ def e621(phenny, input):
         phenny.say(e621.__doc__.strip())
         return
     sfw = False
-    if check_nsfw(phenny, input):
+    if check_nsfw(phenny, input.sender, q, input.nick):
         if q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
             q = q.replace('rating:explicit','rating:safe')
             q = q.replace('rating:questionable','rating:safe')
@@ -75,13 +76,13 @@ def e621(phenny, input):
         phenny.say('Oopsies, looks like the Internet is broken.')
     
     results = json.loads(req, encoding='utf-8')
-
+    
     if len(results) <= 0:
         phenny.reply("Huh. e621 is missing {0}".format(q))
         return
     
     try:
-        link = 'http://e621.net/post/show/{0}/'.format(results[0]['id'])
+        link = 'http://e621.net/post/show/{0}/'.format(choice(results)['id'])
     except AttributeError:
         phenny.say('Oopsies, looks like the Internet is broken.')
 
@@ -107,7 +108,7 @@ def tpc(phenny, input):
         phenny.say(tpc.__doc__.strip())
         return
     sfw = False
-    if check_nsfw(phenny, input):
+    if check_nsfw(phenny, input.sender, q, input.nick):
         if q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
             q = q.replace('rating:explicit','rating:safe')
             q = q.replace('rating:questionable','rating:safe')
@@ -128,7 +129,7 @@ def tpc(phenny, input):
         return
     
     try:
-        link = 'http://twentypercentcooler.net/post/show/{0}/'.format(results[0]['id'])
+        link = 'http://twentypercentcooler.net/post/show/{0}/'.format(choice(results)['id'])
     except AttributeError:
         phenny.say('Oopsies, looks like the Internet is broken.')
 
@@ -141,12 +142,15 @@ def tpc(phenny, input):
         phenny.reply(link)
 tpc.rule = (['tpc','twentypercentcooler','ponies'], r'(.*)')
 
-def check_nsfw(phenny, input):
-    if input.sender not in phenny.config.nsfw:
-        q = input.group(2) # we can assume q has a value because we wouldn't call this function if it didn't
+def check_nsfw(phenny, sender, q, nick):
+    '''return true if this channel is SFW; false if NSFW'''
+    if not q:
+        phenny.msg('MemoServ', 'SEND {0} {2} in {1} tried to break the rules!'.format(phenny.config.owner, sender, nick)) 
+        return True # rule34.xxx is always NSFW, checking the rating is pointless
+    if sender not in phenny.config.nsfw:
         if q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
             # if someone is legit trying to break the rules by searching for an explicit image
-            phenny.msg('MemoServ', 'SEND {0} {2} in {1} tried to break the rules!'.format(phenny.config.owner, input.sender, input.nick))
+            phenny.msg('MemoServ', 'SEND {0} {2} in {1} tried to break the rules!'.format(phenny.config.owner, sender, nick))
         return True
     else: return False
 
