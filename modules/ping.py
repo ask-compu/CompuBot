@@ -96,8 +96,8 @@ smiles.rule = r'(\x01ACTION)? (?i)smiles (?i)(at|with|to|because of) (?i)(I|Bli|
 
 #TODO: create a "frowns" function with rule for "frownie" smilies and /me frowns.
 def frowns(phenny, input):
-    # we're going to have a one-in-twenty of Pinkie trying to cheer you up
-    if random.randint(1,2) == 2:
+    # we're going to have a one-in-ten chance of Pinkie trying to cheer you up
+    if random.randint(1,10) == 10:
         frownsresponse = random.choice(('Aww, don\'t be sad, ' + input.nick + ', I\'m here!','\x01ACTION hugs ' + input.nick + '\x01', 'Cheer up, ' + input.nick + ', all of your friends are here!'))
         phenny.say(frownsresponse)
 frowns.rule = r'(:<|:C|D:)|(\x01ACTION (?i)frowns(.*))|:\('
