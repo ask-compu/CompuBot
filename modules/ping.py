@@ -94,13 +94,12 @@ def smiles(phenny, input):
     phenny.say(smilesresponse)
 smiles.rule = r'(\x01ACTION)? (?i)smiles (?i)(at|with|to|because of) (?i)(I|Bli|Pi)nkie(Pie)?(Bot)?'
 
-#TODO: create a "frowns" function with rule for "frownie" smilies and /me frowns.
 def frowns(phenny, input):
     # we're going to have a one-in-ten chance of Pinkie trying to cheer you up
     if random.randint(1,10) == 10:
         frownsresponse = random.choice(('Aww, don\'t be sad, ' + input.nick + ', I\'m here!','\x01ACTION hugs ' + input.nick + '\x01', 'Cheer up, ' + input.nick + ', all of your friends are here!'))
         phenny.say(frownsresponse)
-frowns.rule = r'(:<|:C|D:)|(\x01ACTION (?i)frowns(.*))|:\('
+frowns.rule = r'(:<|:C|D:|:x|:X)|(\x01ACTION (?i)frowns(.*))|:\(|:\'\('
 
 def thanks(phenny, input):
     thanksresponse = random.choice(('No problemo', 'My pleasure', 'Hahah, you\'re welcome','I\'m always there for my friends'))
@@ -108,11 +107,15 @@ def thanks(phenny, input):
     phenny.say(thanksresponse + thankspuncuation)
 thanks.rule = r'(?i)(Thank( you|s)?(,)? (I|Bli|Pi)nkie(Pie)?(Bot)?)'
 
+def pokes(phenny, input):
+    pokesresponse = ('Yes?', 'Hiya!', 'Hey, ' + input.nick + '!', 'Do you need anything from me?', 'What\'s up?')
+    phenny.say(random.choice(pokesresponse))
+pokes.rule r'(\x01ACTION)? (?i)pokes (?i)(I|Bli|Pi)nkie(Pie)?(Bot)?'
+
 # TODO: add these actions and appropriate responses
 '''
 Actions to add: 
 (first to four stars get written, and any action with three or more at that time will be written as well)
-* pokes ****
 * cupcakes *
 * kicks *
 * good night *
