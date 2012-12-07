@@ -99,7 +99,8 @@ def frowns(phenny, input):
     # we're going to have a one-in-twenty of Pinkie trying to cheer you up
     if random.randint(1,2) == 2:
         frownsresponse = random.choice(('Aww, don\'t be sad, ' + input.nick + ', I\'m here!','\x01ACTION hugs ' + input.nick, 'How about you turn that frown upside down?', 'Cheer up, ' + input.nick + ', all of your friends are here!'))
-frowns.rule = r'(:<|:\(|:C|D:)|(\x01ACTION (?i)frowns(.*))'
+        phenny.say(frownsresponse)
+frowns.rule = r'(:<|:C|D:)|(\x01ACTION (?i)frowns(.*))'
 
 def thanks(phenny, input):
     thanksresponse = random.choice(('No problemo', 'My pleasure', 'Hahah, you\'re welcome','I\'m always there for my friends'))
@@ -119,10 +120,8 @@ Actions to add:
 * hoofshake **
 * flank-smack *
 * how are you *
-* wallows on *
 * gives a massage to *
 * fondles/molests/gropes **
-* random hugs (triggered via private message) 
 '''
 
 # action string '\x01ACTION\x01'
