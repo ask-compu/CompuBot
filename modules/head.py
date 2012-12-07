@@ -226,23 +226,23 @@ def query(vid):
     main = 'http://gdata.youtube.com/feeds/api/videos/'
     ext = '?v=2&alt=jsonc'
     try:
-        conn = urllib.request.urlopen(main + vid + ext)
-    except urllib.error.HTTPError:
+        req = web.get(main + vid + ext)
+    except (urllib.error.HTTPError, IOError):
         return '', '', '', '', '', ''
-    data = conn.read().decode() # We just a bunch of bytes and we need a string for the following operations.
-    # We seem to have received a JSON response to our request. Using the standard library to decode JSON
-    # just results in a string, so we're going to just not bother with it.
-    title = data.split('"title":')[1].split(',')[0].strip('"')
-    uploader = data.split('"uploader":')[1].split(',')[0].strip('"')
-    viewcount = data.split('"viewCount":')[1].split(',')[0]
-    duration = data.split('"duration":')[1].split(',')[0]
+    data = json.loads(req, encoding='utf-8')
+    data = data['data']
+    
+    title = data['title']
+    uploader = data['uploader']
+    viewcount = str(data['viewCount'])
+    duration = str(data['duration'])
     # a video with no likes results in IndexErrors (assuming true for ratingCount, too)
     try:
-        likes = data.split('"likeCount":')[1].split(',')[0].strip('"')
+        likes = str(data['likeCount'])
     except IndexError:
         likes = '0'
     try:
-        ratings = data.split('"ratingCount":')[1].split(',')[0]
+        ratings = str(data['ratingCount'])
     except IndexError:
         ratings = '0'
     time = str(timedelta(seconds=int(duration)))
@@ -251,7 +251,7 @@ def query(vid):
 def get_youtube_title(uri):
     vid = None
     if 'youtu.be' in uri:
-        vid = uri[uri.rindex('/'):]
+        vid = uri[uri.rindex('be/')+3:uri.rindex('be/')+14]
     else:
         if '?v=' in uri:
             vid = uri[uri.index('?v=')+3:uri.index('?v=') + 14]
