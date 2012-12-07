@@ -37,8 +37,7 @@ def part(phenny, input):
         return
     if input.admin: 
         # TODO: add optional arguments for a part message
-        phenny.reply(input.group(2))
-        phenny.write(['PART'], input.group(2))
+        phenny.write(['PART'], input.group(2).strip())
 part.commands = ['part']
 part.priority = 'high'
 part.example = '.part #example'
