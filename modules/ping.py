@@ -110,7 +110,7 @@ thanks.rule = r'(?i)(Thank( you|s)?(,)? (I|Bli|Pi)nkie(Pie)?(Bot)?)'
 def pokes(phenny, input):
     pokesresponse = ('Yes?', 'Hiya!', 'Hey, ' + input.nick + '!', 'Do you need anything from me?', 'What\'s up?')
     phenny.say(random.choice(pokesresponse))
-pokes.rule r'(\x01ACTION)? (?i)pokes (?i)(I|Bli|Pi)nkie(Pie)?(Bot)?'
+pokes.rule = r'(\x01ACTION)? (?i)pokes (?i)(I|Bli|Pi)nkie(Pie)?(Bot)?'
 
 # TODO: add these actions and appropriate responses
 '''
