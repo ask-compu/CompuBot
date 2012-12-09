@@ -234,16 +234,19 @@ def query(vid):
     
     title = data['title']
     uploader = data['uploader']
-    viewcount = str(data['viewCount'])
+    try:
+        viewcount = str(data['viewCount'])
+    except (KeyError, IndexError):
+        viewcount = '0'
     duration = str(data['duration'])
     # a video with no likes results in IndexErrors (assuming true for ratingCount, too)
     try:
         likes = str(data['likeCount'])
-    except IndexError:
+    except (KeyError, IndexError):
         likes = '0'
     try:
         ratings = str(data['ratingCount'])
-    except IndexError:
+    except (KeyError, IndexError):
         ratings = '0'
     time = str(timedelta(seconds=int(duration)))
     return title, viewcount, time, uploader, likes, ratings
