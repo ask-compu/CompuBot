@@ -1,0 +1,1 @@
+ignore_tags = ['artist:(\S*)','bed','blanket','fur','blue(\S*)','candle','safe','questionable','explicit','duo','equine','female','feral','friendship_is_magic','horse','horn','my_little_pony','plain_background','two_tone_hair','unicorn','white(\S*)','black(\S*)','looking_at_viewer','[0-9][0-9][0-9][0-9]']
