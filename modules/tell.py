@@ -122,13 +122,8 @@ def message(phenny, input):
         elif tellee.lower().startswith(remkey.rstrip('*:')): 
             reminders.extend(getReminders(phenny, channel, remkey, tellee))
 
-    for line in reminders[:maximum]: 
-        phenny.say(line)
-
-    if reminders[maximum:]: 
-        phenny.say('Further messages sent privately')
-        for line in reminders[maximum:]: 
-            phenny.msg(tellee, line)
+    for line in reminders: 
+        phenny.msg(tellee, line)
 
     if len(list(phenny.reminders.keys())) != remkeys: 
         dumpReminders(phenny.tell_filename, phenny.reminders) # @@ tell
@@ -138,7 +133,7 @@ message.thread = False
 
 def messageAlert(phenny, input):
     if (input.nick.lower() in list(phenny.reminders.keys())):
-        phenny.say(input.nick + ': You have messages.')
+        phenny.say(input.nick + ': You have messages. Say anything to have them sent privately.')
 messageAlert.event = 'JOIN'
 messageAlert.rule = r'.*'
 messageAlert.priority = 'low'
