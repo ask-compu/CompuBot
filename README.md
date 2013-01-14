@@ -13,15 +13,7 @@ core modules have been ported.
 Requirements
 ------------
 
-pinkie runs on a Ubuntu 12.04 LTS server and therefore doesn't get tested on other platforms. You will need the latest version of Python 3.2 (which can be installed with sudo apt-get install python3-all python3-all-dev). If you are going to use the rule34.py paacke, you will also need the build-essential pseudo-package and the build dependancies for the python-lxml package (which can be installed with sudo apt-get install build-esstential && sudo apt-get build-dep python-lxml). The distrubtion provided python-lxml package does not provide the lxml.html module required by rule34.py. Installation instructions for lxml can be found at their [website](http://lxml.de/installation.html).
-
-To get a fully-running pinkie, you need to run
-    `sudo apt-get install python3-all python3-all-dev build-essential`
-    `sudo apt-get build-dep python-lxml`
-Download the latest stable version of lxml and install it with
-    `python3 setup.py build`
-    `sudo python3 setup.py install`
-And download and install the latest version of [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/#Download). Version 4.1.2 or later is required, so the python-beautifulsoup4 package is too old. 
+pinkie runs on a Ubuntu 12.04 LTS server and therefore doesn't get tested on other platforms. You will need the latest version of Python 3.2 (which can be installed with `sudo apt-get install python3-all python3-all-dev`). We thankfully no longer require the use of lxml or BeautifulSoup thanks to the JSON APIs of several sites. 
 
 Installation
 ------------
