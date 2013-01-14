@@ -340,7 +340,7 @@ def ouroboros(site, uri):
     try:
         boru = imp.load_source('boru',tag_file)
     except Exception as e:
-        print("Error loading ignore tags: %s (in head.py)"%(e))
+        print("Error loading ignore tags: {0} (in head.py)".format(e))
         filtered = tags
     else:
         filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
