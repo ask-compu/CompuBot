@@ -15,7 +15,7 @@ from urllib.error import HTTPError
 from tools import GrumbleError
 import web
 import json
-import lxml.html
+import xml.etree.ElementTree as ET # parsing xml not html
 from random import choice 
 
 def rule34(phenny, input):
@@ -29,28 +29,27 @@ def rule34(phenny, input):
         return
 
     try:
-        req = web.get("http://rule34.xxx/index.php?page=post&s=list&tags={0}".format(urlquote(q)))
+        req = web.get('http://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={0}'.format(urlquote(q))) #Lets use XML!
     except (HTTPError, IOError):
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
 
-    doc = lxml.html.fromstring(req)
-    doc.make_links_absolute('http://rule34.xxx/')
-    thumbs = doc.find_class('thumb')
-    if len(thumbs) <= 0:
-        phenny.reply("You just broke Rule 34! Better start uploading...")
+    results = ET.fromstring(req)
+
+    if len(results) <= 0:
+        phenny.reply("Huh. rule34.xxx is missing {0}".format(q))
         return
 
     try:
-        link = thumbs[0].find('a').attrib['href']
+        link = 'http://rule34.xxx/index.php?page=post&s=view&id={0}'.format(choice(results).attrib['id'])
     except AttributeError:
-        raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
+        raise GrumbleError("THE INTERNET IS BROKEN. Please try again later.")
 
     response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
     phenny.reply(response)
 rule34.rule = (['rule34'], r'(.*)')
 
 def e621(phenny, input):
-    '''.e621 <query> - returns the first image for any query from e621.net (all links tagged as NSFW). 
+    '''.e621 <query> - returns a random image for any query from e621.net (all links tagged as NSFW). 
     Query must be formatted like a normal e621 search: all tags have their spaces replaced with 
     underscores.'''
     
@@ -58,42 +57,13 @@ def e621(phenny, input):
     if not q:
         phenny.say(e621.__doc__.strip())
         return
-    sfw = False
-    if check_nsfw(phenny, input.sender, q, input.nick):
-        if q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
-            q = q.replace('rating:explicit','rating:safe')
-            q = q.replace('rating:questionable','rating:safe')
-            q = q.replace('rating:e','rating:s')
-            q = q.replace('rating:q','rating:s')
-        else: q = q + ' rating:safe'
-        sfw = True
-    # we're going to assume users know what to search for. :S
-    try:
-        #the json api is super efficient compared to loading a whole page.
-        #having less data to parse makes everything else faster
-        req = web.get("http://e621.net/post/index.json?tags={0}".format(urlquoteplus(q)))
-    except (HTTPError, IOError):
-        phenny.say('Oopsies, looks like the Internet is broken.')
-    
-    results = json.loads(req, encoding='utf-8')
-    
-    if len(results) <= 0:
-        phenny.reply("Huh. e621 is missing {0}".format(q))
-        return
-    
-    try:
-        link = 'http://e621.net/post/show/{0}/'.format(choice(results)['id'])
-    except AttributeError:
-        phenny.say('Oopsies, looks like the Internet is broken.')
+    sfw, q = check_rating(phenny, input.sender, q, input.nick)
 
-    tags = results[0]
-    rating = tags['rating']
-    if rating in ('q','e'):
-        response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
-        phenny.reply(response)
-    else:
+    # we're going to assume users know what to search for. :S
+    link = get_boru(phenny,'e621',q)
+    if link :
         if sfw:
-            link = link.replace('621','926')
+            link = link.replace('e621','e926') #added e in case 621 is in the id
         phenny.reply(link)
 e621.rule = (['e621'], r'(.*)')
 
@@ -107,48 +77,59 @@ def tpc(phenny, input):
     if not q:
         phenny.say(tpc.__doc__.strip())
         return
-    sfw = False
-    if check_nsfw(phenny, input.sender, q, input.nick):
-        if q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
-            q = q.replace('rating:explicit','rating:safe')
-            q = q.replace('rating:questionable','rating:safe')
-            q = q.replace('rating:e','rating:s')
-            q = q.replace('rating:q','rating:s')
-        else: q.append('rating:safe')
-        sfw = True
+    sfw, q = check_rating(phenny, input.sender, q, input.nick)
+
     # we're going to assume users know what to search for. :S
+    link = get_boru(phenny,'twentypercentcooler',q)
+    if link :
+        phenny.reply(link)
+
+tpc.rule = (['tpc','twentypercentcooler','ponies'], r'(.*)')
+
+##
+# Helper Functions
+##
+def get_boru(phenny, site, tags):
     try:
-        req = web.get("http://twentypercentcooler.net/post/index.json?tags={0}".format(urlquoteplus(q)))
+        req = web.get("http://{0}.net/post/index.json?tags={1}".format(site,urlquoteplus(tags)))
     except (HTTPError, IOError):
         phenny.say('Oopsies, looks like the Internet is broken.')
     
     results = json.loads(req, encoding='utf-8')
 
     if len(results) <= 0:
-        phenny.reply("Huh. twentypercentcooler is missing {0}".format(q))
+        phenny.reply("Huh. {0} is missing {1}".format(site,tags))
         return
     
     try:
-        link = 'http://twentypercentcooler.net/post/show/{0}/'.format(choice(results)['id'])
+        link = 'http://{0}.net/post/show/{1}/'.format(site,choice(results)['id'])
     except AttributeError:
         phenny.say('Oopsies, looks like the Internet is broken.')
 
     tags = results[0]
     rating = tags['rating']
     if rating in ('q','e'):
-        response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
-        phenny.reply(response)
-    else:
-        phenny.reply(link)
-tpc.rule = (['tpc','twentypercentcooler','ponies'], r'(.*)')
+        link = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
+    return link
+
+def check_rating(phenny, sender, q, nick):
+    sfw = False
+    if check_nsfw(phenny, sender, q, nick):
+        if q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
+            q = q.replace('rating:explicit','rating:safe')
+            q = q.replace('rating:questionable','rating:safe')
+            q = q.replace('rating:e','rating:s')
+            q = q.replace('rating:q','rating:s')
+        else: 
+            q = q + 'rating:safe'
+        sfw = True
+    return sfw, q
+
 
 def check_nsfw(phenny, sender, q, nick):
     '''return true if this channel is SFW; false if NSFW'''
-    if not q:
-        phenny.msg('MemoServ', 'SEND {0} {2} in {1} tried to break the rules!'.format(phenny.config.owner, sender, nick)) 
-        return True # rule34.xxx is always NSFW, checking the rating is pointless
     if sender not in phenny.config.nsfw:
-        if q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
+        if not q or q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
             # if someone is legit trying to break the rules by searching for an explicit image
             phenny.msg('MemoServ', 'SEND {0} {2} in {1} tried to break the rules!'.format(phenny.config.owner, sender, nick))
         return True

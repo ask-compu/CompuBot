@@ -9,7 +9,7 @@ http://inamidst.com/phenny/
 Modified by Jordan Kinsley <jordan@jordantkinsley.org>
 '''
 
-import re, os.path, json
+import re, os.path, json, imp
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -149,6 +149,16 @@ def gettitle(uri):
     if re.compile('http(s)?://(www.)?bad-dragon.com/').match(uri) and not check_cookie('baddragon_age_checked'):
         urllib.request.urlopen('http://bad-dragon.com/agecheck/accept')
     
+    if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
+        return ouroboros('e621',uri)
+
+    if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
+        return ouroboros('twentypercentcooler',uri)
+
+    if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
+        return derpibooru(uri)
+
+
     try: 
         redirects = 0
         while True: 
@@ -319,12 +329,60 @@ def ouroboros(site, uri):
     json_data = web.get('http://{0}.net/post/show.json?id={1}'.format(site, id))
     postdata = json.loads(json_data, encoding='utf-8')
     tags = postdata['tags']
+
+    ratings = { 's' : 'Safe', 'q' : 'Questionable', 'e' : 'Explicit' }
+    if postdata['rating'] in ratings:
+        rating = ratings[postdata['rating']]
+    else:
+        rating = 'Unknown'
     #compare tags to a list of uniportant tags and drop some/most
+    tag_file = os.path.expanduser('~/.phenny/boru.py')
+    try:
+        boru = imp.load_source('boru',tag_file)
+    except Exception as e:
+        print("Error loading ignore tags: %s (in head.py)"%(e))
+        filtered = tags
+    else:
+        filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
+        filtered = re.sub(" +"," ",filtered).strip()
+    title = re.sub('_'," ",filtered)
+    title = '{0} {1}'.format(rating.capitalize(),title) #@TODO Find a way to get artist
     return title
 
 def derpibooru(uri):
     title = ''
     # TODO: research derpibooru's API and get data
+    def get_id(link):
+        exp = '(.*)derpiboo((.ru)|(ru.org))(/images)?/(?P<id>[0-9]*)/?'
+        return re.search(exp, link).group('id')
+    id = get_id(uri)
+    json_data = web.get('http://derpiboo.ru/{0}.json'.format(id))
+    postdata = json.loads(json_data, encoding='utf-8')
+    tags = postdata['tags']
+    
+    exp = '(.*)artist:(?P<artist>[^,]+)'
+    if re.search(exp, tags):
+        artist = ' by '+re.search(exp, tags).group('artist')
+    else:
+        artist = ''
+    exp = '(.*)(?P<rating>(explicit|questionable|safe))' # rating is in tags
+    if re.search(exp, tags):
+        rating = re.search(exp, tags).group('rating')
+    else:
+        rating = 'Unknown'
+    tags = re.sub("\\b\ \\b","_",tags) # convert into ouroboru type tags
+    tags = re.sub("\\b,\ \\b"," ",tags) # remove commas separating tags
+    tag_file = os.path.expanduser('~/.phenny/boru.py')
+    try:
+        boru = imp.load_source('boru',tag_file)
+    except Exception as e:
+        print("Error loading ignore tags: %s (in head.py)" %(e))
+        filtered = tags
+    else:
+        filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags) 
+        filtered = re.sub(" +"," ",filtered).strip()
+    title = re.sub('_'," ",filtered)
+    title = '{0} {1}'.format(rating.capitalize(),title,artist.capitalize())
     return title
 
 def get_story_title(uri):
