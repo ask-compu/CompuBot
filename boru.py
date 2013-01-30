@@ -45,5 +45,9 @@ ignore_tags = [
 	'presenting_(\S*)',
 	'veins',
 	'(\S*)_fur',
-	'cutie_mark'
+	'cutie_mark',
+	'tongue',
+	'spread_legs',
+	'spreading',
+	'raised_tail'
 ]
