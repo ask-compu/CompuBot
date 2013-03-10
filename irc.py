@@ -7,7 +7,7 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
-import sys, re, time, traceback, errno, os
+import sys, re, time, traceback, errno
 import socket, asyncore, asynchat
 import ssl
 
@@ -113,7 +113,7 @@ class Bot(asynchat.async_chat):
                 initiate_connect(host, port, use_ssl, ipv6)
             else:
                 if self.verbose:
-                    print(os.strerror(socket.error.errno),file=sys.stderr)
+                    print(socket.error,file=sys.stderr)
 
         try: asyncore.loop()
         except KeyboardInterrupt: 
