@@ -98,7 +98,23 @@ class Bot(asynchat.async_chat):
         else:
              af = socket.AF_INET
         self.create_socket(af, socket.SOCK_STREAM, use_ssl)
-        self.connect((host, port))
+        try: 
+            self.connect((host, port))
+        except socket.error:
+            if socket.error.errno = errno.ETIMEDOUT: 
+                if self.verbose:
+                    print("Connection timed out, retrying in 10 seconds", file=sys.stderr)
+                time.sleep(10.0)
+                initiate_connect(host, port, use_ssl, ipv6)
+            else if socket.error.errno = errno.ECONNRESET:
+                if self.verbose:
+                    print("Connection reset by peer, retrying in 10 seconds", file=sys.stderr)
+                time.sleep(10.0)
+                initiate_connect(host, port, use_ssl, ipv6)
+            else:
+                if self.verbose:
+                    print(os.strerror(socket.error.errno),file=sys.stderr)
+
         try: asyncore.loop()
         except KeyboardInterrupt: 
             sys.exit()
