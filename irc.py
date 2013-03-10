@@ -7,7 +7,7 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
-import sys, re, time, traceback, errno
+import sys, re, time, traceback, errno, os
 import socket, asyncore, asynchat
 import ssl
 
