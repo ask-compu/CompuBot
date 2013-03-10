@@ -112,9 +112,7 @@ class Bot(asynchat.async_chat):
                 time.sleep(10.0)
                 initiate_connect(host, port, use_ssl, ipv6)
             else:
-                if self.verbose:
-                    print(socket.error,file=sys.stderr)
-
+                raise
         try: asyncore.loop()
         except KeyboardInterrupt: 
             sys.exit()
