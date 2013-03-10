@@ -122,6 +122,7 @@ class Bot(asynchat.async_chat):
     def create_socket(self, family, type, use_ssl=False):
         self.family_and_type = family, type
         sock = socket.socket(family, type)
+        sock.settimeout(120.0)
         if use_ssl:
             sock = ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1,
                     cert_reqs=ssl.CERT_OPTIONAL, ca_certs=self.ca_certs)
