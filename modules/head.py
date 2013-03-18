@@ -181,7 +181,11 @@ def gettitle(uri):
         except: 
             return None
 
-        if not (('/html' in mtype) or ('/xhtml' in mtype)): 
+        try:
+            # Occasionally throws type errors if a CSS file is given. 
+            if not (('/html' in mtype) or ('/xhtml' in mtype)): 
+                return None
+        except:
             return None
 
         bytes = web.get(uri)
