@@ -30,7 +30,6 @@ head.py
 =======
 
 Another module that has been extended for FiM-specific sites. If it detects a FimFiction.net story link (a link that looks like `http://fimfiction.net/story/<story-id>/<story-name>`), it skips the normal page title code and reads the info from the story page, gathering the story name, author, likes, dislikes, and, calculated from the likes and dislikes, the overall percentage rating.
-At this time, because of how lxml.html functions or how the FimFiction.net pages are written, unless BeautifulSoup 4.1.2 or later is installed, we cannot get the categories, views, chapter count, word count from the page. 
 Also, some code submitted by Polarfire (Polarfire on irc.canternet.org/#techponies) allows for similar information from Youtube links, whether they be the short youtu.be/<vid> style or the regular youtube.com/watch?v=<vid> style (should be able to find the video ID in the other URL decorators).
 Information gathered includes video title, view count, duration, and uploader. May be extended to include likes, dislikes, and percentage.
 Code submitted by Kazunekit (Kazune on irc.canternet.org/#fic) allows for greater use of imageboards with some code refactoring and additional titling features. 
@@ -45,3 +44,8 @@ admin.py
 ========
 
 Code was added in the admin.py module to allow for a server-side ignore on the Canternet network using the /SILENCE command. This code is largely untested and may not function correctly. Additional testing is needed. Current bugs: Unknown.
+
+info.py
+=======
+
+Made changes to bring the info up to date with Pinkie's current status. 
