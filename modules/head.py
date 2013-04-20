@@ -136,6 +136,9 @@ def gettitle(uri):
         if uri.startswith(s): 
             return phenny.reply('Sorry, access forbidden.')
     
+    if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
+        return None
+
     youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)\?v(.*)')
     if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
         return get_youtube_title(uri)
@@ -144,8 +147,6 @@ def gettitle(uri):
     if fimfiction.match(uri):
         return get_story_title(uri)
     
-    # TODO: add e621, twentypercentcooler and derpibooru support
-
     if re.compile('http(s)?://(www.)?bad-dragon.com/').match(uri) and not check_cookie('baddragon_age_checked'):
         urllib.request.urlopen('http://bad-dragon.com/agecheck/accept')
     
