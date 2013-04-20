@@ -112,9 +112,32 @@ def snarfuri(phenny, input):
     if re.match(r'(?i)' + phenny.config.prefix + titlecommands, input.group()):
         return
     uri = input.group(1)
-    title = gettitle(uri)
-    if title:
-        phenny.msg(input.sender, '[ ' + title + ' ]')
+    try:
+        if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
+        return None
+
+        youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)\?v(.*)')
+        if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
+            return get_youtube_title(uri)
+
+        fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
+        if fimfiction.match(uri):
+            return get_story_title(uri)
+
+        if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
+            return ouroboros('e621',uri)
+
+        if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
+            return ouroboros('twentypercentcooler',uri)
+
+        if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
+            return derpibooru(uri)
+
+        title = gettitle(uri)
+        if title:
+            phenny.msg(input.sender, '[ ' + title + ' ]')
+    except http.client.HTTPException:
+        return
 snarfuri.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
 snarfuri.priority = 'low'
 
@@ -135,30 +158,9 @@ def gettitle(uri):
     for s in localhost: 
         if uri.startswith(s): 
             return phenny.reply('Sorry, access forbidden.')
-    
-    if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
-        return None
 
-    youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)\?v(.*)')
-    if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
-        return get_youtube_title(uri)
-    
-    fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
-    if fimfiction.match(uri):
-        return get_story_title(uri)
-    
     if re.compile('http(s)?://(www.)?bad-dragon.com/').match(uri) and not check_cookie('baddragon_age_checked'):
         urllib.request.urlopen('http://bad-dragon.com/agecheck/accept')
-    
-    if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
-        return ouroboros('e621',uri)
-
-    if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
-        return ouroboros('twentypercentcooler',uri)
-
-    if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
-        return derpibooru(uri)
-
 
     try: 
         redirects = 0
@@ -351,7 +353,7 @@ def ouroboros(site, uri):
         filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
         filtered = re.sub(" +"," ",filtered).strip()
     title = re.sub('_'," ",filtered)
-    title = '{0} {1}'.format(rating.capitalize(),title) #@TODO Find a way to get artist
+    title = '{0} {1}'.format(rating.capitalize(),title)
     return title
 
 def derpibooru(uri):
@@ -361,6 +363,8 @@ def derpibooru(uri):
         exp = '(.*)derpiboo((.ru)|(ru.org))(/images)?/(?P<id>[0-9]*)/?'
         return re.search(exp, link).group('id')
     id = get_id(uri)
+    if not id:
+        return gettitle(uri)
     json_data = web.get('http://derpiboo.ru/{0}.json'.format(id))
     postdata = json.loads(json_data, encoding='utf-8')
     tags = postdata['tags']
