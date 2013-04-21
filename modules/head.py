@@ -133,8 +133,10 @@ def snarfuri(phenny, input):
         if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
             title = derpibooru(uri)
 
-        title = gettitle(uri)
         if title:
+            phenny.msg(input.sender, '[ ' + title + ' ]')
+        else:
+            title = gettitle(uri)
             phenny.msg(input.sender, '[ ' + title + ' ]')
     except http.client.HTTPException:
         return
@@ -270,7 +272,7 @@ def query(vid):
 
 def get_youtube_title(uri):
     vid = None
-    if 'youtu.be' in uri:
+    if 'youtu.be/' in uri:
         vid = uri[uri.rindex('be/')+3:uri.rindex('be/')+14]
     else:
         if '?v=' in uri:
