@@ -114,24 +114,24 @@ def snarfuri(phenny, input):
     uri = input.group(1)
     try:
         if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
-        return None
+            return None
 
         youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)\?v(.*)')
         if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
-            return get_youtube_title(uri)
+            title = get_youtube_title(uri)
 
         fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
         if fimfiction.match(uri):
-            return get_story_title(uri)
+            title = get_story_title(uri)
 
         if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
-            return ouroboros('e621',uri)
+            title = ouroboros('e621',uri)
 
         if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
-            return ouroboros('twentypercentcooler',uri)
+            title = ouroboros('twentypercentcooler',uri)
 
         if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
-            return derpibooru(uri)
+            title = derpibooru(uri)
 
         title = gettitle(uri)
         if title:
