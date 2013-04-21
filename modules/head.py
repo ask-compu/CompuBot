@@ -115,6 +115,8 @@ def snarfuri(phenny, input):
     try:
         if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
             return None
+        
+        title = None
 
         youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)\?v(.*)')
         if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
