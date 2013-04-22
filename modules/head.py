@@ -139,7 +139,7 @@ def snarfuri(phenny, input):
             phenny.msg(input.sender, '[ ' + title + ' ]')
         else:
             title = gettitle(uri)
-            phenny.msg(input.sender, '[ ' + title + ' ]')
+            if title: phenny.msg(input.sender, '[ ' + title + ' ]')
     except http.client.HTTPException:
         return
 snarfuri.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
