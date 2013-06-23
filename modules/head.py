@@ -274,15 +274,16 @@ def query(vid):
 
 def get_youtube_title(uri):
     vid = None
-    if 'youtu.be/' in uri:
-        vid = uri[uri.rindex('be/')+3:uri.rindex('be/')+14]
-    else:
+    if 'youtu.be/' not in uri:
         if '?v=' in uri:
             vid = uri[uri.index('?v=')+3:uri.index('?v=') + 14]
         elif '&v=' in uri:
             vid = uri[uri.index('&v=')+3:uri.index('&v=') + 14]
         else:
             return None
+    else:
+        vid = uri[uri.rindex('be/')+3:uri.rindex('be/')+14]
+
     title, views, time, uploader, likes, ratings = query(vid)
     if title == '':
         return None

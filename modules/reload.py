@@ -10,6 +10,8 @@ http://inamidst.com/phenny/
 import sys, os.path, time, imp
 import irc
 
+home = os.getcwd()
+
 def f_reload(phenny, input): 
     """Reloads a module, for use by admins only.""" 
     if not input.admin: return
@@ -24,11 +26,23 @@ def f_reload(phenny, input):
         phenny.setup()
         return phenny.reply('done')
 
+    path = None
+
     if name not in sys.modules: 
-        return phenny.reply('%s: no such module!' % name)
+        filename = os.path.join(home, 'modules', name)
+        filenamepy = os.path.join(home, 'modules', name+'.py')
+        if os.path.isfile(filename):
+            phenny.reply('%s: found new module!' % name)
+            path = filename
+        elif os.path.isfile(filenamepy):
+            phenny.reply('%s: found new module!' % name)
+            path = filenamepy
+        else:
+            return phenny.reply('%s: no such module!' % name)
 
     # Thanks to moot for prodding me on this
-    path = sys.modules[name].__file__
+    if not path:
+        path = sys.modules[name].__file__
     if path.endswith('.pyc') or path.endswith('.pyo'): 
         path = path[:-1]
     if not os.path.isfile(path): 
@@ -50,6 +64,27 @@ f_reload.name = 'reload'
 f_reload.rule = ('$nick', ['reload'], r'(\S+)?')
 f_reload.priority = 'high'
 f_reload.thread = False
+
+def c_reload(phenny, input):
+    """Reloads config, for use by admins only."""
+    if not input.admin: return
+
+    attr = input.group(2)
+    if attr == phenny.config.owner: 
+        return phenny.reply('What?')
+        
+    name = os.path.basename(phenny.config.filename).split('.')[0] + '_config'
+    module = imp.load_source(name, phenny.config.filename)
+    if not hasattr(module,attr):
+        return phenny.say("I don't see %s in config"%(attr))
+    
+    setattr(phenny.config,attr,getattr(module,attr))
+    phenny.say("%s loaded"%(attr))
+        
+c_reload.name = 'creload'
+c_reload.rule = ('$nick', ['creload'], r'(\S+)?')
+c_reload.priority = 'high'
+c_reload.thread = False
 
 if __name__ == '__main__': 
     print(__doc__.strip())
