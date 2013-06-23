@@ -353,17 +353,17 @@ setup.thread = False
 
 
 def on_join(phenny, input):
-	if input not in phenny.config.noparty:
-		nick = PartyGoer(phenny, input.nick, input.user, input.host)
-		if nick.method == 'host': #found by hostname only, that doesn't say much
-			phenny.say("Have I seen you before, %s?"%(input.nick))
-			phenny.say("Oh! Oh! Are you %s?"%(nick.data['nick']))
-			return
-		if nick.was_in(input) :
-			return
-		else:
-			party(phenny, nick)
-			nick.party_done()
+    if input not in phenny.config.noparty:
+        nick = PartyGoer(phenny, input.nick, input.user, input.host)
+        if nick.method == 'host': #found by hostname only, that doesn't say much
+            phenny.say("Have I seen you before, %s?"%(input.nick))
+            phenny.say("Oh! Oh! Are you %s?"%(nick.data['nick']))
+            return
+        if nick.was_in(input) :
+            return
+        else:
+            party(phenny, nick)
+            nick.party_done()
 
 on_join.event = 'JOIN'
 on_join.rule = r'.*'
