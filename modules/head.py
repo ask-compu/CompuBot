@@ -338,7 +338,6 @@ def ouroboros(site, uri):
         exp = '(.*)show/(?P<id>[0-9]*)/?'
         return re.search(exp, link).group('id')
     post_id = get_id(uri)
-    print(post_id)
     json_data = web.get('https://{0}.net/post/show.json?id={1}'.format(site, post_id))
     postdata = json.loads(json_data, encoding='utf-8')
     tags = postdata['tags']
