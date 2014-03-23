@@ -32,16 +32,20 @@ commands.priority = 'low'
 
 def help(phenny, input): 
     phenny.say("Hey there, I'm a friendly bot for this channel. Say \".commands\" " +
-        "to me in private. My owner is {0}.".format(phenny.config.owner))
+        "to me in private. Say \".source\" for more info about my code. My owner is {0}.".format(phenny.config.owner))
 help.commands = ['help']
 help.priority = 'low'
 
 def source(phenny, input):
     source_uri = ''
-    if not phenny.config.source_url:
-        source_uri = 'https://github.com/JordanKinsley/PinkiePyBot'
-    else:
-        source_uri = phenny.config.source_url
+    try:
+    	if not phenny.config.source_url:
+        	source_uri = 'https://github.com/JordanKinsley/PinkiePyBot'
+    	else:
+        	source_uri = phenny.config.source_url
+    except AttributeError:
+    	# someone didn't add a 'source_url' line to their dotdir (i.e. ~/.phenny)
+    	source_uri = 'https://github.com/JordanKinsley/PinkiePyBot'
     phenny.say("Hey there! I'm a Python 3 bot owned and maintained by {0}.".format(phenny.config.owner) + 
         " My source is available at {0}".format(source_uri))
 source.commands = ['source','github']
