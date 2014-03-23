@@ -20,7 +20,12 @@ urllib.request._urlopener = Grab()
 def get(uri): 
     if not uri.startswith('http'): 
         return
-    u = urllib.request.urlopen(uri)
+    try:
+    	u = urllib.request.urlopen(uri)
+    except urllib.error.HTTPError:
+    	opener = urllib.request.build_opener()
+    	opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    	u = opener.open(uri)
     bytes = u.read()
     try:
         bytes = bytes.decode('utf-8')
