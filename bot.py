@@ -180,7 +180,9 @@ class Phenny(irc.Bot):
             def __new__(cls, text, origin, bytes, match, event, args): 
                 s = str.__new__(cls, text)
                 s.sender = decode(origin.sender)
+                s.user = decode(origin.user)
                 s.nick = decode(origin.nick)
+                s.host = decode(origin.host)
                 s.event = event
                 s.bytes = bytes
                 s.match = match
