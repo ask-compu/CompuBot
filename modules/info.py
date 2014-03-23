@@ -36,6 +36,17 @@ def help(phenny, input):
 help.commands = ['help']
 help.priority = 'low'
 
+def source(phenny, input):
+    source_uri = ''
+    if not phenny.config.source_url:
+        source_uri = 'https://github.com/JordanKinsley/PinkiePyBot'
+    else:
+        source_uri = phenny.config.source_url
+    phenny.say("Hey there! I'm a Python 3 bot owned and maintained by {0}.".format(phenny.config.owner) + 
+        " My source is available at {0}".format(source_uri))
+source.commands = ['source','github']
+source.priority = 'low'
+
 def stats(phenny, input): 
     """Show information on command usage patterns."""
     commands = {}
