@@ -161,7 +161,7 @@ def gettitle(uri):
     ]
     for s in localhost: 
         if uri.startswith(s): 
-            return phenny.reply('Sorry, access forbidden.')
+            return
 
     if re.compile('http(s)?://(www.)?bad-dragon.com/').match(uri) and not check_cookie('baddragon_age_checked'):
         urllib.request.urlopen('http://bad-dragon.com/agecheck/accept')
