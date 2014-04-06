@@ -87,6 +87,7 @@ class Bot(asynchat.async_chat):
     def run(self, host, port=6667, ssl=False,
             ipv6=False, ca_certs='/etc/ssl/certs/ca-certificates.crt'): 
         self.ca_certs = ca_certs
+        print(ca_certs)
         self.initiate_connect(host, port, ssl, ipv6)
 
     def initiate_connect(self, host, port, use_ssl, ipv6): 
@@ -122,8 +123,14 @@ class Bot(asynchat.async_chat):
         sock = socket.socket(family, type)
         sock.settimeout(120.0)
         if use_ssl:
-            sock = ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1,
-                    cert_reqs=ssl.CERT_OPTIONAL, ca_certs=self.ca_certs)
+            #try: 
+               # sock = ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1,
+               #     cert_reqs=ssl.CERT_OPTIONAL, ca_certs=self.ca_certs)
+            #except ssl.SSLError:
+            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+            context.verify_mode = ssl.CERT_NONE
+            context.load_verify_locations(cafile = self.ca_certs, capath = '/etc/ssl/certs/ca-certificates.crt')
+            sock = context.wrap_socket(sock)
         # FIXME: ssl module does not appear to work properly with nonblocking sockets
         #sock.setblocking(0)
         self.set_socket(sock)

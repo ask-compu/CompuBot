@@ -152,6 +152,9 @@ def main(argv=None):
  
         if not hasattr(module, 'ssl'):
             module.ssl = False
+        
+        if not hasattr(module, 'ca_cert'):
+            module.ca_cert = '/etc/ssl/certs/ca_certificates.crt'
  
         if not hasattr(module, 'ipv6'):
             module.ipv6 = False
