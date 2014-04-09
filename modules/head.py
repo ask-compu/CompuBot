@@ -19,7 +19,6 @@ import time
 from datetime import timedelta
 from html.entities import name2codepoint
 import web
-import lxml.html
 from tools import deprecated
 
 cj = http.cookiejar.LWPCookieJar(os.path.join(os.path.expanduser('~/.phenny'), 'cookies.lwp'))
