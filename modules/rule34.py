@@ -128,7 +128,12 @@ def check_rating(phenny, sender, q, nick):
 
 def check_nsfw(phenny, sender, q, nick):
     '''return true if this channel is SFW; false if NSFW'''
-    if sender not in phenny.config.nsfw:
+    nsfw_channels = []
+    try:
+		nsfw_channels = phenny.config.nsfw
+	except:
+		return True # if no one configured any NSFW channels, let's assume they're all SFW
+    if sender not in nsfw_channels:
         if not q or q.lower() in ('rating:explicit','rating:questionable','rating:e','rating:q'):
             # if someone is legit trying to break the rules by searching for an explicit image
             phenny.msg('MemoServ', 'SEND {0} {2} in {1} tried to break the rules!'.format(phenny.config.owner, sender, nick))
