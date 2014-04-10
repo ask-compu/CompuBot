@@ -53,6 +53,12 @@ def create_default_config(fn):
     # Directories to load user modules from
     # e.g. /path/to/my/modules
     extra = []
+    
+    # Channels that rule34.py will consider to be NSFW
+    nsfw = ['#nsfw']
+    
+    # Channels that party.py will throw parties in
+    party = ['#party','#nsfw'] 
 
     # Services to load: maps channel names to white or black lists
     external = { 
@@ -153,8 +159,14 @@ def main(argv=None):
         if not hasattr(module, 'ssl'):
             module.ssl = False
         
-        if not hasattr(module, 'ca_cert'):
-            module.ca_cert = '/etc/ssl/certs/ca_certificates.crt'
+        if not hasattr(module, 'ca_certs'):
+            module.ca_certs = '/etc/ssl/certs/ca_certificates.crt'
+            
+        if not hasattr(module, 'nsfw'):
+			module.nsfw = []
+		
+		if not hasattr(module, 'party'):
+			module.party = []
  
         if not hasattr(module, 'ipv6'):
             module.ipv6 = False
