@@ -30,6 +30,8 @@ def create_default_config(fn):
     host = 'irc.example.net'
     port = 6667
     ssl = False
+    # uncomment the next line to use a custom ca_certs file
+    # ca_certs = '/home/phenny/.phenny/custom.crt' 
     ipv6 = False
     channels = ['#example', '#test']
     owner = 'yournickname'
