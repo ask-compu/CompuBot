@@ -353,7 +353,12 @@ setup.thread = False
 
 
 def on_join(phenny, input):
-    if input not in phenny.config.noparty:
+	party_channels = []
+	try:
+		party_channels = phenny.config.party
+	except:
+		return # if no one configured channels to party in, let's not start throwing parties
+    if input in party_channels:
         nick = PartyGoer(phenny, input.nick, input.user, input.host)
         if nick.method == 'host': #found by hostname only, that doesn't say much
             phenny.say("Have I seen you before, %s?"%(input.nick))
@@ -374,7 +379,7 @@ def on_nick(phenny, input):
     if nick:
         nick.add_alias(input.sender)
     else:
-        nick = PartyGoesr(input.sender, input.user, input.host)
+        nick = PartyGoer(input.sender, input.user, input.host)
 
 on_nick.event = 'NICK'
 on_nick.rule = r'.*'
