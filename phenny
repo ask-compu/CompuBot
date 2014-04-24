@@ -162,7 +162,7 @@ def main(argv=None):
             module.ssl = False
         
         if not hasattr(module, 'ca_certs'):
-            module.ca_certs = '/etc/ssl/certs/ca_certificates.crt'
+            module.ca_certs = '/etc/ssl/certs/ca-certificates.crt'
             
         if not hasattr(module, 'nsfw'):
             module.nsfw = []
