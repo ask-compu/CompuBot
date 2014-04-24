@@ -165,11 +165,11 @@ def main(argv=None):
             module.ca_certs = '/etc/ssl/certs/ca_certificates.crt'
             
         if not hasattr(module, 'nsfw'):
-			module.nsfw = []
-		
-		if not hasattr(module, 'party'):
-			module.party = []
- 
+            module.nsfw = []
+        
+        if not hasattr(module, 'party'):
+            module.party = []
+        
         if not hasattr(module, 'ipv6'):
             module.ipv6 = False
 
