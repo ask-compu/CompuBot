@@ -353,11 +353,11 @@ setup.thread = False
 
 
 def on_join(phenny, input):
-	party_channels = []
-	try:
-		party_channels = phenny.config.party
-	except:
-		return # if no one configured channels to party in, let's not start throwing parties
+    party_channels = []
+    try:
+        party_channels = phenny.config.party
+    except:
+        return # if no one configured channels to party in, let's not start throwing parties
     if input in party_channels:
         nick = PartyGoer(phenny, input.nick, input.user, input.host)
         if nick.method == 'host': #found by hostname only, that doesn't say much
