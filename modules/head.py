@@ -111,6 +111,8 @@ def snarfuri(phenny, input):
     if re.match(r'(?i)' + phenny.config.prefix + titlecommands, input.group()):
         return
     uri = input.group(1)
+    if input.nick in 'derpy','Chance':
+		return
     try:
         if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
             return None
