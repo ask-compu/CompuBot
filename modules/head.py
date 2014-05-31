@@ -112,7 +112,7 @@ def snarfuri(phenny, input):
         return
     uri = input.group(1)
     if input.nick in ('derpy','Chance'):
-		return
+        return
     try:
         if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
             return None
