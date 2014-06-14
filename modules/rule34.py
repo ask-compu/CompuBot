@@ -121,7 +121,7 @@ def check_rating(phenny, sender, q, nick):
             q = q.replace('rating:e','rating:s')
             q = q.replace('rating:q','rating:s')
         else: 
-            q = q + 'rating:safe'
+            q = q + ' rating:safe'
         sfw = True
     return sfw, q
 
