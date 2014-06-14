@@ -94,6 +94,7 @@ def get_boru(phenny, site, tags):
         req = web.get("http://{0}.net/post/index.json?tags={1}".format(site,urlquoteplus(tags)))
     except (HTTPError, IOError):
         phenny.say('Oopsies, looks like the Internet is broken.')
+        return
     
     results = json.loads(req, encoding='utf-8')
 
