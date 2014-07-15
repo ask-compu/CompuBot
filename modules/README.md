@@ -33,6 +33,7 @@ Another module that has been extended for FiM-specific sites. If it detects a Fi
 Also, some code submitted by Polarfire (Polarfire on irc.canternet.org/#techponies) allows for similar information from Youtube links, whether they be the short youtu.be/<vid> style or the regular youtube.com/watch?v=<vid> style (should be able to find the video ID in the other URL decorators).
 Information gathered includes video title, view count, duration, and uploader. May be extended to include likes, dislikes, and percentage.
 Code submitted by Kazunekit (Kazune on irc.canternet.org/#fic) allows for greater use of imageboards with some code refactoring and additional titling features. 
+Fixed a bug caused by e621 likely blocking scripts' User-agent strings; the higher-level web.py module was changed to handle HTTPErrors by switching to a different method of openning the URL by faking the User-agent in the header. Regrettable, but just swallowing errors and not having titles for e621 links wasn't a long term solution. 
 
 party.py
 ========
@@ -48,4 +49,4 @@ Code was added in the admin.py module to allow for a server-side ignore on the C
 info.py
 =======
 
-Made changes to bring the info up to date with Pinkie's current status. 
+Made changes to bring the info up to date with Pinkie's current status. Added a .source/.github command so Pinkie will tell people about her code and the link to the Github repo.
