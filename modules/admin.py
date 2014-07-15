@@ -7,6 +7,8 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
+import re
+
 def join(phenny, input): 
     """Join the specified channel. This is an admin-only command."""
     # Can only be done in privmsg by an admin
@@ -75,6 +77,43 @@ def me(phenny, input):
         phenny.msg(input.group(2), msg)
 me.rule = (['me'], r'(#?\S+) (.*)')
 me.priority = 'low'
+
+'''
+def silence(phenny, input):
+    def ishostmask(subject):
+        to_match = '(.*)!(.*)@(.*)'
+        return re.compile(to_match).match(subject)
+    # Can only be done in privmsg by an admin
+    if input.sender.startswith('#'): 
+        phenny.say('Nuh uh! Not here you can\'t!')
+        return
+    if input.admin:
+        silence = 'SILENCE'
+        if input.group(2) not in ('+','-'):
+            phenny.msg(input.sender, 'Come on, plus or minus! Add or remove! You know this!')
+        else:
+            if input.group(2) is '+':
+                #add to the silence list
+                silence = silence + ' +'
+            elif input.group(2) is '-':
+                #remove from the silence list
+                silence = silence + ' -'
+            if input.group(3):
+                #discard everything after the first space
+                mask_to_silence = input.group(3).partition(' ')[0]
+                phenny.msg(input.sender, "I'll be ignoring this (" + input.group(3).partition(' ')[2] + 
+                    ") extra bit. Follow the rules and Auntie Pinkie will take care of everything else!")
+                if ishostmask(mask_to_silence):
+                    silence = silence + mask_to_silence + ' a'
+                    phenny.msg(input.sender, '"' + silence + '" is being sent to the server')
+                else:
+                    phenny.msg(input.sender, 'That\'s not a hostmask, silly!')
+        phenny.msg(input.sender, input.group(2) + ' group 2 input')
+        phenny.msg(input.sender, input.group(3) + ' group 3 input')
+silence.rule = (['silence'], r'(#?\S+) (.+)')
+silence.priority = 'high'
+silence.example = '.silence + foo!bar@buzz.com to add a silence or .silence - fizz!bang@widgets.net to remove a silence'
+'''
 
 if __name__ == '__main__': 
     print(__doc__.strip())
