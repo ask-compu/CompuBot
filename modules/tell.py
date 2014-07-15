@@ -50,6 +50,8 @@ def setup(self):
 
 def f_remind(phenny, input): 
     teller = input.nick
+    if teller in phenny.config.user_ignore:
+        return
 
     # @@ Multiple comma-separated tellees? Cf. Terje, #swhack, 2006-04-15
     verb, tellee, msg = input.groups()

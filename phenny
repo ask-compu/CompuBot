@@ -46,6 +46,9 @@ def create_default_config(fn):
     exclude = ['admin']
 
     ignore = ['']
+    
+    # Ignore these users for some commands or modules (like tell.py)
+    user_ignore = ['anon']
 
     # If you want to enumerate a list of modules rather than disabling
     # some, use "enable = ['example']", which takes precedent over exclude
@@ -169,6 +172,9 @@ def main(argv=None):
         
         if not hasattr(module, 'party'):
             module.party = []
+        
+        if not hasattr(module, 'user_ignore'):
+            module.user_ignore = []
         
         if not hasattr(module, 'ipv6'):
             module.ipv6 = False
