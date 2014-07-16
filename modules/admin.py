@@ -78,6 +78,51 @@ def me(phenny, input):
 me.rule = (['me'], r'(#?\S+) (.*)')
 me.priority = 'low'
 
+def config_get(phenny, input):
+    """Get the config options for phenny or indicate """
+    if not input.admin:
+        phenny.say("Silly, you're not allowed to use this command!")
+        return
+    
+    config_to_get = input.group(2).split(' ')[0]
+    if config_to_get.lower() == 'password':
+        phenny.say("Nuh uh! " + phenny.config.owner + " says that's a super-duper secret, and I promised to keep it!")
+        return
+    config_option = ""
+    try:
+        config_option = str(getattr(phenny.config, config_to_get))
+        phenny.say("Looks like " + config_to_get + " is set to " + config_option)
+    except AttributeError:
+        phenny.say("Oops, looks like I don't have an option called " + config_to_get)
+config_get.rule = (['config_get','c_get'], r'(.*)')
+config_get.priority = 'low'
+
+# options to never change
+donotchange = ['nick','host','port','ssl','ipv6','owner','password']
+
+def config_set(phenny, input):
+    """Set a config option for phenny while the bot is running, ignoring options that can't or shouldn't be changed."""
+    if not input.admin:
+        phenny.say("Silly, you're not allowed to use this command!")
+        return
+    args = input.group(2).split(' ')
+    config_to_set = args[0]
+    options = args[1:]
+    if not hasattr(phenny.config, config_to_set):
+        phenny.say("Oops, looks like I don't have an option called " + config_to_set)
+        return
+    existing_config = getattr(phenny.config, config_to_set)
+    try:
+        setattr(phenny.config, config_to_set, options)
+        phenny.say("Woo! " + config_to_set + " has been updated to " + str(getattr(phenny.config, config_to_set)))
+    except:
+        setattr(phenny.config, config_to_set, existing_config)
+        phenny.say("Oh no! " + config_to_set + " hasn't been updated! Sticking with the original value of "
+            + existing_config + " instead.")
+    phenny.say("config_set is working!")
+config_set.rule = (['config_set','c_set'], r'(.*)')
+config_set.prioity = 'high'
+
 '''
 def silence(phenny, input):
     def ishostmask(subject):
