@@ -106,8 +106,11 @@ def config_set(phenny, input):
         phenny.say("Silly, you're not allowed to use this command!")
         return
     args = input.group(2).split(' ')
-    config_to_set = args[0]
+    config_to_set = args[0].lower()
     options = args[1:]
+    if config_to_set.lower() in donotchange:
+        phenny.say("Hey! " + phenny.owner + " says I'm not allowed to change that!")
+        return
     if not hasattr(phenny.config, config_to_set):
         phenny.say("Oops, looks like I don't have an option called " + config_to_set)
         return
@@ -119,7 +122,6 @@ def config_set(phenny, input):
         setattr(phenny.config, config_to_set, existing_config)
         phenny.say("Oh no! " + config_to_set + " hasn't been updated! Sticking with the original value of "
             + existing_config + " instead.")
-    phenny.say("config_set is working!")
 config_set.rule = (['config_set','c_set'], r'(.*)')
 config_set.prioity = 'high'
 
