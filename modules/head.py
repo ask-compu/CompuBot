@@ -203,6 +203,13 @@ def gettitle(uri):
     except IOError: 
         return
     except UnicodeError:
+        '''
+        Due to the way Python implemented the urllib.request.urlopen() 
+        function, it is not possible to correct for Unicode characters
+        like € in a URL. Therefore, we just catch the error and don't
+        provide a title for the link. Other options may be worth 
+        exploring, and could be included here. 
+        '''
         return
 
     m = r_title.search(bytes)
