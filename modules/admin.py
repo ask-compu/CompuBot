@@ -5,6 +5,8 @@ Copyright 2008-9, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
 http://inamidst.com/phenny/
+
+config and silence commands by Jordan Kinsley <jordan@jordantkinsley.org>
 """
 
 import re
