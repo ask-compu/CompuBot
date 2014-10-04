@@ -202,6 +202,8 @@ def gettitle(uri):
 
     except IOError: 
         return
+    except UnicodeError:
+        return
 
     m = r_title.search(bytes)
     if m: 
@@ -299,11 +301,10 @@ def get_api_story_title(uri):
     story_id = uri.split('story/')[1]
     if story_id.find('/') > 1:
         story_id = story_id.split('/')[0]
-    print(story_id)
     data = urllib.request.urlopen('http://fimfiction.net/api/story.php?story=' + story_id).read().decode()
     story = json.loads(data, encoding='utf-8')['story']
     
-    story_title = story['title'].strip('"')
+    story_title = format_title(story['title'])
     likes = str(story['likes'])
     dislikes = str(story['dislikes'])
     percentage = get_percentage(likes, dislikes)
@@ -319,6 +320,15 @@ def get_api_story_title(uri):
         if cat_dict[k] is True:
             categories = categories + '[' + k + ']'
     return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories
+    
+def format_title(title):
+    title = title.strip('"')
+    title = title.replace('&#039;','\'')
+    title = title.replace('&amp;','&')
+    title = title.replace('&quot;','"')
+    title = title.replace('&lt;','<')
+    title = title.replace('&gt;','>')
+    return title
     
 def get_percentage(likes, dislikes):
     percentage = ''
