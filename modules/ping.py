@@ -11,7 +11,7 @@ Modified by Jordan Kinsley <jordan@jordantkinsley.org>
 
 import random
 
-saucyreplies = ('Kinsley','MalevolentSpoon','Aurora','Cocoa','TiredFoal','Lapsus')
+saucyreplies = ('Kinsley','MalevolentSpoon','Aurora','Cocoa','TiredFoal','Lapsus','Scribe','Nicknack')
 
 def hello(phenny, input): 
     if input.nick in phenny.config.user_ignore:
@@ -123,6 +123,8 @@ def frowns(phenny, input):
     # we're going to have a one-in-ten chance of Pinkie trying to cheer you up
     if random.randint(1,10) == 10:
         frownsresponse = random.choice(('Aww, don\'t be sad, ' + input.nick + ', I\'m here!','\x01ACTION hugs ' + input.nick + '\x01', 'Cheer up, ' + input.nick + ', all of your friends are here!'))
+        if input.nick in ('JustAberrant'):
+            frownsresponse = 'Well, suck it up, buttercup!'
         phenny.say(frownsresponse)
 frowns.rule = r'(:<|:C|D:|:x|:X)|(\x01ACTION (?i)frowns(.*))|:\(|:\'\('
 
