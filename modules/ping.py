@@ -124,7 +124,7 @@ def frowns(phenny, input):
     if random.randint(1,10) == 10:
         frownsresponse = random.choice(('Aww, don\'t be sad, ' + input.nick + ', I\'m here!','\x01ACTION hugs ' + input.nick + '\x01', 'Cheer up, ' + input.nick + ', all of your friends are here!'))
         if input.nick in ('JustAberrant'):
-            frownsresponse = 'Well, suck it up, buttercup!'
+            frownsresponse = random.choice(('Well, suck it up, buttercup!','Tough cookies, ' + input.nick + '!','I\'m not here to wipe up any tears, OK?'))
         phenny.say(frownsresponse)
 frowns.rule = r'(:<|:C|D:|:x|:X)|(\x01ACTION (?i)frowns(.*))|:\(|:\'\('
 
