@@ -29,7 +29,7 @@ def is_best_pony(phenny, input):
         return
     rule_text = input.group(0) # unfortunately, unlike the image.py module, 
     # we're just using a rule, not a command. All of our input is in group 0
-    find_pony = re.compile("(?i)(I|Bli|Pi)nkie(Pie)?(Bot)?, is (?P<pony>.*)( the)? best pony(\?)?")
+    find_pony = re.compile("(?i)(I|Bli|Pi)nkie(Pie)?(Bot)?, is (?P<pony>.*?)( the)? best pony(\?)?")
     alleged_best_pony = re.match(find_pony, rule_text).group('pony').title()
     if alleged_best_pony in pony_map:
         alleged_best_pony = pony_map[alleged_best_pony]
