@@ -141,7 +141,7 @@ def pokes(phenny, input):
         return
     pokesresponse = ('Yes?', 'Hiya!', 'Hey, ' + input.nick + '!', 'Do you need anything from me?', 'What\'s up?')
     phenny.say(random.choice(pokesresponse))
-pokes.rule = r'(\x01ACTION)? (?i)pokes (?i)(I|Bli|Pi)nkie(Pie)?(Bot)?'
+pokes.rule = r'(\x01ACTION)? (?i)(poke|boop)s (?i)(I|Bli|Pi)nkie(Pie)?(Bot)?'
 
 # TODO: add these actions and appropriate responses
 '''
