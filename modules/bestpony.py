@@ -22,7 +22,7 @@ def best_pony(phenny, input):
     best_pony_response = "Oh, that's easy, it's " + random.choice(ponies_alt) + "! No... wait, it's definitely " + random.choice(ponies) + "! "
     phenny.say(best_pony_response)
     phenny.say("I'm kidding, of course! It's you, silly!")
-best_pony.rule = r'(?i)(I|Bli|Pi)nkie(Pie)?(Bot)?, who is( the)? best pony(\?)?'
+best_pony.rule = r'(?i)(I|Bli|Pi)nkie(Pie)?(Bot)?, who(\'s| is)( the)? best pony(\?)?'
 
 def is_best_pony(phenny, input):
     if input.nick in phenny.config.user_ignore:
