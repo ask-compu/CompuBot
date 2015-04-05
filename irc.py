@@ -41,6 +41,7 @@ class Bot(asynchat.async_chat):
         self.password = password
 
         self.verbose = True
+        self.debug = False
         self.channels = channels or []
         self.stack = []
 
@@ -58,6 +59,8 @@ class Bot(asynchat.async_chat):
     def __write(self, args, text=None): 
         # print 'PUSH: %r %r %r' % (self, args, text)
         try: 
+            if self.debug:
+                print('WRITE_RAW: ARGS: ' + str(args) + ' TEXT: ' + str(text), file=sys.stderr)
             if text is not None: 
                 # 510 because CR and LF count too, as nyuszika7h points out
                 self.push((b' '.join(args) + b' :' + text)[:510] + b'\r\n')
@@ -87,7 +90,6 @@ class Bot(asynchat.async_chat):
     def run(self, host, port=6667, ssl=False,
             ipv6=False, ca_certs='/etc/ssl/certs/ca-certificates.crt'): 
         self.ca_certs = ca_certs
-        print(ca_certs)
         self.initiate_connect(host, port, ssl, ipv6)
 
     def initiate_connect(self, host, port, use_ssl, ipv6): 
@@ -171,6 +173,8 @@ class Bot(asynchat.async_chat):
         args = argstr.split()
 
         origin = Origin(self, source, args)
+        if self.debug:
+            print('TERM_RAW: SOURCE: ' + str(source) + ' ARGS: ' + str(args) + ' TEXT: ' + str(text), file=sys.stderr)
         self.dispatch(origin, tuple([text] + args))
 
         if args[0] == 'PING': 
