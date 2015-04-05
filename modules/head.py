@@ -380,7 +380,6 @@ def ouroboros(site, uri):
     return title
 
 def derpibooru(uri):
-    title = ''
     # TODO: research derpibooru's API and get data
     def get_id(link):
         exp = '(.*)derpiboo((.ru)|(ru.org))(/images)?/(?P<id>[0-9]*)/?'
@@ -390,31 +389,31 @@ def derpibooru(uri):
         return gettitle(uri)
     json_data = web.get('http://derpiboo.ru/{0}.json'.format(id))
     postdata = json.loads(json_data, encoding='utf-8')
-    tags = postdata['tags']
+    tags = postdata['tags'].split(', ')
     
-    exp = '(.*)artist:(?P<artist>[^,]+)'
-    if re.search(exp, tags):
-        artist = ' by '+re.search(exp, tags).group('artist')
+    for tag in tags:
+        if tag.startswith('artist:'):
+            artist = ' by '+tag
+            break
     else:
         artist = ''
-    exp = '(.*)(?P<rating>(explicit|questionable|safe))' # rating is in tags
-    if re.search(exp, tags):
-        rating = re.search(exp, tags).group('rating')
-    else:
-        rating = 'Unknown'
-    tags = re.sub("\\b\ \\b","_",tags) # convert into ouroboru type tags
-    tags = re.sub("\\b,\ \\b"," ",tags) # remove commas separating tags
+    # ratings are tags on Derpibooru
+    ratings = []
+    for tag in tags:
+        if tag in {'explicit', 'grimdark', 'grotesque', 'questionable', 'safe', 'semi-grimdark', 'suggestive'}:
+            ratings.append(tag)
+    if not ratings:
+        ratings = ['unknown']
+    ratings = ' '.join(ratings)
     tag_file = os.path.expanduser('~/.phenny/boru.py')
     try:
         boru = imp.load_source('boru',tag_file)
     except Exception as e:
         print("Error loading ignore tags: %s (in head.py)" %(e))
-        filtered = tags
     else:
-        filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags) 
-        filtered = re.sub(" +"," ",filtered).strip()
-    title = re.sub('_'," ",filtered)
-    title = '{0} {1}'.format(rating.capitalize(),title,artist.capitalize())
+        tags = [tag for tag in tags if tag not in boru.ignore_tags]
+    tag_string = ' '.join(tag.replace(' ', '_') for tag in tags)
+    title = '{0} {1}'.format(ratings.title(),tag_string,artist.capitalize())
     return title
 
 def get_story_title(uri):
