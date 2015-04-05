@@ -34,6 +34,8 @@ def create_default_config(fn):
     ssl = False
     # uncomment the next line to use a custom ca_certs file
     # ca_certs = '/home/phenny/.phenny/custom.crt' 
+    # Set to true to turn on certain debugging messages like raw message output
+    debug = False
     ipv6 = False
     channels = ['#example', '#test']
     owner = 'yournickname'
@@ -162,6 +164,9 @@ def main(argv=None):
  
         if not hasattr(module, 'port'): 
             module.port = 6667
+            
+        if not hasattr(module, 'debug'):
+            module.debug = False
  
         if not hasattr(module, 'ssl'):
             module.ssl = False

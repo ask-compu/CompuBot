@@ -49,19 +49,24 @@ def is_best_pony(phenny, input):
     channel_nicks.clear()
     # now send the NAMES command for this channel; we need to send a raw command to the server, hence the "write" function
     # to save time, we are only asking for this channel, not all the nicks the bot can see
-    print("triggering 353/366 series in " + input.sender, file=sys.stderr)
+    if phenny.config.debug:
+        print("triggering 353/366 series in " + input.sender, file=sys.stderr)
     phenny.write(['NAMES {0}'.format(input.sender)])
     time.sleep(0.5)
     while more_nicks:
-        print("Waiting until 366 for " + input.sender, file=sys.stderr)
+        if phenny.config.debug:
+            print("Waiting until 366 for " + input.sender, file=sys.stderr)
         time.sleep(0.5)
     channel_nicklist = channel_nicks.copy()
-    print("channel_nicklist: " + str(channel_nicklist), file=sys.stderr)
+    if phenny.config.debug:
+        print("channel_nicklist: " + str(channel_nicklist), file=sys.stderr)
     # clear the channel_nicks again
     channel_nicks.clear()
-    print("channel list cleared", file=sys.stderr)
+    if phenny.config.debug:
+        print("channel list cleared", file=sys.stderr)
     
-    print(channel_nicklist)
+    if phenny.config.debug:
+        print(channel_nicklist)
     
     if alleged_best_pony.lower() in [nick.lower() for nick in channel_nicklist]:
         if alleged_best_pony in phenny.config.admins:
@@ -96,7 +101,8 @@ def names(phenny, input):
 names.commands = ['names']
 
 def names_on_353(phenny, input):
-    print("353 event triggered", file=sys.stderr)
+    if phenny.config.debug:
+        print("353 event triggered", file=sys.stderr)
     more_nicks = True
     e353_bytes = input.bytes.split()
     e353_return = []
@@ -110,7 +116,8 @@ names_on_353.rule = r'.*'
 
 def on_366(phenny, input):
     #phenny.msg('#PinkiePieBot-dev', 'Hey, looks like server said that\'s everyone!')
-    print('received 366', file=sys.stderr)
+    if phenny.config.debug:
+        print('received 366', file=sys.stderr)
     more_nicks = False
 on_366.event = '366'
 on_366.rule = r'.*'

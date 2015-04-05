@@ -30,7 +30,7 @@ class Origin(object):
 
 
 class Bot(asynchat.async_chat): 
-    def __init__(self, nick, name, channels, password=None): 
+    def __init__(self, nick, name, channels, password=None, debug=False): 
         asynchat.async_chat.__init__(self)
         self.set_terminator(b'\n')
         self.buffer = b''
@@ -41,7 +41,7 @@ class Bot(asynchat.async_chat):
         self.password = password
 
         self.verbose = True
-        self.debug = False
+        self.debug = debug
         self.channels = channels or []
         self.stack = []
 
