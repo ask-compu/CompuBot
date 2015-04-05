@@ -391,12 +391,14 @@ def derpibooru(uri):
     postdata = json.loads(json_data, encoding='utf-8')
     tags = postdata['tags'].split(', ')
     
+    artists = []
     for tag in tags:
         if tag.startswith('artist:'):
-            artist = ' by '+tag
-            break
+            artists.append(tag.replace('artist:', '', 1))
+    if artists:
+        artists = ' by '+', '.join(artists)
     else:
-        artist = ''
+        artists = ''
     # ratings are tags on Derpibooru
     ratings = []
     for tag in tags:
@@ -413,7 +415,7 @@ def derpibooru(uri):
     else:
         tags = [tag for tag in tags if tag not in boru.ignore_tags]
     tag_string = ' '.join(tag.replace(' ', '_') for tag in tags)
-    title = '{0} {1}'.format(ratings.title(),tag_string,artist.capitalize())
+    title = '{0} {1}'.format(ratings.title(),tag_string,artists)
     return title
 
 def get_story_title(uri):
