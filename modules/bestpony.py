@@ -46,7 +46,11 @@ def is_best_pony(phenny, input):
     # double check that more_nicks is set to false before we start
     more_nicks = False
     # clear the channel_nicks list and start fresh
-    channel_nicks.clear()
+    # if we're running 3.3 or later, we can use .clear(), otherwise it raises an attribute error
+    try:
+        channel_nicks.clear()
+    except AttributeError:
+        channel_nicks = []
     # now send the NAMES command for this channel; we need to send a raw command to the server, hence the "write" function
     # to save time, we are only asking for this channel, not all the nicks the bot can see
     if phenny.config.debug:
