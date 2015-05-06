@@ -308,7 +308,7 @@ def get_api_story_title(uri):
     story_id = uri.split('story/')[1]
     if story_id.find('/') > 1:
         story_id = story_id.split('/')[0]
-    data = urllib.request.urlopen('http://fimfiction.net/api/story.php?story=' + story_id).read().decode()
+    data = web.get('http://fimfiction.net/api/story.php?story=' + story_id)
     story = json.loads(data, encoding='utf-8')['story']
     
     story_title = format_title(story['title'])
