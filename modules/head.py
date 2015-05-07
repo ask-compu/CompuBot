@@ -121,7 +121,8 @@ def snarfuri(phenny, input):
 
         youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)\?v(.*)')
         if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
-            title = get_youtube_title(uri)
+            # due to changes in how Youtube gives out API access, we need a key from the config file
+            title = get_youtube_title(uri, phenny.config.youtube_api_key)
 
         fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
         if fimfiction.match(uri):
@@ -252,37 +253,80 @@ def check_cookie(name):
         else: continue
     return False
 
-def query(vid):
-    ''' returns the title, viewcount, time, and uploader of a Youtube video. vid is the Youtube video ID at the end of the Youtube URL.'''
-    main = 'http://gdata.youtube.com/feeds/api/videos/'
-    ext = '?v=2&alt=jsonc'
-    try:
-        req = web.get(main + vid + ext)
-    except (urllib.error.HTTPError, IOError):
-        return '', '', '', '', '', ''
-    data = json.loads(req, encoding='utf-8')
-    data = data['data']
+def query(vid, auth_key):
+    ''' 
+    returns the title, viewcount, time, and uploader of a Youtube video. 
+    vid is the Youtube video ID at the end of the Youtube URL.
+    '''
     
-    title = data['title']
-    uploader = data['uploader']
+    main = 'https://www.googleapis.com/youtube/v3/videos?id='
+    key = '&key=' + auth_key
+    ext = '&part=snippet,contentDetails,statistics'
+    
+    req = web.get(main + vid + key + ext)
+    data = json.loads(req, encoding='utf-8')
+    data = data['items'][0]
+    
+    title = data['snippet']['title']
+    uploader = data['snippet']['channelTitle']
     try:
-        viewcount = str(data['viewCount'])
+        viewcount = str(data['statistics']['viewCount'])
     except (KeyError, IndexError):
         viewcount = '0'
-    duration = str(data['duration'])
+    duration = str(data['contentDetails']['duration'])
     # a video with no likes results in IndexErrors (assuming true for ratingCount, too)
     try:
-        likes = str(data['likeCount'])
+        likes = str(data['statistics']['likeCount'])
     except (KeyError, IndexError):
         likes = '0'
     try:
-        ratings = str(data['ratingCount'])
+        dislikes = str(data['statistics']['dislikeCount'])
     except (KeyError, IndexError):
-        ratings = '0'
-    time = str(timedelta(seconds=int(duration)))
-    return title, viewcount, time, uploader, likes, ratings
+        dislikes = '0'
+    
+    time = iso_8601(duration)
+    
+    return title, viewcount, time, uploader, likes, dislikes
+    
+def iso_8601(str_time):
+    '''
+    Google's Youtube data V3 API gives duration in an ISO 8601 format, e.g.
+    P3DT4H30M44S. Each format of time, i.e. 3D, 4H, 30M, 44S are optional 
+    in the string. P1D is just as valid as PT24H, for instance (and is the
+    actual value returned for a video exactly 24 hours, 0 minutes, and 0 seconds long
+    
+    returns a string of the time, formatted like 3d 4h 30m 44s
+    '''
+    
+    iso_8601_re = re.compile('P(?P<year>[0-9]*Y)?(?P<month>[0-9]*M)?(?P<week>[0-9]*W)?(?P<day>[0-9]*D)?(T)?(?P<hour>[0-9]*H)?(?P<minute>[0-9]*M)?(?P<second>[0-9]*S)?')
+    
+    found_time = re.match(iso_8601_re, str_time)
+    year, month, week, day, hour, minute, second = '','','','','','',''
+    return_time = ''
+    if found_time.group('year'):
+        year = found_time.group('year').rstrip('Y')
+        return_time = return_time + year + 'y '
+    if found_time.group('month'):
+        month = found_time.group('month').rstrip('M')
+        return_time = return_time + month + 'm '
+    if found_time.group('week'):
+        week = found_time.group('week').rstrip('W')
+        return_time = return_time + week + 'w '
+    if found_time.group('day'):
+        day = found_time.group('day').rstrip('D')
+        return_time = return_time + day + 'd '
+    if found_time.group('hour'):
+        hour = found_time.group('hour').rstrip('H')
+        return_time = return_time + hour + 'h '
+    if found_time.group('minute'):
+        minute = found_time.group('minute').rstrip('M')
+        return_time = return_time + minute + 'm '
+    if found_time.group('second'):
+        second = found_time.group('second').rstrip('S')
+        return_time = return_time + second + 's '
+    return return_time
 
-def get_youtube_title(uri):
+def get_youtube_title(uri, auth_key):
     vid = None
     if 'youtu.be/' not in uri:
         if '?v=' in uri:
@@ -294,15 +338,12 @@ def get_youtube_title(uri):
     else:
         vid = uri[uri.rindex('be/')+3:uri.rindex('be/')+14]
 
-    title, views, time, uploader, likes, ratings = query(vid)
+    title, views, time, uploader, likes, dislikes = query(vid, auth_key)
     if title == '':
         return None
-    if int(ratings) > 0:
-        percentage = str(round((float(likes) / float(ratings)) * 100,2))
-    else:
-        percentage = '0.00'
+    percentage = get_percentage(likes, dislikes)
     # Not including the uploader in the title info; it's rarely important in determining a link's quality.
-    return title + " - " + views + " views - " + time + " long - " + likes + " likes - " + percentage + "%"
+    return title + " - " + views + " views - " + time + "long - " + likes + " likes - " + percentage + "%"
 
 def get_api_story_title(uri):
     story_id = uri.split('story/')[1]
