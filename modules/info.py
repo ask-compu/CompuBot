@@ -40,7 +40,7 @@ def source(phenny, input):
     source_uri = ''
     try:
         if not phenny.config.source_url:
-            source_uri = 'https://github.com/JordanKinsley/PinkiePyBot'
+            source_uri = 'https://github.com/ask-compu/CompuBot'
         else:
             source_uri = phenny.config.source_url
     except AttributeError:
