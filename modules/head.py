@@ -119,10 +119,14 @@ def snarfuri(phenny, input):
         
         title = None
 
-        youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch(.*)\?v(.*)')
+        youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch.*\?.*v\=\w+')
         if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
             # due to changes in how Youtube gives out API access, we need a key from the config file
-            title = get_youtube_title(uri, phenny.config.youtube_api_key)
+            if get_youtube_title(uri, phenny.config.youtube_api_key) is None:
+                phenny.say("Sorry " + input.nick + " but you need to fix your URL.")
+                return
+            else:
+                title = get_youtube_title(uri, phenny.config.youtube_api_key)
 
         fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
         if fimfiction.match(uri):
@@ -265,8 +269,9 @@ def query(vid, auth_key):
     
     req = web.get(main + vid + key + ext)
     data = json.loads(req, encoding='utf-8')
-    data = data['items'][0]
-    
+    try:
+        data = data['items'][0]
+    except IndexError: return None
     title = data['snippet']['title']
     uploader = data['snippet']['channelTitle']
     try:
@@ -338,12 +343,16 @@ def get_youtube_title(uri, auth_key):
     else:
         vid = uri[uri.rindex('be/')+3:uri.rindex('be/')+14]
 
-    title, views, time, uploader, likes, dislikes = query(vid, auth_key)
+    video_data = query(vid, auth_key)
+    if video_data is None:
+      return None
+    else:
+      title, views, time, uploader, likes, dislikes = video_data
     if title == '':
         return None
     percentage = get_percentage(likes, dislikes)
     # Not including the uploader in the title info; it's rarely important in determining a link's quality.
-    return title + " - " + views + " views - " + time + "long - " + likes + " likes - " + percentage + "%"
+    return "\002You\00300,04Tube\017 " + title + " - " + views + " views - Uploaded by " + uploader + " - " + time + "long - " + likes + " likes - " + dislikes + " dislikes - " + percentage + "%"
 
 def get_api_story_title(uri):
     story_id = uri.split('story/')[1]
