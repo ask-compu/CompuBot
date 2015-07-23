@@ -1,4 +1,4 @@
-pinkie
+CompuBot
 ======
 
 This is a port of phenny, a Python IRC bot, to Python3. It has been forked from [mutantmonkey](https://github.com/mutantmonkey)'s [phenny](https://github.com/mutantmonkey/phenny) port.
