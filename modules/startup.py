@@ -63,6 +63,7 @@ def startup(phenny, input):
     # Cf. http://swhack.com/logs/2005-12-05#T19-32-36
     for channel in phenny.channels: 
         phenny.write(('JOIN', channel))
+        phenny.write(('MODE', phenny.nick, '+B-i'))
         time.sleep(0.5)
 startup.rule = r'(.*)'
 startup.event = '251'
