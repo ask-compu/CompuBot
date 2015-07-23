@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # coding=utf-8
-"""
-calc.py - Phenny Calculator Module
-Copyright 2008, Sean B. Palmer, inamidst.com
-Licensed under the Eiffel Forum License 2.
-
-http://inamidst.com/phenny/
-"""
+#"""
+#calc.py - Phenny Calculator Module
+#Copyright 2008, Sean B. Palmer, inamidst.com
+#Licensed under the Eiffel Forum License 2.
+#
+#http://inamidst.com/phenny/
+#"""
 
 import re
 import web
@@ -67,7 +67,10 @@ def wa(phenny, input):
     query = input.group(2)
     uri = 'http://tumbolia.appspot.com/wa/'
     answer = web.get(uri + web.quote(query.replace('+', '%2B')))
-    answer = answer.split(';')[1]
+    answerindex = 1
+    if (len(answer.split(";")) < 2):
+        answerindex = 0
+    answer = answer.split(";")[answerindex]
     if answer: 
         phenny.say(answer)
     else: phenny.reply('Sorry, no result.')
