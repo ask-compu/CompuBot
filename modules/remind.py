@@ -104,7 +104,9 @@ r_command = re.compile(p_command)
 def remind(phenny, input): 
     m = r_command.match(input.bytes)
     if not m: 
-        return phenny.reply("Sorry, didn't understand the input.")
+        phenny.say ("\x01ACTION pokes " + input.nick + "\x01")
+        phenny.say("Are you broken?")
+        return
     length, scale, message = m.groups()
 
     length = float(length)
@@ -123,12 +125,16 @@ def remind(phenny, input):
 
     dump_database(phenny.rfn, phenny.rdb)
 
-    if duration >= 60: 
-        w = ''
-        if duration >= 3600 * 12: 
-            w += time.strftime(' on %d %b %Y', time.gmtime(t))
-        w += time.strftime(' at %H:%MZ', time.gmtime(t))
-        phenny.reply('Okay, will remind%s' % w)
+    if duration >= 60:
+        try:
+         w = ''
+         if duration >= 3600 * 12:
+             w += time.strftime(' on %d %b %Y', time.gmtime(t))
+         w += time.strftime(' at %I:%M:%S %p GMT', time.gmtime(t))
+         phenny.reply('Okay, will remind%s' % w)
+        except OverflowError:
+         phenny.say("\x01ACTION eeps\x01")
+         phenny.say("Whoa, calm down there " + input.nick + ", that's waaaaaaaay too long.")
     else: phenny.reply('Okay, will remind in %s secs' % duration)
 remind.commands = ['in']
 
