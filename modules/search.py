@@ -9,10 +9,11 @@ http://inamidst.com/phenny/
 
 import re
 import web
+import json
 
 class Grab(web.urllib.request.URLopener):
     def __init__(self, *args):
-        self.version = 'Mozilla/5.0 (Phenny)'
+        self.version = 'Mozilla/5.0 (CompuBot)'
         web.urllib.request.URLopener.__init__(self, *args)
         self.addheader('Referer', 'https://github.com/sbp/phenny')
     def http_error_default(self, url, fp, errcode, errmsg, headers):
@@ -140,11 +141,12 @@ def duck_search(query):
     query = query.replace('!', '')
     query = web.quote(query)
     uri = 'http://duckduckgo.com/html/?q=%s&kl=uk-en' % query
-    bytes = web.get(uri)
-    m = r_duck.search(bytes)
+    rec_bytes = web.get(uri)
+    m = r_duck.search(rec_bytes)
     if m: return web.decode(m.group(1))
 
 def duck(phenny, input): 
+    """Queries Duck Duck Go for the specified input."""
     query = input.group(2)
     if not query: return phenny.reply('.ddg what?')
 
@@ -155,9 +157,44 @@ def duck(phenny, input):
             phenny.bot.last_seen_uri = {}
         phenny.bot.last_seen_uri[input.sender] = uri
     else: phenny.reply("No results found for '%s'." % query)
-duck.commands = ['duck', 'ddg']
+duck.commands = ['ddg', 'duck']
+duck.example = '.ddg swhack'
+
+
+
+def wikipedia_search(query): 
+    query = query.replace('!', '')
+    query = web.quote(query)
+    uri = 'https://en.wikipedia.org/w/api.php?action=query&list=search&continue=&srsearch=%s&format=json' % query
+    rec_bytes = web.get(uri)
+    jsonstring = json.loads(rec_bytes)
+    whits = jsonstring['query']['searchinfo']['totalhits']
+    if whits > 0:
+        wtitle = jsonstring['query']['search'][0]['title']
+        wwords = str(jsonstring['query']['search'][0]['wordcount'])
+        wsearch = wtitle.replace('!', '')
+        wsearch = web.quote(wsearch)
+        base_url = "https://en.wikipedia.org/wiki/"+wsearch
+        return (wtitle + " - " + wwords + " words " + base_url)
+
+def wikipedia(phenny, input): 
+    """Queries Wikipedia for the specified input."""
+    query = input.group(2)
+    if not query: return phenny.reply('.w what?')
+
+    uri = wikipedia_search(query)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+wikipedia.commands = ['w', 'wikipedia']
+wikipedia.example = '.w swhack'
+
 
 def search(phenny, input): 
+    """Searches Duck Duck Go, Google, and Bing all at once."""
     if not input.group(2): 
         return phenny.reply('.search for what?')
     query = input.group(2)
@@ -181,6 +218,7 @@ def search(phenny, input):
 
     phenny.reply(result)
 search.commands = ['search']
+search.example = '.search swhack'
 
 def suggest(phenny, input): 
     if not input.group(2):
