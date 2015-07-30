@@ -168,19 +168,19 @@ def wikipedia_search(query):
     uri = 'https://en.wikipedia.org/w/api.php?action=query&list=search&continue=&srsearch=%s&format=json' % query
     rec_bytes = web.get(uri)
     jsonstring = json.loads(rec_bytes)
-    whits = jsonstring['query']['searchinfo']['totalhits']
-    if whits > 0:
-        wtitle = jsonstring['query']['search'][0]['title']
-        wwords = str(jsonstring['query']['search'][0]['wordcount'])
-        wsearch = wtitle.replace('!', '')
-        wsearch = web.quote(wsearch)
-        base_url = "https://en.wikipedia.org/wiki/"+wsearch
-        return (wtitle + " - " + wwords + " words " + base_url)
+    wihits = jsonstring['query']['searchinfo']['totalhits']
+    if wihits > 0:
+        wititle = jsonstring['query']['search'][0]['title']
+        wiwords = str(jsonstring['query']['search'][0]['wordcount'])
+        wisearch = wititle.replace('!', '')
+        wisearch = web.quote(wisearch)
+        base_url = "https://en.wikipedia.org/wiki/"+wisearch
+        return (wititle + " - " + wiwords + " words " + base_url)
 
 def wikipedia(phenny, input): 
     """Queries Wikipedia for the specified input."""
     query = input.group(2)
-    if not query: return phenny.reply('.w what?')
+    if not query: return phenny.reply('.wi what?')
 
     uri = wikipedia_search(query)
     if uri: 
@@ -189,9 +189,58 @@ def wikipedia(phenny, input):
             phenny.bot.last_seen_uri = {}
         phenny.bot.last_seen_uri[input.sender] = uri
     else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
-wikipedia.commands = ['w', 'wikipedia']
-wikipedia.example = '.w swhack'
+wikipedia.commands = ['wi', 'wikipedia']
+wikipedia.example = '.wi swhack'
 
+def weather_search(query, phenny): 
+    if phenny.config.wunderground_api_key:
+        query = query.replace('!', '')
+        query = query.replace(' ', '')
+        query = web.quote(query)
+        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/q/' + query + '.json'
+        rec_bytes = web.get(uri)
+        jsonstring = json.loads(rec_bytes)
+        werror = 0
+        try:
+            werrorexist = jsonstring['response']['error']['type']
+            werror = 1
+        except:
+            werror = 0
+            
+        if werror is 1:
+            werrortype = jsonstring['response']['error']['type']
+            werrordesc = jsonstring['response']['error']['description']
+            werrorfull = 'Error Code: ' + werrortype + ' - ' + werrordesc
+            return werrorfull
+        else:
+            wcity = jsonstring['current_observation']['display_location']['full']
+            wwinddir = str(jsonstring['current_observation']['wind_dir'])
+            wwindspd = str(jsonstring['current_observation']['wind_mph'])
+            wwindgust = str(jsonstring['current_observation']['wind_gust_mph'])
+            wtemp = jsonstring['current_observation']['temperature_string']
+            wfeels = jsonstring['current_observation']['feelslike_string']
+            wuv = str(jsonstring['current_observation']['UV'])
+            wcondition = jsonstring['current_observation']['weather']
+            wurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
+        
+            return ('In ' + wcity + ' it is currently ' + wcondition + ', the temperature is ' + wtemp + ' and it feels like ' + wfeels + '. The wind speed is ' + wwindspd + ' MPH ' + wwinddir + ' with gusts of up to ' + wwindgust + " MPH. The UV level is " + wuv + ". Weather from " + wurl)
+    else:
+        return 'Sorry but you need to set your wunderground_api_key in the config file.'
+
+def weather(phenny, input): 
+    """Queries Wunderground for the weather."""
+    query = input.group(2)
+    if not query: return phenny.reply('.w what?')
+
+    uri = weather_search(query, phenny)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+weather.commands = ['w', 'weather']
+weather.example = '.w CA/San_Francisco'
 
 def search(phenny, input): 
     """Searches Duck Duck Go, Google, and Bing all at once."""
