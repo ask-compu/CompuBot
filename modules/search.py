@@ -213,17 +213,20 @@ def weather_search(query, phenny):
             werrorfull = 'Error Code: ' + werrortype + ' - ' + werrordesc
             return werrorfull
         else:
-            wcity = jsonstring['current_observation']['display_location']['full']
-            wwinddir = str(jsonstring['current_observation']['wind_dir'])
-            wwindspd = str(jsonstring['current_observation']['wind_mph'])
-            wwindgust = str(jsonstring['current_observation']['wind_gust_mph'])
-            wtemp = jsonstring['current_observation']['temperature_string']
-            wfeels = jsonstring['current_observation']['feelslike_string']
-            wuv = str(jsonstring['current_observation']['UV'])
-            wcondition = jsonstring['current_observation']['weather']
-            wurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
-        
-            return ('In ' + wcity + ' it is currently ' + wcondition + ', the temperature is ' + wtemp + ' and it feels like ' + wfeels + '. The wind speed is ' + wwindspd + ' MPH ' + wwinddir + ' with gusts of up to ' + wwindgust + " MPH. The UV level is " + wuv + ". Weather from " + wurl)
+            try:
+                wcity = jsonstring['current_observation']['display_location']['full']
+                wwinddir = str(jsonstring['current_observation']['wind_dir'])
+                wwindspd = str(jsonstring['current_observation']['wind_mph'])
+                wwindgust = str(jsonstring['current_observation']['wind_gust_mph'])
+                wtemp = jsonstring['current_observation']['temperature_string']
+                wfeels = jsonstring['current_observation']['feelslike_string']
+                wuv = str(jsonstring['current_observation']['UV'])
+                wcondition = jsonstring['current_observation']['weather']
+                wurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
+                
+                return ('In ' + wcity + ' it is currently ' + wcondition + ', the temperature is ' + wtemp + ' and it feels like ' + wfeels + '. The wind speed is ' + wwindspd + ' MPH ' + wwinddir + ' with gusts of up to ' + wwindgust + " MPH. The UV level is " + wuv + ". Weather from " + wurl)
+            except KeyError:
+                return None
     else:
         return 'Sorry but you need to set your wunderground_api_key in the config file.'
 
@@ -234,11 +237,14 @@ def weather(phenny, input):
 
     uri = weather_search(query, phenny)
     if uri: 
-        phenny.say("Here's what I got, " + input.nick + ": " + uri)
-        if not hasattr(phenny.bot, 'last_seen_uri'):
-            phenny.bot.last_seen_uri = {}
-        phenny.bot.last_seen_uri[input.sender] = uri
-    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+        if uri.startswith('Error Code'):
+            phenny.say("Sorry, " + input.nick +", I got an error. Here's the error i got, " + uri)
+        else:
+            phenny.say("Here's what I got, " + input.nick + ": " + uri)
+            if not hasattr(phenny.bot, 'last_seen_uri'):
+                phenny.bot.last_seen_uri = {}
+            phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
 weather.commands = ['w', 'weather']
 weather.example = '.w San Francisco, CA'
 
