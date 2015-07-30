@@ -195,7 +195,7 @@ wikipedia.example = '.wi swhack'
 def weather_search(query, phenny): 
     if phenny.config.wunderground_api_key:
         query = query.replace('!', '')
-        query = query.replace(' ', '')
+        query = query.replace(' ', '_')
         query = web.quote(query)
         uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/q/' + query + '.json'
         rec_bytes = web.get(uri)
@@ -240,7 +240,8 @@ def weather(phenny, input):
         phenny.bot.last_seen_uri[input.sender] = uri
     else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
 weather.commands = ['w', 'weather']
-weather.example = '.w CA/San_Francisco'
+weather.example = '.w San Francisco, CA'
+
 
 def search(phenny, input): 
     """Searches Duck Duck Go, Google, and Bing all at once."""
