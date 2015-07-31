@@ -253,7 +253,7 @@ def forecast_search(query, phenny):
         query = query.replace('!', '')
         query = query.replace(' ', '_')
         query = web.quote(query)
-        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/forecast/q/' + query + '.json'
+        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/forecast/q/' + query + '.json'
         rec_bytes = web.get(uri)
         jsonstring = json.loads(rec_bytes)
         wferror = 0
@@ -270,6 +270,7 @@ def forecast_search(query, phenny):
             return wferrorfull
         else:
             try:
+                wfcity = jsonstring['current_observation']['display_location']['full']
                 wfdate1 = jsonstring['forecast']['simpleforecast']['forecastday'][0]['date']['weekday']
                 wfdate2 = jsonstring['forecast']['simpleforecast']['forecastday'][1]['date']['weekday']
                 wfdate3 = jsonstring['forecast']['simpleforecast']['forecastday'][2]['date']['weekday']
@@ -298,7 +299,7 @@ def forecast_search(query, phenny):
                 degree_sign= u'\N{DEGREE SIGN}'
                 wfurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
                 
-                return ('The forecast for ' + wfdate1 + ' is ' + wfcond1 + ' with a high of ' + wfhigh1f + degree_sign + 'F (' + wfhigh1c + degree_sign + 'C) and a low of ' + wflow1f + degree_sign + 'F (' + wflow1c + degree_sign + 'C). On ' + wfdate2 + ' it will be ' + wfcond2 + ' with a high of ' + wfhigh2f + degree_sign + 'F (' + wfhigh2c + degree_sign + 'C) and a low of ' + wflow2f + degree_sign + 'F (' + wflow2c + degree_sign + 'C). On ' + wfdate3 + ' it will be ' + wfcond3 + ' with a high of ' + wfhigh3f + degree_sign + 'F (' + wfhigh3c + degree_sign + 'C) and a low of ' + wflow3f + degree_sign + 'F (' + wflow3c + degree_sign + 'C). On ' + wfdate4 + ' it will be ' + wfcond4 + ' with a high of ' + wfhigh4f + degree_sign + 'F (' + wfhigh4c + degree_sign + 'C) and a low of ' + wflow4f + degree_sign + 'F (' + wflow4c + degree_sign + 'C).')
+                return ('The forecast for ' + wfdate1 + ' in ' + wfcity + ' is ' + wfcond1 + ' with a high of ' + wfhigh1f + degree_sign + 'F (' + wfhigh1c + degree_sign + 'C) and a low of ' + wflow1f + degree_sign + 'F (' + wflow1c + degree_sign + 'C). On ' + wfdate2 + ' it will be ' + wfcond2 + ' with a high of ' + wfhigh2f + degree_sign + 'F (' + wfhigh2c + degree_sign + 'C) and a low of ' + wflow2f + degree_sign + 'F (' + wflow2c + degree_sign + 'C). On ' + wfdate3 + ' it will be ' + wfcond3 + ' with a high of ' + wfhigh3f + degree_sign + 'F (' + wfhigh3c + degree_sign + 'C) and a low of ' + wflow3f + degree_sign + 'F (' + wflow3c + degree_sign + 'C). On ' + wfdate4 + ' it will be ' + wfcond4 + ' with a high of ' + wfhigh4f + degree_sign + 'F (' + wfhigh4c + degree_sign + 'C) and a low of ' + wflow4f + degree_sign + 'F (' + wflow4c + degree_sign + 'C).')
             except KeyError:
                 return None
     else:
