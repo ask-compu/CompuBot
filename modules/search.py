@@ -297,7 +297,6 @@ def forecast_search(query, phenny):
                 wflow4c = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['low']['celsius'])
                 
                 degree_sign= u'\N{DEGREE SIGN}'
-                wfurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
                 
                 return ('The forecast for ' + wfdate1 + ' in ' + wfcity + ' is ' + wfcond1 + ' with a high of ' + wfhigh1f + degree_sign + 'F (' + wfhigh1c + degree_sign + 'C) and a low of ' + wflow1f + degree_sign + 'F (' + wflow1c + degree_sign + 'C). On ' + wfdate2 + ' it will be ' + wfcond2 + ' with a high of ' + wfhigh2f + degree_sign + 'F (' + wfhigh2c + degree_sign + 'C) and a low of ' + wflow2f + degree_sign + 'F (' + wflow2c + degree_sign + 'C). On ' + wfdate3 + ' it will be ' + wfcond3 + ' with a high of ' + wfhigh3f + degree_sign + 'F (' + wfhigh3c + degree_sign + 'C) and a low of ' + wflow3f + degree_sign + 'F (' + wflow3c + degree_sign + 'C). On ' + wfdate4 + ' it will be ' + wfcond4 + ' with a high of ' + wfhigh4f + degree_sign + 'F (' + wfhigh4c + degree_sign + 'C) and a low of ' + wflow4f + degree_sign + 'F (' + wflow4c + degree_sign + 'C).')
             except KeyError:
@@ -315,7 +314,9 @@ def forecast(phenny, input):
         if uri.startswith('Error Code'):
             phenny.say("Sorry, " + input.nick +", I got an error. Here's the error i got, " + uri)
         else:
+            wfurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
             phenny.say("Here's what I got, " + input.nick + ": " + uri)
+            phenny.say("Weather from " + wfurl)
             if not hasattr(phenny.bot, 'last_seen_uri'):
                 phenny.bot.last_seen_uri = {}
             phenny.bot.last_seen_uri[input.sender] = uri
