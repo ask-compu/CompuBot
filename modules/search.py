@@ -248,6 +248,79 @@ def weather(phenny, input):
 weather.commands = ['w', 'weather']
 weather.example = '.w San Francisco, CA'
 
+def forecast_search(query, phenny): 
+    if phenny.config.wunderground_api_key:
+        query = query.replace('!', '')
+        query = query.replace(' ', '_')
+        query = web.quote(query)
+        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/forecast/q/' + query + '.json'
+        rec_bytes = web.get(uri)
+        jsonstring = json.loads(rec_bytes)
+        wferror = 0
+        try:
+            wferrorexist = jsonstring['response']['error']['type']
+            wferror = 1
+        except:
+            wferror = 0
+            
+        if wferror is 1:
+            wferrortype = jsonstring['response']['error']['type']
+            wferrordesc = jsonstring['response']['error']['description']
+            wferrorfull = 'Error Code: ' + wferrortype + ' - ' + wferrordesc
+            return wferrorfull
+        else:
+            try:
+                wfdate1 = jsonstring['forecast']['simpleforecast']['forecastday'][0]['date']['weekday']
+                wfdate2 = jsonstring['forecast']['simpleforecast']['forecastday'][1]['date']['weekday']
+                wfdate3 = jsonstring['forecast']['simpleforecast']['forecastday'][2]['date']['weekday']
+                wfdate4 = jsonstring['forecast']['simpleforecast']['forecastday'][3]['date']['weekday']
+                wfcond1 = jsonstring['forecast']['simpleforecast']['forecastday'][0]['conditions']
+                wfcond2 = jsonstring['forecast']['simpleforecast']['forecastday'][1]['conditions']
+                wfcond3 = jsonstring['forecast']['simpleforecast']['forecastday'][2]['conditions']
+                wfcond4 = jsonstring['forecast']['simpleforecast']['forecastday'][3]['conditions']
+                wfhigh1f = str(jsonstring['forecast']['simpleforecast']['forecastday'][0]['high']['fahrenheit'])
+                wfhigh2f = str(jsonstring['forecast']['simpleforecast']['forecastday'][1]['high']['fahrenheit'])
+                wfhigh3f = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['high']['fahrenheit'])
+                wfhigh4f = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['high']['fahrenheit'])
+                wfhigh1c = str(jsonstring['forecast']['simpleforecast']['forecastday'][0]['high']['celsius'])
+                wfhigh2c = str(jsonstring['forecast']['simpleforecast']['forecastday'][1]['high']['celsius'])
+                wfhigh3c = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['high']['celsius'])
+                wfhigh4c = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['high']['celsius'])
+                wflow1f = str(jsonstring['forecast']['simpleforecast']['forecastday'][0]['low']['fahrenheit'])
+                wflow2f = str(jsonstring['forecast']['simpleforecast']['forecastday'][1]['low']['fahrenheit'])
+                wflow3f = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['low']['fahrenheit'])
+                wflow4f = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['low']['fahrenheit'])
+                wflow1c = str(jsonstring['forecast']['simpleforecast']['forecastday'][0]['low']['celsius'])
+                wflow2c = str(jsonstring['forecast']['simpleforecast']['forecastday'][1]['low']['celsius'])
+                wflow3c = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['low']['celsius'])
+                wflow4c = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['low']['celsius'])
+                
+                degree_sign= u'\N{DEGREE SIGN}'
+                wfurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
+                
+                return ('The forecast for ' + wfdate1 + ' is ' + wfcond1 + ' with a high of ' + wfhigh1f + degree_sign + 'F (' + wfhigh1c + degree_sign + 'C) and a low of ' + wflow1f + degree_sign + 'F (' + wflow1c + degree_sign + 'C). On ' + wfdate2 + ' it will be ' + wfcond2 + ' with a high of ' + wfhigh2f + degree_sign + 'F (' + wfhigh2c + degree_sign + 'C) and a low of ' + wflow2f + degree_sign + 'F (' + wflow2c + degree_sign + 'C). On ' + wfdate3 + ' it will be ' + wfcond3 + ' with a high of ' + wfhigh3f + degree_sign + 'F (' + wfhigh3c + degree_sign + 'C) and a low of ' + wflow3f + degree_sign + 'F (' + wflow3c + degree_sign + 'C). On ' + wfdate4 + ' it will be ' + wfcond4 + ' with a high of ' + wfhigh4f + degree_sign + 'F (' + wfhigh4c + degree_sign + 'C) and a low of ' + wflow4f + degree_sign + 'F (' + wflow4c + degree_sign + 'C).')
+            except KeyError:
+                return None
+    else:
+        return 'Sorry but you need to set your wunderground_api_key in the config file.'
+
+def forecast(phenny, input): 
+    """Queries Wunderground for the weather forecast."""
+    query = input.group(2)
+    if not query: return phenny.reply('.w what?')
+
+    uri = forecast_search(query, phenny)
+    if uri: 
+        if uri.startswith('Error Code'):
+            phenny.say("Sorry, " + input.nick +", I got an error. Here's the error i got, " + uri)
+        else:
+            phenny.say("Here's what I got, " + input.nick + ": " + uri)
+            if not hasattr(phenny.bot, 'last_seen_uri'):
+                phenny.bot.last_seen_uri = {}
+            phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
+forecast.commands = ['wf', 'forecast']
+forecast.example = '.wf San Francisco, CA'
 
 def search(phenny, input): 
     """Searches Duck Duck Go, Google, and Bing all at once."""
