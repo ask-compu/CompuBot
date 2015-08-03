@@ -45,16 +45,22 @@ part.priority = 'high'
 part.example = '.part #example'
 
 def quit(phenny, input): 
-    """Quit from the server. This is an owner-only command."""
+    """Quit from the server. This is an owner-only command. Quit message is optional."""
     # Can only be done in privmsg by the owner
     if input.sender.startswith('#'): 
         return
     if input.owner: 
         # TODO: add optional arguments for a quit message
-        phenny.write(['QUIT'])
-        __import__('os')._exit(0)
+        a = input.group(2)
+        if a: 
+            phenny.write(['QUIT', a])
+            __import__('os')._exit(0)
+        else:
+            phenny.write(['QUIT'])
+            __import__('os')._exit(0)
 quit.commands = ['quit']
 quit.priority = 'high'
+quit.example = '.quit message'
 
 def msg(phenny, input): 
     # Can only be done in privmsg by an admin
