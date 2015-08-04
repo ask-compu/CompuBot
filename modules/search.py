@@ -222,7 +222,12 @@ def weather_search(query, phenny):
                 wfeels = jsonstring['current_observation']['feelslike_string']
                 wuv = str(jsonstring['current_observation']['UV'])
                 wcondition = jsonstring['current_observation']['weather']
+                degree_sign = u'\N{DEGREE SIGN}'
                 wurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
+                wtemp = wtemp.replace(' F', degree_sign + 'F')
+                wtemp = wtemp.replace(' C', degree_sign + 'C')
+                wfeels = wfeels.replace(' F', degree_sign + 'F')
+                wfeels = wfeels.replace(' C', degree_sign + 'C')
                 
                 return ('In ' + wcity + ' it is currently ' + wcondition + ', the temperature is ' + wtemp + ' and it feels like ' + wfeels + '. The wind speed is ' + wwindspd + ' MPH ' + wwinddir + ' with gusts of up to ' + wwindgust + " MPH. The UV level is " + wuv + ". Weather from " + wurl)
             except KeyError:
@@ -296,7 +301,7 @@ def forecast_search(query, phenny):
                 wflow3c = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['low']['celsius'])
                 wflow4c = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['low']['celsius'])
                 
-                degree_sign= u'\N{DEGREE SIGN}'
+                degree_sign = u'\N{DEGREE SIGN}'
                 
                 return ('The forecast for ' + wfdate1 + ' in ' + wfcity + ' is ' + wfcond1 + ' with a high of ' + wfhigh1f + degree_sign + 'F (' + wfhigh1c + degree_sign + 'C) and a low of ' + wflow1f + degree_sign + 'F (' + wflow1c + degree_sign + 'C). On ' + wfdate2 + ' it will be ' + wfcond2 + ' with a high of ' + wfhigh2f + degree_sign + 'F (' + wfhigh2c + degree_sign + 'C) and a low of ' + wflow2f + degree_sign + 'F (' + wflow2c + degree_sign + 'C). On ' + wfdate3 + ' it will be ' + wfcond3 + ' with a high of ' + wfhigh3f + degree_sign + 'F (' + wfhigh3c + degree_sign + 'C) and a low of ' + wflow3f + degree_sign + 'F (' + wflow3c + degree_sign + 'C). On ' + wfdate4 + ' it will be ' + wfcond4 + ' with a high of ' + wfhigh4f + degree_sign + 'F (' + wfhigh4c + degree_sign + 'C) and a low of ' + wflow4f + degree_sign + 'F (' + wflow4c + degree_sign + 'C).')
             except KeyError:
