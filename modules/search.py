@@ -10,6 +10,7 @@ http://inamidst.com/phenny/
 import re
 import web
 import json
+import string
 
 class Grab(web.urllib.request.URLopener):
     def __init__(self, *args):
@@ -328,6 +329,49 @@ def forecast(phenny, input):
     else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
 forecast.commands = ['wf', 'forecast']
 forecast.example = '.wf San Francisco, CA'
+
+def dictionary_search(query, phenny): 
+    if phenny.config.wunderground_api_key:
+        query = query.replace('!', '')
+        query = web.quote(query)
+        try:
+            query = query.lower()
+            uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+            rec_bytes = web.get(uri)
+            jsonstring = json.loads(rec_bytes)
+            dword = jsonstring[0]['word']
+        except:
+            query = string.capwords(query)
+            uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+            rec_bytes = web.get(uri)
+            jsonstring = json.loads(rec_bytes)
+        try:
+            dword = jsonstring[0]['word']
+        except:
+            return None
+        if dword:
+            ddef = jsonstring[0]['text']
+            dattr = jsonstring[0]['attributionText']
+            dpart = jsonstring[0]['partOfSpeech']
+            dpart = dpart.replace('-', ' ')
+            dpart = string.capwords(dpart)
+            return (dword + ' - ' + dpart + ' - ' + ddef + ' - ' + dattr)
+    else
+        return 'Sorry but you need to set your wordnik_api_key in the config file.'
+def dictionary(phenny, input): 
+    """Gives definitions for words."""
+    query = input.group(2)
+    if not query: return phenny.reply('.def what?')
+
+    uri = dictionary_search(query, phenny)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+dictionary.commands = ['d', 'def', 'define']
+dictionary.example = '.d swhack'
 
 def search(phenny, input): 
     """Searches Duck Duck Go, Google, and Bing all at once."""
