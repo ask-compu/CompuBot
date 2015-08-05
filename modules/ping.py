@@ -170,13 +170,18 @@ def boops(phenny, input):
 boops.rule = r'(\x01ACTION)?( "accidentally"| trips and accidentally| sticks her tongue out and| gently| tries to)? (?i)boop(s)? (?i)CompuBot'
 
 def cookie(phenny, input):
+    if input.sender in ['#reddit-clopclop']:
+        return
     if input.nick in phenny.config.user_ignore:
         return
     # we're going to have a one-in-ten chance of Pinkie trying to cheer you up
     if random.randint(9,10) == 10:
         cookieresponse = random.choice(('\x01ACTION gives ' + input.nick + ' a cookie\x01','\x01ACTION gives ' + input.nick + ' two cookies and milk\x01', '\x01ACTION throws five cookies in ' + input.nick + "'s direction\x01", '\x01ACTION gives ' + input.nick + ' a raisin and oat cookie'))
         phenny.say(cookieresponse)
-cookie.rule = r'(?i)((CompuBot(:|,)? )?(C|c)ookies (P|p)lease(\?)?)|(?i)((CompuBot(:|,)? )?(((C|c)an (I|i))|((I|i) (C|c)an)) (((H|h)ave)|((H|h)as)) (C|c)ookie(s)?( (P|p)lease)?(\?)?)'
+    else:
+        cookieresponse = random.choice(("Sorry, " + input.nick + " but you can't have one.", 'Nope!'))
+        phenny.say(cookieresponse)
+cookie.rule = r'(?i)((CompuBot(:|,)? )?(C|c)ookies (P|p)lease(\?)?)|(?i)((CompuBot(:|,)? )?(((C|c)an (I|i))|((I|i) (C|c)an)) (((H|h)ave)|((H|h)a(s|z))) (C|c)ookie(s)?( (P|p)lease)?(\?)?)'
 
 #def boopcommand(phenny, input):
 #    if input.nick in phenny.config.user_ignore:
