@@ -152,16 +152,6 @@ def bestpony(phenny, input):
     phenny.say(bestponyresponse)
 bestpony.rule = r'(?i)(CompuBot(:|,)? )?(who(\'s|s| is)) (the )?best (pony|robomare|mare)[\?]?'
 
-def ping(phenny, input):
-    if input.nick in phenny.config.user_ignore:
-        return
-    pingresponse = random.choice(('Pong!','Pong!'))
-#    pingpuncuation = random.choice(('!', '.'))
-#    phenny.say(pingresponse + pingpuncuation)
-    phenny.say(pingresponse)
-ping.rule = r'(?i).(P|p)ing'
-
-
 def boops(phenny, input):
     if input.nick in phenny.config.user_ignore:
         return
