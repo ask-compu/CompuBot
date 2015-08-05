@@ -44,6 +44,9 @@ def create_default_config(fn):
     # password = 'example'
     # serverpass = 'serverpass'
 
+    # This sets the length in characters of the tag list given for e621, twentypercentcoolar, and derpibooru URLs
+    tag_list_length = '200'
+    
     # These are people who will be able to use admin.py's functions...
     admins = [owner, 'someoneyoutrust']
     # But admin.py is disabled by default, as follows:
@@ -53,6 +56,18 @@ def create_default_config(fn):
     
     # Ignore these users for some commands or modules (like tell.py)
     user_ignore = ['anon']
+    
+    # Youtube API Key
+    # Please uncomment these and add the API Key
+    youtube_api_key = ''
+    
+    # Wunderground API Key
+    # Please uncomment these and add the API Key
+    wunderground_api_key = ''
+    
+    # Wordnik API Key
+    # Please uncomment these and add the API Key
+    # wordnik_api_key = ''
 
     # If you want to enumerate a list of modules rather than disabling
     # some, use "enable = ['example']", which takes precedent over exclude
