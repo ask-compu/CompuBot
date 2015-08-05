@@ -7,6 +7,7 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
+
 def doc(phenny, input): 
     """Shows a command's documentation, and possibly an example."""
     name = input.group(1)
@@ -96,6 +97,18 @@ def stats(phenny, input):
     phenny.say(chreply.rstrip(', '))
 stats.commands = ['stats']
 stats.priority = 'low'
+
+def ping(phenny, input):
+    '''Replies with a Pong for testing connections'''
+    if input.nick in phenny.config.user_ignore:
+        return
+    pingresponse = 'Pong!'
+#    pingpuncuation = random.choice(('!', '.'))
+#    phenny.say(pingresponse + pingpuncuation)
+    phenny.say(pingresponse)
+ping.commands = ['ping']
+ping.priority = 'high'
+ping.example = '.ping'
 
 if __name__ == '__main__': 
     print(__doc__.strip())
