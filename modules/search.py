@@ -356,7 +356,7 @@ def dictionary_search(query, phenny):
             dpart = dpart.replace('-', ' ')
             dpart = string.capwords(dpart)
             return (dword + ' - ' + dpart + ' - ' + ddef + ' - ' + dattr)
-    else
+    else:
         return 'Sorry but you need to set your wordnik_api_key in the config file.'
 def dictionary(phenny, input): 
     """Gives definitions for words."""
