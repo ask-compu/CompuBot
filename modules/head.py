@@ -397,6 +397,12 @@ def get_percentage(likes, dislikes):
         percentage = '0.00'
     return percentage
 
+def smart_truncate(content, length=100, suffix='...'):
+    if len(content) <= length:
+        return content
+    else:
+        return content[:length].rsplit(' ', 1)[0]+suffix
+    
 def ouroboros(site, uri):
     # e621 and twentypercentcooler use the same software
     # TODO: load tag file; compare tags, generate title
@@ -425,7 +431,9 @@ def ouroboros(site, uri):
     else:
         filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
         filtered = re.sub(" +"," ",filtered).strip()
-    title = re.sub('_'," ",filtered)
+    content = filtered
+    filtered = smart_truncate(content, length=100, suffix='...')
+    title = re.sub('_',"_",filtered)
     title = '{0} {1}'.format(rating.capitalize(),title)
     return title
 
@@ -466,6 +474,8 @@ def derpibooru(uri):
         tags = [tag for tag in tags if tag not in boru.ignore_tags]
     tag_string = ' '.join(tag.replace(' ', '_') for tag in tags)
     title = '{0} {1}'.format(ratings.title(),tag_string,artists)
+    content = title
+    title = smart_truncate(content, length=100, suffix='...')
     return title
 
 def get_story_title(uri):
