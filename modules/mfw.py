@@ -29,10 +29,11 @@ def mlfw(phenny, input):
 
     try:
         link = 'http://mlfw.info/f/{0}/'.format(choice(results['objects'])['id'])
+        image = 'http://mlfw.info{0}'.format(choice(results['objects'])['image'])
     except AttributeError:
         phenny.say('No face for that')
         return
     
-    phenny.reply(link)
+    phenny.reply(image)
 
-mlfw.rule = (['mlfw'],r'(.*)')
+mlfw.commands = ('mlfw', 'mfw')
