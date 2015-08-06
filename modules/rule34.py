@@ -43,13 +43,13 @@ def rule34(phenny, input):
         return
 
     try:
-        link = 'http://rule34.xxx/index.php?page=post&s=view&id={0}'.format(choice(results).attrib['id'])
+        link = (choice(results).attrib['file_url'])
     except AttributeError:
         raise GrumbleError("THE INTERNET IS BROKEN. Please try again later.")
 
     response = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
     phenny.reply(response)
-rule34.rule = (['rule34'], r'(.*)')
+rule34.commands = ['r34', 'rule34']
 
 def e621(phenny, input):
     '''.e621 <query> - returns a random image for any query from e621.net (all links tagged as NSFW). 
@@ -71,7 +71,7 @@ def e621(phenny, input):
         if sfw:
             link = link.replace('e621','e926') #added e in case 621 is in the id
         phenny.reply(link)
-e621.rule = (['e621'], r'(.*)')
+e621.commands = ['e621']
 
 def tpc(phenny, input):
     '''.tpc <query> - returns the image for any query from twentypercentcooler.net 
@@ -93,7 +93,7 @@ def tpc(phenny, input):
     if link :
         phenny.reply(link)
 
-tpc.rule = (['tpc','twentypercentcooler','ponies'], r'(.*)')
+tpc.commands = ['tpc', 'twentypercentcooler', 'ponies']
 
 ##
 # Helper Functions
@@ -113,6 +113,10 @@ def get_boru(phenny, site, tags):
     
     try:
         link = 'http://{0}.net/post/show/{1}/'.format(site,choice(results)['id'])
+        if site is 'e621':
+            image = (choice(results)['file_url'])
+        if site is 'twentypercentcooler':
+            image = 'http://twentypercentcooler.net' + (choice(results)['file_url'])
     except AttributeError:
         phenny.say('Oopsies, looks like the Internet is broken.')
 
@@ -120,7 +124,8 @@ def get_boru(phenny, site, tags):
     rating = tags['rating']
     if rating in ('q','e'):
         link = '!!NSFW!! -> {0} <- !!NSFW!!'.format(link)
-    return link
+        image = '!!NSFW!! -> {0} <- !!NSFW!!'.format(image)
+    return image
 
 def check_rating(phenny, sender, q, nick):
     sfw = False
