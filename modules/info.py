@@ -133,7 +133,10 @@ def randnum(phenny, input):
             endnum = int(endnum)
     except:
         return phenny.say('Sorry, ' + input.nick + ', but I need numbers for this command.')
-    finalnum = random.randint(startnum,endnum)
+    try:
+        finalnum = random.randint(startnum,endnum)
+    except:
+        return phenny.say('Sorry, ' + input.nick + ', but I can only do positive numbers for now.')
     finalnum = str(finalnum)
     phenny.say('Here ya go, ' + input.nick + ': ' + finalnum)
 randnum.commands = ['rand', 'random']
