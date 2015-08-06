@@ -133,13 +133,13 @@ def snarfuri(phenny, input):
             title = get_story_title(uri)
 
         if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
-            title = ouroboros('e621',uri)
+            title = ouroboros('e621',uri, phenny)
 
         if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
-            title = ouroboros('twentypercentcooler',uri)
+            title = ouroboros('twentypercentcooler',uri, phenny)
 
         if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
-            title = derpibooru(uri)
+            title = derpibooru(uri, phenny)
 
         if title:
             phenny.msg(input.sender, '[ ' + title + ' ]')
@@ -397,13 +397,20 @@ def get_percentage(likes, dislikes):
         percentage = '0.00'
     return percentage
 
-def smart_truncate(content, length=100, suffix='...'):
-    if len(content) <= length:
-        return content
+def smart_truncate(content, phenny):
+    if phenny.config.tag_list_length:
+        suffix=' ...'
+        try:
+            length=int(phenny.config.tag_list_length)
+        except:
+            return "The tag_list_length option is not set correctly, please fix it"
+        if len(content) <= length:
+            return content
+        else:
+            return content[:length].rsplit(' ', 1)[0]+suffix
     else:
-        return content[:length].rsplit(' ', 1)[0]+suffix
-    
-def ouroboros(site, uri):
+        return "Please set the tag_list_length option in the config"
+def ouroboros(site, uri, phenny):
     # e621 and twentypercentcooler use the same software
     # TODO: load tag file; compare tags, generate title
     #load a list of unimportant tags from a file. possible regex?
@@ -432,12 +439,12 @@ def ouroboros(site, uri):
         filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
         filtered = re.sub(" +"," ",filtered).strip()
     content = filtered
-    filtered = smart_truncate(content, length=100, suffix='...')
+    filtered = smart_truncate(content, phenny)
     title = re.sub('_',"_",filtered)
     title = '{0} {1}'.format(rating.capitalize(),title)
     return title
 
-def derpibooru(uri):
+def derpibooru(uri, phenny):
     # TODO: research derpibooru's API and get data
     def get_id(link):
         exp = '(.*)derpiboo((.ru)|(ru.org))(/images)?/(?P<id>[0-9]*)/?'
@@ -475,7 +482,7 @@ def derpibooru(uri):
     tag_string = ' '.join(tag.replace(' ', '_') for tag in tags)
     title = '{0} {1}'.format(ratings.title(),tag_string,artists)
     content = title
-    title = smart_truncate(content, length=100, suffix='...')
+    title = smart_truncate(content, phenny)
     return title
 
 def get_story_title(uri):
