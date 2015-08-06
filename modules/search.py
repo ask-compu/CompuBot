@@ -1,505 +1,505 @@
 #!/usr/bin/env python
-'''
-head.py - Phenny HTTP Metadata Utilities
-Copyright 2008, Sean B. Palmer, inamidst.com
+"""
+search.py - Phenny Web Search Module
+Copyright 2008-9, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
 http://inamidst.com/phenny/
+"""
 
-Modified by Jordan Kinsley <jordan@jordantkinsley.org>
-'''
-
-import re, os.path, json, imp
-import urllib.request
-import urllib.parse
-import urllib.error
-import http.client
-import http.cookiejar
-import time
-from datetime import timedelta
-from html.entities import name2codepoint
+import re
 import web
-from tools import deprecated
+import json
+import string
 
-cj = http.cookiejar.LWPCookieJar(os.path.join(os.path.expanduser('~/.phenny'), 'cookies.lwp'))
-opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
-urllib.request.install_opener(opener)
+class Grab(web.urllib.request.URLopener):
+    def __init__(self, *args):
+        self.version = 'Mozilla/5.0 (CompuBot)'
+        web.urllib.request.URLopener.__init__(self, *args)
+        self.addheader('Referer', 'https://github.com/sbp/phenny')
+    def http_error_default(self, url, fp, errcode, errmsg, headers):
+        return web.urllib.addinfourl(fp, [headers, errcode], "http:" + url)
 
-def head(phenny, input): 
-    """Provide HTTP HEAD information."""
-    uri = input.group(2)
-    uri = (uri or '')
-    if ' ' in uri: 
-        uri, header = uri.rsplit(' ', 1)
-    else: uri, header = uri, None
+def google_ajax(query): 
+    """Search using AjaxSearch, and return its JSON."""
+    if isinstance(query, str): 
+        query = query.encode('utf-8')
+    uri = 'http://ajax.googleapis.com/ajax/services/search/web'
+    args = '?v=1.0&safe=off&q=' + web.quote(query)
+    handler = web.urllib.request._urlopener
+    web.urllib.request._urlopener = Grab()
+    bytes = web.get(uri + args)
+    web.urllib.request._urlopener = handler
+    return web.json(bytes)
 
-    if not uri and hasattr(phenny, 'last_seen_uri'): 
-        try: uri = phenny.last_seen_uri[input.sender]
-        except KeyError: return phenny.say('?')
-
-    if not uri.startswith('htt'): 
-        uri = 'http://' + uri
-    # uri = uri.replace('#!', '?_escaped_fragment_=')
-    
-    start = time.time()
-
-    try:
-        info = web.head(uri)
-        info['status'] = '200'
-    except urllib.error.HTTPError as e:
-        return phenny.say(str(e.code))
-    except http.client.InvalidURL:
-        return phenny.say("Not a valid URI, sorry.")
-    except IOError:
-        return phenny.say("Can't connect to %s" % uri)
-
-    resptime = time.time() - start
-
-    if header is None: 
-        data = []
-        if 'Status' in info: 
-            data.append(info['Status'])
-        if 'content-type' in info: 
-            data.append(info['content-type'].replace('; charset=', ', '))
-        if 'last-modified' in info: 
-            modified = info['last-modified']
-            modified = time.strptime(modified, '%a, %d %b %Y %H:%M:%S %Z')
-            data.append(time.strftime('%Y-%m-%d %H:%M:%S UTC', modified))
-        if 'content-length' in info: 
-            data.append(info['content-length'] + ' bytes')
-        data.append('{0:1.2f} s'.format(resptime))
-        phenny.reply(', '.join(data))
-    else: 
-        headerlower = header.lower()
-        if headerlower in info: 
-            phenny.say(header + ': ' + info.get(headerlower))
-        else: 
-            msg = 'There was no %s header in the response.' % header
-            phenny.say(msg)
-head.commands = ['head']
-head.example = '.head http://www.w3.org/'
-
-r_title = re.compile(r'(?ims)<title[^>]*>(.*?)</title\s*>')
-r_entity = re.compile(r'&[A-Za-z0-9#]+;')
-
-@deprecated
-def f_title(self, origin, match, args): 
-    """.title <URI> - Return the title of URI."""
-    uri = match.group(2)
-    uri = (uri or '')
-
-    if not uri and hasattr(self, 'last_seen_uri'): 
-        uri = self.last_seen_uri.get(origin.sender)
-    if not uri: 
-        return self.msg(origin.sender, 'I need a URI to give the title of...')
-    title = gettitle(uri)
-    if title:
-        self.msg(origin.sender, origin.nick + ': ' + title)
-    else: self.msg(origin.sender, origin.nick + ': No title found')
-f_title.commands = ['title']
-
-def noteuri(phenny, input): 
-    uri = input.group(1)
-    if not hasattr(phenny.bot, 'last_seen_uri'): 
-        phenny.bot.last_seen_uri = {}
-    phenny.bot.last_seen_uri[input.sender] = uri
-noteuri.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
-noteuri.priority = 'low'
-
-titlecommands = r'(?:' + r'|'.join(f_title.commands) + r')'
-def snarfuri(phenny, input):
-    if re.match(r'(?i)' + phenny.config.prefix + titlecommands, input.group()):
-        return
-    uri = input.group(1)
-    if input.nick in ('derpy','Chance'):
-        return
-    try:
-        if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
-            return None
-        
-        title = None
-
-        youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch.*\?.*v\=\w+')
-        if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
-            # due to changes in how Youtube gives out API access, we need a key from the config file
-            if get_youtube_title(uri, phenny.config.youtube_api_key) is None:
-                phenny.say("Sorry " + input.nick + " but you need to fix your URL.")
-                return
-            else:
-                title = get_youtube_title(uri, phenny.config.youtube_api_key)
-
-        fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
-        if fimfiction.match(uri):
-            title = get_story_title(uri)
-
-        if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
-            title = ouroboros('e621',uri, phenny)
-
-        if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
-            title = ouroboros('twentypercentcooler',uri, phenny)
-
-        if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
-            title = derpibooru(uri, phenny)
-
-        if title:
-            phenny.msg(input.sender, '[ ' + title + ' ]')
-        else:
-            title = gettitle(uri)
-            if title: phenny.msg(input.sender, '[ ' + title + ' ]')
-    except http.client.HTTPException:
-        return
-snarfuri.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
-snarfuri.priority = 'low'
-
-def gettitle(uri):
-    if not ':' in uri: 
-        uri = 'http://' + uri
-    uri = uri.replace('#!', '?_escaped_fragment_=')
-
-    title = None
-    localhost = [
-        'http://localhost/', 'http://localhost:80/', 
-        'http://localhost:8080/', 'http://127.0.0.1/', 
-        'http://127.0.0.1:80/', 'http://127.0.0.1:8080/', 
-        'https://localhost/', 'https://localhost:80/', 
-        'https://localhost:8080/', 'https://127.0.0.1/', 
-        'https://127.0.0.1:80/', 'https://127.0.0.1:8080/', 
-    ]
-    for s in localhost: 
-        if uri.startswith(s): 
-            return
-
-    if re.compile('http(s)?://(www.)?bad-dragon.com/').match(uri) and not check_cookie('baddragon_age_checked'):
-        urllib.request.urlopen('http://bad-dragon.com/agecheck/accept')
-
-    try: 
-        redirects = 0
-        while True: 
-            info = web.head(uri)
-
-            if not isinstance(info, list): 
-                status = '200'
-            else: 
-                status = str(info[1])
-                info = info[0]
-            if status.startswith('3'): 
-                uri = urllib.parse.urljoin(uri, info['Location'])
-            else: break
-
-            redirects += 1
-            if redirects >= 25: 
-                return None
-
-        try: mtype = info['content-type']
-        except: 
-            return None
-
-        try:
-            # Occasionally throws type errors if a CSS file is given. 
-            if not (('/html' in mtype) or ('/xhtml' in mtype)): 
-                return None
-        except:
-            return None
-
-        bytes = web.get(uri)
-        #bytes = u.read(262144)
-        #u.close()
-
-    except IOError: 
-        return
-    except UnicodeError:
-        '''
-        Due to the way Python implemented the urllib.request.urlopen() 
-        function, it is not possible to correct for Unicode characters
-        like € in a URL. Therefore, we just catch the error and don't
-        provide a title for the link. Other options may be worth 
-        exploring, and could be included here. 
-        '''
-        return
-
-    m = r_title.search(bytes)
-    if m: 
-        title = m.group(1)
-        title = title.strip()
-        title = title.replace('\t', ' ')
-        title = title.replace('\r', ' ')
-        title = title.replace('\n', ' ')
-        while '  ' in title: 
-            title = title.replace('  ', ' ')
-        if len(title) > 200: 
-            title = title[:200] + '[...]'
-        
-        def e(m): 
-            entity = m.group(0)
-            if entity.startswith('&#x'): 
-                cp = int(entity[3:-1], 16)
-                return chr(cp)
-            elif entity.startswith('&#'): 
-                cp = int(entity[2:-1])
-                return chr(cp)
-            else: 
-                char = name2codepoint[entity[1:-1]]
-                return chr(char)
-        title = r_entity.sub(e, title)
-
-        if title: 
-            title = title.replace('\n', '')
-            title = title.replace('\r', '')
-        else: title = None
-    return title
-
-def check_cookie(name):
-    ''' checks the given name against the names of cookies in the cookie
-    jar; returns true iff it finds an exact match.'''
-    for cookie in cj:
-        if cookie.name == name:
-            return True
-        else: continue
-    return False
-
-def query(vid, auth_key):
-    ''' 
-    returns the title, viewcount, time, and uploader of a Youtube video. 
-    vid is the Youtube video ID at the end of the Youtube URL.
-    '''
-    
-    main = 'https://www.googleapis.com/youtube/v3/videos?id='
-    key = '&key=' + auth_key
-    ext = '&part=snippet,contentDetails,statistics'
-    
-    req = web.get(main + vid + key + ext)
-    data = json.loads(req, encoding='utf-8')
-    try:
-        data = data['items'][0]
+def google_search(query): 
+    results = google_ajax(query)
+    try: return results['responseData']['results'][0]['unescapedUrl']
     except IndexError: return None
-    title = data['snippet']['title']
-    uploader = data['snippet']['channelTitle']
-    try:
-        viewcount = str(data['statistics']['viewCount'])
-    except (KeyError, IndexError):
-        viewcount = '0'
-    duration = str(data['contentDetails']['duration'])
-    # a video with no likes results in IndexErrors (assuming true for ratingCount, too)
-    try:
-        likes = str(data['statistics']['likeCount'])
-    except (KeyError, IndexError):
-        likes = '0'
-    try:
-        dislikes = str(data['statistics']['dislikeCount'])
-    except (KeyError, IndexError):
-        dislikes = '0'
-    
-    time = iso_8601(duration)
-    
-    return title, viewcount, time, uploader, likes, dislikes
-    
-def iso_8601(str_time):
-    '''
-    Google's Youtube data V3 API gives duration in an ISO 8601 format, e.g.
-    P3DT4H30M44S. Each format of time, i.e. 3D, 4H, 30M, 44S are optional 
-    in the string. P1D is just as valid as PT24H, for instance (and is the
-    actual value returned for a video exactly 24 hours, 0 minutes, and 0 seconds long
-    
-    returns a string of the time, formatted like 3d 4h 30m 44s
-    '''
-    
-    iso_8601_re = re.compile('P(?P<year>[0-9]*Y)?(?P<month>[0-9]*M)?(?P<week>[0-9]*W)?(?P<day>[0-9]*D)?(T)?(?P<hour>[0-9]*H)?(?P<minute>[0-9]*M)?(?P<second>[0-9]*S)?')
-    
-    found_time = re.match(iso_8601_re, str_time)
-    year, month, week, day, hour, minute, second = '','','','','','',''
-    return_time = ''
-    if found_time.group('year'):
-        year = found_time.group('year').rstrip('Y')
-        return_time = return_time + year + 'y '
-    if found_time.group('month'):
-        month = found_time.group('month').rstrip('M')
-        return_time = return_time + month + 'm '
-    if found_time.group('week'):
-        week = found_time.group('week').rstrip('W')
-        return_time = return_time + week + 'w '
-    if found_time.group('day'):
-        day = found_time.group('day').rstrip('D')
-        return_time = return_time + day + 'd '
-    if found_time.group('hour'):
-        hour = found_time.group('hour').rstrip('H')
-        return_time = return_time + hour + 'h '
-    if found_time.group('minute'):
-        minute = found_time.group('minute').rstrip('M')
-        return_time = return_time + minute + 'm '
-    if found_time.group('second'):
-        second = found_time.group('second').rstrip('S')
-        return_time = return_time + second + 's '
-    return return_time
+    except TypeError: 
+        print(results)
+        return False
 
-def get_youtube_title(uri, auth_key):
-    vid = None
-    if 'youtu.be/' not in uri:
-        if '?v=' in uri:
-            vid = uri[uri.index('?v=')+3:uri.index('?v=') + 14]
-        elif '&v=' in uri:
-            vid = uri[uri.index('&v=')+3:uri.index('&v=') + 14]
-        else:
-            return None
-    else:
-        vid = uri[uri.rindex('be/')+3:uri.rindex('be/')+14]
+def google_count(query): 
+    results = google_ajax(query)
+    if 'responseData' not in results: return '0'
+    if 'cursor' not in results['responseData']: return '0'
+    if 'estimatedResultCount' not in results['responseData']['cursor']: 
+        return '0'
+    return results['responseData']['cursor']['estimatedResultCount']
 
-    video_data = query(vid, auth_key)
-    if video_data is None:
-      return None
-    else:
-      title, views, time, uploader, likes, dislikes = video_data
-    if title == '':
-        return None
-    percentage = get_percentage(likes, dislikes)
-    # Not including the uploader in the title info; it's rarely important in determining a link's quality.
-    return "\002You\00300,04Tube\017 " + title + " - " + views + " views - Uploaded by " + uploader + " - " + time + "long - " + likes + " likes - " + dislikes + " dislikes - " + percentage + "%"
+def formatnumber(n): 
+    """Format a number with beautiful commas."""
+    parts = list(str(n))
+    for i in range((len(parts) - 3), 0, -3):
+        parts.insert(i, ',')
+    return ''.join(parts)
 
-def get_api_story_title(uri):
-    story_id = uri.split('story/')[1]
-    if story_id.find('/') > 1:
-        story_id = story_id.split('/')[0]
-    data = web.get('http://fimfiction.net/api/story.php?story=' + story_id)
-    story = json.loads(data, encoding='utf-8')['story']
-    
-    story_title = format_title(story['title'])
-    likes = str(story['likes'])
-    dislikes = str(story['dislikes'])
-    percentage = get_percentage(likes, dislikes)
-    author = story['author']['name'].strip('"')
-    views = str(story['views'])
-    words = str(story['words'])
-    content_rating = int(story['content_rating'])
-    chapters = str(story['chapter_count'])
-    categories = ''
-    
-    cat_dict = story['categories']
-    for k in cat_dict:
-        if cat_dict[k] is True:
-            categories = categories + '[' + k + ']'
-    return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories
-    
-def format_title(title):
-    title = title.strip('"')
-    title = title.replace('&#039;','\'')
-    title = title.replace('&amp;','&')
-    title = title.replace('&quot;','"')
-    title = title.replace('&lt;','<')
-    title = title.replace('&gt;','>')
-    return title
-    
-def get_percentage(likes, dislikes):
-    percentage = ''
-    if int(likes) > 0 or int(dislikes) > 0:
-        percentage = (float(likes) / (float(dislikes) + float(likes))) * 100
-        percentage = str(round(percentage, 2))
-    else:
-        # no likes and dislikes
-        percentage = '0.00'
-    return percentage
+def g(phenny, input): 
+    """Queries Google for the specified input."""
+    query = input.group(2)
+    if not query: 
+        return phenny.reply('.g what?')
+    uri = google_search(query)
+    if uri: 
+        phenny.reply(uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    elif uri is False: phenny.reply("Problem getting data from Google.")
+    else: phenny.reply("No results found for '%s'." % query)
+g.commands = ['g']
+g.priority = 'high'
+g.example = '.g swhack'
 
-def smart_truncate(content, phenny):
-    if phenny.config.tag_list_length:
-        suffix=' ...'
+def gc(phenny, input): 
+    """Returns the number of Google results for the specified input."""
+    query = input.group(2)
+    if not query: 
+        return phenny.reply('.gc what?')
+    num = formatnumber(google_count(query))
+    phenny.say(query + ': ' + num)
+gc.commands = ['gc']
+gc.priority = 'high'
+gc.example = '.gc extrapolate'
+
+r_query = re.compile(
+    r'\+?"[^"\\]*(?:\\.[^"\\]*)*"|\[[^]\\]*(?:\\.[^]\\]*)*\]|\S+'
+)
+
+def gcs(phenny, input): 
+    if not input.group(2):
+        return phenny.reply("Nothing to compare.")
+    queries = r_query.findall(input.group(2))
+    if len(queries) > 6: 
+        return phenny.reply('Sorry, can only compare up to six things.')
+
+    results = []
+    for i, query in enumerate(queries): 
+        query = query.strip('[]')
+        n = int((formatnumber(google_count(query)) or '0').replace(',', ''))
+        results.append((n, query))
+        if i >= 2: __import__('time').sleep(0.25)
+        if i >= 4: __import__('time').sleep(0.25)
+
+    results = [(term, n) for (n, term) in reversed(sorted(results))]
+    reply = ', '.join('%s (%s)' % (t, formatnumber(n)) for (t, n) in results)
+    phenny.say(reply)
+gcs.commands = ['gcs', 'comp']
+
+r_bing = re.compile(r'<h3><a href="([^"]+)"')
+
+def bing_search(query, lang='en-GB'): 
+    query = web.quote(query)
+    base = 'http://www.bing.com/search?mkt=%s&q=' % lang
+    bytes = web.get(base + query)
+    m = r_bing.search(bytes)
+    if m: return m.group(1)
+
+def bing(phenny, input): 
+    """Queries Bing for the specified input."""
+    query = input.group(2)
+    if query.startswith(':'): 
+        lang, query = query.split(' ', 1)
+        lang = lang[1:]
+    else: lang = 'en-GB'
+    if not query:
+        return phenny.reply('.bing what?')
+
+    uri = bing_search(query, lang)
+    if uri: 
+        phenny.reply(uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.reply("No results found for '%s'." % query)
+bing.commands = ['bing']
+bing.example = '.bing swhack'
+
+r_duck = re.compile(r'nofollow" class="[^"]+" href="(http.*?)">')
+
+def duck_search(query): 
+    query = query.replace('!', '')
+    query = web.quote(query)
+    uri = 'http://duckduckgo.com/html/?q=%s&kl=uk-en' % query
+    rec_bytes = web.get(uri)
+    m = r_duck.search(rec_bytes)
+    if m: return web.decode(m.group(1))
+
+def duck(phenny, input): 
+    """Queries Duck Duck Go for the specified input."""
+    query = input.group(2)
+    if not query: return phenny.reply('.ddg what?')
+
+    uri = duck_search(query)
+    if uri: 
+        phenny.reply(uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.reply("No results found for '%s'." % query)
+duck.commands = ['ddg', 'duck']
+duck.example = '.ddg swhack'
+
+
+
+def wikipedia_search(query): 
+    query = query.replace('!', '')
+    query = web.quote(query)
+    uri = 'https://en.wikipedia.org/w/api.php?action=query&list=search&continue=&srsearch=%s&format=json' % query
+    rec_bytes = web.get(uri)
+    jsonstring = json.loads(rec_bytes)
+    wihits = jsonstring['query']['searchinfo']['totalhits']
+    if wihits > 0:
+        wititle = jsonstring['query']['search'][0]['title']
+        wiwords = str(jsonstring['query']['search'][0]['wordcount'])
+        wisearch = wititle.replace('!', '')
+        wisearch = web.quote(wisearch)
+        base_url = "https://en.wikipedia.org/wiki/"+wisearch
+        return (wititle + " - " + wiwords + " words " + base_url)
+
+def wikipedia(phenny, input): 
+    """Queries Wikipedia for the specified input."""
+    query = input.group(2)
+    if not query: return phenny.reply('.wi what?')
+
+    uri = wikipedia_search(query)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+wikipedia.commands = ['wi', 'wikipedia']
+wikipedia.example = '.wi swhack'
+
+def weather_search(query, phenny): 
+    if phenny.config.wunderground_api_key:
+        query = query.replace('!', '')
+        query = query.replace(' ', '_')
+        query = web.quote(query)
+        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/q/' + query + '.json'
+        rec_bytes = web.get(uri)
+        jsonstring = json.loads(rec_bytes)
+        werror = 0
         try:
-            length=int(phenny.config.tag_list_length)
+            werrorexist = jsonstring['response']['error']['type']
+            werror = 1
         except:
-            return "The tag_list_length option is not set correctly, please fix it"
-        if len(content) <= length:
-            return content
+            werror = 0
+            
+        if werror is 1:
+            werrortype = jsonstring['response']['error']['type']
+            werrordesc = jsonstring['response']['error']['description']
+            werrorfull = 'Error Code: ' + werrortype + ' - ' + werrordesc
+            return werrorfull
         else:
-            return content[:length].rsplit(' ', 1)[0]+suffix
+            try:
+                wcity = jsonstring['current_observation']['display_location']['full']
+                wwinddir = str(jsonstring['current_observation']['wind_dir'])
+                wwindspd = str(jsonstring['current_observation']['wind_mph'])
+                wwindgust = str(jsonstring['current_observation']['wind_gust_mph'])
+                wtemp = jsonstring['current_observation']['temperature_string']
+                wfeels = jsonstring['current_observation']['feelslike_string']
+                wuv = str(jsonstring['current_observation']['UV'])
+                wcondition = jsonstring['current_observation']['weather']
+                degree_sign = u'\N{DEGREE SIGN}'
+                wurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
+                wtemp = wtemp.replace(' F', degree_sign + 'F')
+                wtemp = wtemp.replace(' C', degree_sign + 'C')
+                wfeels = wfeels.replace(' F', degree_sign + 'F')
+                wfeels = wfeels.replace(' C', degree_sign + 'C')
+                
+                return ('In ' + wcity + ' it is currently ' + wcondition + ', the temperature is ' + wtemp + ' and it feels like ' + wfeels + '. The wind speed is ' + wwindspd + ' MPH ' + wwinddir + ' with gusts of up to ' + wwindgust + " MPH. The UV level is " + wuv + ". Weather from " + wurl)
+            except KeyError:
+                return None
     else:
-        return "Please set the tag_list_length option in the config"
-def ouroboros(site, uri, phenny):
-    # e621 and twentypercentcooler use the same software
-    # TODO: load tag file; compare tags, generate title
-    #load a list of unimportant tags from a file. possible regex?
-    title = ''
-    def get_id(link):
-        exp = '(.*)show/(?P<id>[0-9]*)/?'
-        return re.search(exp, link).group('id')
-    post_id = get_id(uri)
-    json_data = web.get('https://{0}.net/post/show.json?id={1}'.format(site, post_id))
-    postdata = json.loads(json_data, encoding='utf-8')
-    tags = postdata['tags']
+        return 'Sorry but you need to set your wunderground_api_key in the config file.'
 
-    ratings = { 's' : 'Safe', 'q' : 'Questionable', 'e' : 'Explicit' }
-    if postdata['rating'] in ratings:
-        rating = ratings[postdata['rating']]
-    else:
-        rating = 'Unknown'
-    #compare tags to a list of uniportant tags and drop some/most
-    tag_file = os.path.expanduser('~/.phenny/boru.py')
-    try:
-        boru = imp.load_source('boru',tag_file)
-    except Exception as e:
-        print("Error loading ignore tags: {0} (in head.py)".format(e))
-        filtered = tags
-    else:
-        filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
-        filtered = re.sub(" +"," ",filtered).strip()
-    content = filtered
-    filtered = smart_truncate(content, phenny)
-    title = re.sub('_',"_",filtered)
-    title = '{0} {1}'.format(rating.capitalize(),title)
-    return title
+def weather(phenny, input): 
+    """Queries Wunderground for the weather."""
+    query = input.group(2)
+    if not query: return phenny.reply('.w what?')
 
-def derpibooru(uri, phenny):
-    # TODO: research derpibooru's API and get data
-    def get_id(link):
-        exp = '(.*)derpiboo((.ru)|(ru.org))(/images)?/(?P<id>[0-9]*)/?'
-        return re.search(exp, link).group('id')
-    id = get_id(uri)
-    if not id:
-        return gettitle(uri)
-    json_data = web.get('http://derpiboo.ru/{0}.json'.format(id))
-    postdata = json.loads(json_data, encoding='utf-8')
-    tags = postdata['tags'].split(', ')
-    
-    artists = []
-    for tag in tags:
-        if tag.startswith('artist:'):
-            artists.append(tag.replace('artist:', '', 1))
-    if artists:
-        artists = ' by '+', '.join(artists)
-    else:
-        artists = ''
-    # ratings are tags on Derpibooru
-    ratings = []
-    for tag in tags:
-        if tag in {'explicit', 'grimdark', 'grotesque', 'questionable', 'safe', 'semi-grimdark', 'suggestive'}:
-            ratings.append(tag)
-    if not ratings:
-        ratings = ['unknown']
-    ratings = ' '.join(ratings)
-    tag_file = os.path.expanduser('~/.phenny/boru.py')
-    try:
-        boru = imp.load_source('boru',tag_file)
-    except Exception as e:
-        print("Error loading ignore tags: %s (in head.py)" %(e))
-    else:
-        tags = [tag for tag in tags if tag not in boru.ignore_tags]
-    tag_string = ' '.join(tag.replace(' ', '_') for tag in tags)
-    title = '{0} {1}'.format(ratings.title(),tag_string,artists)
-    content = title
-    title = smart_truncate(content, phenny)
-    return title
-
-def get_story_title(uri):
-    story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories = get_api_story_title(uri)
-    title = ''
-    if content_rating > 1:
-        title = title + '\u0002!!*NSFW*!!\u000F - '
-    title = title + story_title + " by " + author
-    if chapters:
-        title = title + ' - ' + str(chapters)
-        if int(chapters) > 1:
-            title = title + ' chapters'
+    uri = weather_search(query, phenny)
+    if uri: 
+        if uri.startswith('Error Code'):
+            phenny.say("Sorry, " + input.nick +", I got an error. Here's the error i got, " + uri)
         else:
-            title = title + ' chapter'
-    title = title + " - " + views + " views - " + categories + ' - ' + words + ' words'
-    title = title + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "%"
-    return title
+            phenny.say("Here's what I got, " + input.nick + ": " + uri)
+            if not hasattr(phenny.bot, 'last_seen_uri'):
+                phenny.bot.last_seen_uri = {}
+            phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
+weather.commands = ['w', 'weather']
+weather.example = '.w San Francisco, CA'
+
+def forecast_search(query, phenny): 
+    if phenny.config.wunderground_api_key:
+        query = query.replace('!', '')
+        query = query.replace(' ', '_')
+        query = web.quote(query)
+        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/forecast/q/' + query + '.json'
+        rec_bytes = web.get(uri)
+        jsonstring = json.loads(rec_bytes)
+        wferror = 0
+        try:
+            wferrorexist = jsonstring['response']['error']['type']
+            wferror = 1
+        except:
+            wferror = 0
+            
+        if wferror is 1:
+            wferrortype = jsonstring['response']['error']['type']
+            wferrordesc = jsonstring['response']['error']['description']
+            wferrorfull = 'Error Code: ' + wferrortype + ' - ' + wferrordesc
+            return wferrorfull
+        else:
+            try:
+                wfcity = jsonstring['current_observation']['display_location']['full']
+                wfdate1 = jsonstring['forecast']['simpleforecast']['forecastday'][0]['date']['weekday']
+                wfdate2 = jsonstring['forecast']['simpleforecast']['forecastday'][1]['date']['weekday']
+                wfdate3 = jsonstring['forecast']['simpleforecast']['forecastday'][2]['date']['weekday']
+                wfdate4 = jsonstring['forecast']['simpleforecast']['forecastday'][3]['date']['weekday']
+                wfcond1 = jsonstring['forecast']['simpleforecast']['forecastday'][0]['conditions']
+                wfcond2 = jsonstring['forecast']['simpleforecast']['forecastday'][1]['conditions']
+                wfcond3 = jsonstring['forecast']['simpleforecast']['forecastday'][2]['conditions']
+                wfcond4 = jsonstring['forecast']['simpleforecast']['forecastday'][3]['conditions']
+                wfhigh1f = str(jsonstring['forecast']['simpleforecast']['forecastday'][0]['high']['fahrenheit'])
+                wfhigh2f = str(jsonstring['forecast']['simpleforecast']['forecastday'][1]['high']['fahrenheit'])
+                wfhigh3f = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['high']['fahrenheit'])
+                wfhigh4f = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['high']['fahrenheit'])
+                wfhigh1c = str(jsonstring['forecast']['simpleforecast']['forecastday'][0]['high']['celsius'])
+                wfhigh2c = str(jsonstring['forecast']['simpleforecast']['forecastday'][1]['high']['celsius'])
+                wfhigh3c = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['high']['celsius'])
+                wfhigh4c = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['high']['celsius'])
+                wflow1f = str(jsonstring['forecast']['simpleforecast']['forecastday'][0]['low']['fahrenheit'])
+                wflow2f = str(jsonstring['forecast']['simpleforecast']['forecastday'][1]['low']['fahrenheit'])
+                wflow3f = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['low']['fahrenheit'])
+                wflow4f = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['low']['fahrenheit'])
+                wflow1c = str(jsonstring['forecast']['simpleforecast']['forecastday'][0]['low']['celsius'])
+                wflow2c = str(jsonstring['forecast']['simpleforecast']['forecastday'][1]['low']['celsius'])
+                wflow3c = str(jsonstring['forecast']['simpleforecast']['forecastday'][2]['low']['celsius'])
+                wflow4c = str(jsonstring['forecast']['simpleforecast']['forecastday'][3]['low']['celsius'])
+                
+                degree_sign = u'\N{DEGREE SIGN}'
+                
+                return ('The forecast for ' + wfdate1 + ' in ' + wfcity + ' is ' + wfcond1 + ' with a high of ' + wfhigh1f + degree_sign + 'F (' + wfhigh1c + degree_sign + 'C) and a low of ' + wflow1f + degree_sign + 'F (' + wflow1c + degree_sign + 'C). On ' + wfdate2 + ' it will be ' + wfcond2 + ' with a high of ' + wfhigh2f + degree_sign + 'F (' + wfhigh2c + degree_sign + 'C) and a low of ' + wflow2f + degree_sign + 'F (' + wflow2c + degree_sign + 'C). On ' + wfdate3 + ' it will be ' + wfcond3 + ' with a high of ' + wfhigh3f + degree_sign + 'F (' + wfhigh3c + degree_sign + 'C) and a low of ' + wflow3f + degree_sign + 'F (' + wflow3c + degree_sign + 'C). On ' + wfdate4 + ' it will be ' + wfcond4 + ' with a high of ' + wfhigh4f + degree_sign + 'F (' + wfhigh4c + degree_sign + 'C) and a low of ' + wflow4f + degree_sign + 'F (' + wflow4c + degree_sign + 'C).')
+            except KeyError:
+                return None
+    else:
+        return 'Sorry but you need to set your wunderground_api_key in the config file.'
+
+def forecast(phenny, input): 
+    """Queries Wunderground for the weather forecast."""
+    query = input.group(2)
+    if not query: return phenny.reply('.w what?')
+
+    uri = forecast_search(query, phenny)
+    if uri: 
+        if uri.startswith('Error Code'):
+            phenny.say("Sorry, " + input.nick +", I got an error. Here's the error i got, " + uri)
+        else:
+            wfurl = 'http://www.wunderground.com/?apiref=5284b9a94c2a6666'
+            phenny.say("Here's what I got, " + input.nick + ": " + uri)
+            phenny.say("Weather from " + wfurl)
+            if not hasattr(phenny.bot, 'last_seen_uri'):
+                phenny.bot.last_seen_uri = {}
+            phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
+forecast.commands = ['wf', 'forecast']
+forecast.example = '.wf San Francisco, CA'
+
+def dictionary_search(query, phenny): 
+    if phenny.config.wordnik_api_key:
+        query = query.replace('!', '')
+        query = web.quote(query)
+        try:
+            query = query.lower()
+            uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+            rec_bytes = web.get(uri)
+            jsonstring = json.loads(rec_bytes)
+            dword = jsonstring[0]['word']
+        except:
+            query = string.capwords(query)
+            uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+            rec_bytes = web.get(uri)
+            jsonstring = json.loads(rec_bytes)
+        try:
+            dword = jsonstring[0]['word']
+        except:
+            return None
+        if dword:
+            ddef = jsonstring[0]['text']
+            dattr = jsonstring[0]['attributionText']
+            dpart = jsonstring[0]['partOfSpeech']
+            dpart = dpart.replace('-', ' ')
+            dpart = string.capwords(dpart)
+            return (dword + ' - ' + dpart + ' - ' + ddef + ' - ' + dattr)
+    else:
+        return 'Sorry but you need to set your wordnik_api_key in the config file.'
+def dictionary(phenny, input): 
+    """Gives definitions for words."""
+    query = input.group(2)
+    if not query: return phenny.reply('.def what?')
+
+    uri = dictionary_search(query, phenny)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+dictionary.commands = ['d', 'def', 'define']
+dictionary.example = '.d swhack'
+
+def unabbreviate_search(query, phenny): 
+    query = query.replace('!', '')
+    query = web.quote(query)
+    uri = 'http://www.nactem.ac.uk/software/acromine/dictionary.py?sf=' + query
+    rec_bytes = web.get(uri)
+    jsonstring = json.loads(rec_bytes)
+    try:
+        asf = jsonstring[0]['sf']
+    except:
+        return
+    try:
+        a1 = jsonstring[0]['lfs'][0]['lf']
+        a2 = jsonstring[0]['lfs'][1]['lf']
+        a3 = jsonstring[0]['lfs'][2]['lf']
+    except:
+        try:
+            a1 = jsonstring[0]['lfs'][0]['lf']
+            a2 = jsonstring[0]['lfs'][1]['lf']
+        except:
+            try:
+                a1 = jsonstring[0]['lfs'][0]['lf']
+            except:
+                return 'There was an error parsing the json data'
+    try:
+        return asf + ' could be ' + a1 + ' or ' + a2 + ' or ' + a3
+    except:
+        try:
+            return asf + ' could be ' + a1 + ' or ' + a2
+        except:
+            return '1 result for ' + asf + ', ' + a1
+def unabbreviate(phenny, input): 
+    """Gives the full words for abbreviations."""
+    query = input.group(2)
+    if not query: return phenny.reply('.def what?')
+
+    uri = unabbreviate_search(query, phenny)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+unabbreviate.commands = ['uab','uabbr', 'unabbreviate']
+unabbreviate.example = '.uab BMI'
+
+def abbreviate_search(query, phenny): 
+    query = query.replace('!', '')
+    webquery = web.quote(query)
+    uri = 'http://www.nactem.ac.uk/software/acromine/dictionary.py?lf=' + webquery
+    rec_bytes = web.get(uri)
+    jsonstring = json.loads(rec_bytes)
+    try:
+        asf = jsonstring[0]['sf']
+    except:
+        return
+    try:
+        a1 = jsonstring[0]['sf']
+        a2 = jsonstring[1]['sf']
+        a3 = jsonstring[2]['sf']
+    except:
+        try:
+            a1 = jsonstring[0]['sf']
+            a2 = jsonstring[1]['sf']
+        except:
+            try:
+                a1 = jsonstring[0]['sf']
+            except:
+                return 'There was an error parsing the json data'
+    try:
+        return query + ' could be abbreviated as ' + a1 + ' or ' + a2 + ' or ' + a3
+    except:
+        try:
+            return query + ' could be abbreviated as ' + a1 + ' or ' + a2
+        except:
+            return '1 result for ' + query + ', ' + a1
+def abbreviate(phenny, input): 
+    """Gives the abbreviations for full words."""
+    query = input.group(2)
+    if not query: return phenny.reply('.def what?')
+
+    uri = abbreviate_search(query, phenny)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+abbreviate.commands = ['ab','abbr', 'abbreviate']
+abbreviate.example = '.ab body mass index'
+
+def search(phenny, input): 
+    """Searches Duck Duck Go, Google, and Bing all at once."""
+    if not input.group(2): 
+        return phenny.reply('.search for what?')
+    query = input.group(2)
+    gu = google_search(query) or '-'
+    bu = bing_search(query) or '-'
+    du = duck_search(query) or '-'
+
+    if (gu == bu) and (bu == du): 
+        result = '%s (g, b, d)' % gu
+    elif (gu == bu): 
+        result = '%s (g, b), %s (d)' % (gu, du)
+    elif (bu == du): 
+        result = '%s (b, d), %s (g)' % (bu, gu)
+    elif (gu == du): 
+        result = '%s (g, d), %s (b)' % (gu, bu)
+    else: 
+        if len(gu) > 250: gu = '(extremely long link)'
+        if len(bu) > 150: bu = '(extremely long link)'
+        if len(du) > 150: du = '(extremely long link)'
+        result = '%s (g), %s (b), %s (d)' % (gu, bu, du)
+
+    phenny.reply(result)
+search.commands = ['search']
+search.example = '.search swhack'
+
+def suggest(phenny, input): 
+    if not input.group(2):
+        return phenny.reply("No query term.")
+    query = input.group(2)
+    uri = 'http://websitedev.de/temp-bin/suggest.pl?q='
+    answer = web.get(uri + web.quote(query).replace('+', '%2B'))
+    if answer: 
+        phenny.say(answer)
+    else: phenny.reply('Sorry, no result.')
+suggest.commands = ['suggest']
 
 if __name__ == '__main__': 
     print(__doc__.strip())
