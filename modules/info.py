@@ -7,6 +7,7 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
+import random
 
 def doc(phenny, input): 
     """Shows a command's documentation, and possibly an example."""
@@ -109,6 +110,35 @@ def ping(phenny, input):
 ping.commands = ['ping']
 ping.priority = 'high'
 ping.example = '.ping'
+
+def randnum(phenny, input):
+    '''Gives a random integer between the specified numbers'''
+    startnum = input.group(2)
+    try:
+        if ',' in startnum:
+            numlist = startnum.split(',')
+            startnum = numlist[0]
+            endnum = numlist[1]
+            startnum = startnum.replace(' ', '')
+            endnum = endnum.replace(' ', '')
+            startnum = int(startnum)
+            endnum = int(endnum)
+        else:
+            numlist = startnum.split(' ')
+            startnum = numlist[0]
+            endnum = numlist[1]
+            startnum = startnum.replace(' ', '')
+            endnum = endnum.replace(' ', '')
+            startnum = int(startnum)
+            endnum = int(endnum)
+    except:
+        return phenny.say('Sorry, ' + input.nick + ', but I need numbers for this command.')
+    finalnum = random.randint(startnum,endnum)
+    finalnum = str(finalnum)
+    phenny.say('Here ya go, ' + input.nick + ': ' + finalnum)
+randnum.commands = ['rand', 'random']
+randnum.example = '.rand 1, 10'
+    
 
 if __name__ == '__main__': 
     print(__doc__.strip())
