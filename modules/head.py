@@ -506,35 +506,38 @@ def get_story_title(uri):
     return title
 
 def flistchar(uri, phenny):
-    ticketuri = 'http://www.f-list.net/json/getApiTicket.php'
-    ticketquery = {'account' : phenny.config.f_list_account, 'password' : phenny.config.f_list_password}
-    ticketjson = web.post(ticketuri, ticketquery)
-    
-    ticketstr = str(ticketjson)
-    ticketdict = ast.literal_eval(ticketstr)
-    ticket = ticketdict['ticket']
-    
-    urilist = uri.split('/')
-    urlcharname = urilist[4]
-    urlcharname = web.unquote(urlcharname)
-    charuri = 'http://www.f-list.net/json/api/character-get.php'
-    charquery = {'name' : urlcharname}
-    charjson = web.post(charuri, charquery)
-    
-    charstr = str(charjson)
-    chardict = ast.literal_eval(charstr)
-    try:
-        charname = chardict['character']['name']
-    except:
-        errname = chardict['error']
-    
-    try:
-        titlestr = 'Error - ' + errname
-    except UnboundLocalError:
-        titlestr = '\00312,01F-List\017 - ' + charname
-    
-    
-    return titlestr
+    if hasattr(phenny.config, 'f_list_account') and hasattr(phenny.config, 'f_list_password') :
+        ticketuri = 'http://www.f-list.net/json/getApiTicket.php'
+        ticketquery = {'account' : phenny.config.f_list_account, 'password' : phenny.config.f_list_password}
+        ticketjson = web.post(ticketuri, ticketquery)
+        
+        ticketstr = str(ticketjson)
+        ticketdict = ast.literal_eval(ticketstr)
+        ticket = ticketdict['ticket']
+        
+        urilist = uri.split('/')
+        urlcharname = urilist[4]
+        urlcharname = web.unquote(urlcharname)
+        charuri = 'http://www.f-list.net/json/api/character-get.php'
+        charquery = {'name' : urlcharname}
+        charjson = web.post(charuri, charquery)
+        
+        charstr = str(charjson)
+        chardict = ast.literal_eval(charstr)
+        try:
+            charname = chardict['character']['name']
+        except:
+            errname = chardict['error']
+        
+        try:
+            titlestr = 'Error - ' + errname
+        except UnboundLocalError:
+            titlestr = '\00312,01F-List\017 - ' + charname
+        
+        
+        return titlestr
+    else:
+        return
 
 if __name__ == '__main__': 
     print(__doc__.strip())
