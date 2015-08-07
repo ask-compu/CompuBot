@@ -131,8 +131,10 @@ def randnum(phenny, input):
             endnum = endnum.replace(' ', '')
             startnum = int(startnum)
             endnum = int(endnum)
-    except:
+    except ValueError:
         return phenny.say('Sorry, ' + input.nick + ', but I need numbers for this command.')
+    except IndexError:
+        return phenny.say('Sorry, ' + input.nick + ', but I need 2 numbers for this command.')
     try:
         finalnum = random.randint(startnum,endnum)
     except:
