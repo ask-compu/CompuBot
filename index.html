@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Compubot by ask-compu</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Compubot</h1>
+        <h2>Python IRC bot remixed for Canternet, the Pony IRC. Based on JordanKinsley&#39;s Python 3 fork.</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/ask-compu/CompuBot/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/ask-compu/CompuBot/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/ask-compu/CompuBot" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="compubot" class="anchor" href="#compubot" aria-hidden="true"><span class="octicon octicon-link"></span></a>CompuBot</h1>
+
+<p>This is a port of phenny, a Python IRC bot, to Python3. It has been forked from <a href="https://github.com/JordanKinsley">JordanKinsley</a>'s <a href="https://github.com/JordanKinsley/PinkiePyBot">PinkiePyBot</a> port.</p>
+
+<p>New features include many modifications to modules.</p>
+
+<p>Compatibility with existing phenny modules has been mostly retained, but they
+will need to be updated to run on Python3 if they do not already. All of the
+core modules have been ported. </p>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>CompuBot runs on a Ubuntu 14.04 LTS server and therefore doesn't get tested on other platforms*. You will need the latest version of Python 3.4 (which can be installed with <code>sudo apt-get install python3-all python3-all-dev</code>). Due to a new feature of lists, it is recommended that Python 3.3 or later be used. It is not required, but highly recommended. We thankfully no longer require the use of lxml or BeautifulSoup thanks to the JSON APIs of several sites. </p>
+
+<ul>
+<li>CompuBot can run on Windows as long as Python 3.2 or later is installed. It's recommended to use the lastest version of Python to avoid the issues described above. </li>
+</ul>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<ol>
+<li>Run <code>./phenny</code> - this creates a default config file</li>
+<li>Edit <code>~/.phenny/default.py</code>
+</li>
+<li>Run <code>./phenny</code> - this now runs pinkie with your settings</li>
+</ol>
+
+<p>Enjoy!</p>
+
+<h2>
+<a id="already-using-compubot-and-upgrading" class="anchor" href="#already-using-compubot-and-upgrading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Already using CompuBot and upgrading?</h2>
+
+<p>New changes to some configuration options may mean you need to edit your default.py file to include new options. </p>
+
+<p><strong>rule34.py users:</strong></p>
+
+<div class="highlight highlight-python"><pre><span class="pl-c"># works like the channels config option, but defines what channels NSFW </span>
+<span class="pl-c"># material can be searched for. See rule34.py for more details</span>
+nsfw <span class="pl-k">=</span> [<span class="pl-s"><span class="pl-pds">'</span>#nsfw-example<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>#my-test-channel<span class="pl-pds">'</span></span>]</pre></div>
+
+<p><strong>Module developers:</strong></p>
+
+<div class="highlight highlight-python"><pre><span class="pl-c"># set to True to output detailed info about the actual traffic to and from the IRC server</span>
+debug <span class="pl-k">=</span> <span class="pl-c1">False</span></pre></div>
+
+<p><strong>All users:</strong></p>
+
+<div class="highlight highlight-python"><pre><span class="pl-c"># ignore these users. At the moment, the ignore is exact, but admin.py </span>
+<span class="pl-c"># has new commands to change config options at run time</span>
+user_ignore <span class="pl-k">=</span> [<span class="pl-s"><span class="pl-pds">'</span>anon<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>abuser<span class="pl-pds">'</span></span>]</pre></div>
+
+<h2>
+<a id="authors" class="anchor" href="#authors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors</h2>
+
+<ul>
+<li>Sean B. Palmer, <a href="http://inamidst.com/sbp/">http://inamidst.com/sbp/</a>
+</li>
+<li>mutantmonkey, <a href="http://mutantmonkey.in">http://mutantmonkey.in</a>
+</li>
+<li>Jordan Kinsley, <a href="http://jordantkinsley.org">http://jordantkinsley.org</a>
+</li>
+<li>Compu, <a href="http://www.compu.ml/">http://www.compu.ml/</a>
+</li>
+</ul>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
