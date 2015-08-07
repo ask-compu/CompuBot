@@ -59,15 +59,20 @@ def create_default_config(fn):
     
     # Youtube API Key
     # Please uncomment these and add the API Key
-    youtube_api_key = ''
+    # youtube_api_key = ''
     
     # Wunderground API Key
     # Please uncomment these and add the API Key
-    wunderground_api_key = ''
+    # wunderground_api_key = ''
     
     # Wordnik API Key
     # Please uncomment these and add the API Key
     # wordnik_api_key = ''
+    
+    # F-List username and password
+    # uncomment these and put in your f-list username and password
+    # f_list_account = ''
+    # f_list_password = ''
 
     # If you want to enumerate a list of modules rather than disabling
     # some, use "enable = ['example']", which takes precedent over exclude
