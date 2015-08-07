@@ -11,6 +11,7 @@ import re
 import web
 import json
 import string
+import ast
 
 class Grab(web.urllib.request.URLopener):
     def __init__(self, *args):
@@ -194,7 +195,7 @@ wikipedia.commands = ['wi', 'wikipedia']
 wikipedia.example = '.wi swhack'
 
 def weather_search(query, phenny): 
-    if phenny.config.wunderground_api_key:
+    if hasattr(phenny.config, 'wunderground_api_key'):
         query = query.replace('!', '')
         query = query.replace(' ', '_')
         query = web.quote(query)
@@ -255,7 +256,7 @@ weather.commands = ['w', 'weather']
 weather.example = '.w San Francisco, CA'
 
 def forecast_search(query, phenny): 
-    if phenny.config.wunderground_api_key:
+    if hasattr(phenny.config, 'wunderground_api_key'):
         query = query.replace('!', '')
         query = query.replace(' ', '_')
         query = web.quote(query)
@@ -331,7 +332,7 @@ forecast.commands = ['wf', 'forecast']
 forecast.example = '.wf San Francisco, CA'
 
 def dictionary_search(query, phenny): 
-    if phenny.config.wordnik_api_key:
+    if hasattr(phenny.config, 'wordnik_api_key'):
         query = query.replace('!', '')
         query = web.quote(query)
         try:
