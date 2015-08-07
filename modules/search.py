@@ -335,16 +335,22 @@ def dictionary_search(query, phenny):
         query = query.replace('!', '')
         query = web.quote(query)
         try:
-            query = query.lower()
             uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
             rec_bytes = web.get(uri)
             jsonstring = json.loads(rec_bytes)
             dword = jsonstring[0]['word']
         except:
-            query = string.capwords(query)
-            uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
-            rec_bytes = web.get(uri)
-            jsonstring = json.loads(rec_bytes)
+            try:
+                query = query.lower()
+                uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+                rec_bytes = web.get(uri)
+                jsonstring = json.loads(rec_bytes)
+                dword = jsonstring[0]['word']
+            except:
+                query = string.capwords(query)
+                uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+                rec_bytes = web.get(uri)
+                jsonstring = json.loads(rec_bytes)
         try:
             dword = jsonstring[0]['word']
         except:
