@@ -314,7 +314,7 @@ def forecast_search(query, phenny):
 def forecast(phenny, input): 
     """Queries Wunderground for the weather forecast."""
     query = input.group(2)
-    if not query: return phenny.reply('.w what?')
+    if not query: return phenny.reply('.wf what?')
 
     uri = forecast_search(query, phenny)
     if uri: 
@@ -368,7 +368,7 @@ def dictionary_search(query, phenny):
 def dictionary(phenny, input): 
     """Gives definitions for words."""
     query = input.group(2)
-    if not query: return phenny.reply('.def what?')
+    if not query: return phenny.reply('.d what?')
 
     uri = dictionary_search(query, phenny)
     if uri: 
@@ -413,7 +413,7 @@ def unabbreviate_search(query, phenny):
 def unabbreviate(phenny, input): 
     """Gives the full words for abbreviations."""
     query = input.group(2)
-    if not query: return phenny.reply('.def what?')
+    if not query: return phenny.reply('.uab what?')
 
     uri = unabbreviate_search(query, phenny)
     if uri: 
@@ -458,7 +458,7 @@ def abbreviate_search(query, phenny):
 def abbreviate(phenny, input): 
     """Gives the abbreviations for full words."""
     query = input.group(2)
-    if not query: return phenny.reply('.def what?')
+    if not query: return phenny.reply('.ab what?')
 
     uri = abbreviate_search(query, phenny)
     if uri: 
@@ -469,6 +469,37 @@ def abbreviate(phenny, input):
     else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
 abbreviate.commands = ['ab','abbr', 'abbreviate']
 abbreviate.example = '.ab body mass index'
+
+def urban_dictionary_search(query, phenny): 
+    query = query.replace('!', '')
+    webquery = web.quote(query)
+    uri = 'http://api.urbandictionary.com/v0/define?term=' + webquery
+    rec_bytes = web.get(uri)
+    jsonstring = json.loads(rec_bytes)
+    udresult = jsonstring['result_type']
+    
+    if udresult is 'no_results':
+        return
+    try:
+        udw1 = jsonstring['list'][0]['word']
+        udd1 = jsonstring['list'][0]['definition']
+    except:
+        return 'There was an error parsing the json data'
+    return udw1 + ' - ' + udd1
+def urban_dictionary(phenny, input): 
+    """Searches Urban Dictionary."""
+    query = input.group(2)
+    if not query: return phenny.reply('.ud what?')
+
+    uri = urban_dictionary_search(query, phenny)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+urban_dictionary.commands = ['ud','urban','urbandictionary']
+urban_dictionary.example = '.ud FTFY'
 
 def search(phenny, input): 
     """Searches Duck Duck Go, Google, and Bing all at once."""
