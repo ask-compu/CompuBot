@@ -493,10 +493,22 @@ def urban_dictionary(phenny, input):
 
     uri = urban_dictionary_search(query, phenny)
     if uri: 
-        phenny.say("Here's what I got, " + input.nick + ": " + uri)
-        if not hasattr(phenny.bot, 'last_seen_uri'):
-            phenny.bot.last_seen_uri = {}
-        phenny.bot.last_seen_uri[input.sender] = uri
+        if len(uri) > 430:
+            n = 430
+            first = uri[:n].rsplit(' ',1)[0]
+            rest = uri[len(first)+1:]
+            uril = [first, rest]
+            
+            phenny.say("Here's what I got, " + input.nick + ": " + uril[0])
+            phenny.say(uril[1])
+            if not hasattr(phenny.bot, 'last_seen_uri'):
+                phenny.bot.last_seen_uri = {}
+            phenny.bot.last_seen_uri[input.sender] = uri
+        else:
+            phenny.say("Here's what I got, " + input.nick + ": " + uri)
+            if not hasattr(phenny.bot, 'last_seen_uri'):
+                phenny.bot.last_seen_uri = {}
+            phenny.bot.last_seen_uri[input.sender] = uri
     else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
 urban_dictionary.commands = ['ud','urban','urbandictionary']
 urban_dictionary.example = '.ud FTFY'
