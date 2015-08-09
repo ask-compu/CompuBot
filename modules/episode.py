@@ -75,9 +75,9 @@ def episode_find(query, phenny):
     etimegmt = time.gmtime(timestamp1)
     etimeus = time.strftime('%A %B %d, %G at %I:%M:%S %p',etimegmt)
     if timestamp1 < time.time():
-        return epname + ', Season ' + eps + ', Episode ' + epe + ' aired on ' + etimeus + ' GMT'
+        return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' aired on ' + etimeus + ' GMT'
     if timestamp1 > time.time():
-        return epname + ', Season ' + eps + ', Episode ' + epe + ' will air on ' + etimeus + ' GMT'
+        return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT'
 def episode(phenny, input): 
     """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep s2e1 or .ep next or .ep last"""
     query = input.group(2)
