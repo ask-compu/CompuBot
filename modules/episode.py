@@ -42,10 +42,10 @@ def episode_find(query, phenny):
         enum = str(int(results[1]))
         uri = 'http://api.ponycountdown.com/' + snum + '/' + enum
         nl = query
-    if re.compile('next').match(query):
+    if re.compile('(?i)next').match(query):
         uri = 'http://api.ponycountdown.com/next'
         nl = 'next'
-    if re.compile('last').match(query):
+    if re.compile('(?i)last').match(query):
         uri = 'http://api.ponycountdown.com/last'
         nl = 'last'
     rec_bytes = web.get(uri)
@@ -79,7 +79,7 @@ def episode_find(query, phenny):
     if timestamp1 > time.time():
         return epname + ', Season ' + eps + ', Episode ' + epe + ' will air on ' + etimeus + ' GMT'
 def episode(phenny, input): 
-    """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep episode 27 or .ep next or .ep last"""
+    """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep s2e1 or .ep next or .ep last"""
     query = input.group(2)
     if not query: return phenny.reply('.ep what?')
 
