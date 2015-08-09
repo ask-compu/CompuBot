@@ -477,7 +477,7 @@ def urban_dictionary_search(query, phenny):
     rec_bytes = web.get(uri)
     jsonstring = json.loads(rec_bytes)
     udresult = jsonstring['result_type']
-    print(udresult)
+    
     if re.compile('no_results').match(udresult):
         return
     try:
