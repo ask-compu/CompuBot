@@ -87,9 +87,9 @@ def episode(phenny, input):
     if uri: 
         if uri.startswith('nope'):
             uris = uri.split('$')
-            phenny.say("Sorry " + input.nick + ", I couldn't find the " + uris[1] + " episode.")
+            return phenny.say("Sorry " + input.nick + ", I couldn't find the " + uris[1] + " episode.")
         if uri.startswith('error'):
-            phenny.say('Please install dateutil with "pip install python-dateutil" and then say CompuBot: reload episode')
+            return phenny.say('Please install dateutil with "pip install python-dateutil" and then say CompuBot: reload episode')
         else:
             phenny.say("Here's what I got, " + input.nick + ": " + uri)
             if not hasattr(phenny.bot, 'last_seen_uri'):
