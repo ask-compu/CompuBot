@@ -150,7 +150,7 @@ def episode_find(query, phenny):
             if etimeun > time.time():
                 return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT'
 def episode(phenny, input): 
-    """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep s2e1 or .ep next or .ep last"""
+    """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep s2e1 or .ep return of harmony or .ep next or .ep last"""
     query = input.group(2)
     if not query: return phenny.reply('.ep what?')
 
