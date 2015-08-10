@@ -32,52 +32,123 @@ def episode_find(query, phenny):
         results = [int(i) for i in numbers[0]]
         snum = str(int(results[0]))
         enum = str(int(results[1]))
-        uri = 'http://api.ponycountdown.com/' + snum + '/' + enum
+        uri = 'http://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
         nl = query
-    if re.compile('(?i)((s|se)\d+(, | |,)?(e|ep)\d+)').match(query):
-        regex = re.compile('(?i)(?:s|se)(\d+)(?:, | |,)?(?:e|ep)(\d+)')
-        numbers = regex.findall(query)
-        results = [int(i) for i in numbers[0]]
-        snum = str(int(results[0]))
-        enum = str(int(results[1]))
-        uri = 'http://api.ponycountdown.com/' + snum + '/' + enum
-        nl = query
-    if re.compile('(?i)next').match(query):
-        uri = 'http://api.ponycountdown.com/next'
-        nl = 'next'
-    if re.compile('(?i)last').match(query):
-        uri = 'http://api.ponycountdown.com/last'
-        nl = 'last'
-    rec_bytes = web.get(uri)
+        issearch = False
+        isnextlast = False
+    else:
+        if re.compile('(?i)((s|se)\d+(, | |,)?(e|ep)\d+)').match(query):
+            regex = re.compile('(?i)(?:s|se)(\d+)(?:, | |,)?(?:e|ep)(\d+)')
+            numbers = regex.findall(query)
+            results = [int(i) for i in numbers[0]]
+            snum = str(int(results[0]))
+            enum = str(int(results[1]))
+            uri = 'http://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
+            nl = query
+            issearch = False
+            isnextlast = False
+        else:
+            if re.compile('(?i)next').match(query):
+                uri = 'http://ponyapi.apps.xeserv.us/newest'
+                nl = 'next'
+                issearch = False
+                isnextlast = True
+            else:
+                if re.compile('(?i)last').match(query):
+                    uri = 'http://ponyapi.apps.xeserv.us/season/5/episode/13'
+                    nl = 'last'
+                    issearch = False
+                    isnextlast = True
+                else:
+                    webquery = web.quote(query)
+                    uri = 'http://ponyapi.apps.xeserv.us/search?q=' + webquery
+                    nl = query
+                    issearch = True
+                    isnextlast = False
+                    
+    try:
+        rec_bytes = web.get(uri)
+    except:
+        if isnextlast is True:
+            return 'nope$' + nl
+        else:
+            return
     try:
         jsonstring = json.loads(rec_bytes)
     except:
         return
     try:
-        jsonstring[0]
+        jsonstring['episodes'][0]
     except:
         try:
-            jsonstring['name']
+            jsonstring['episodes']['name']
         except:
-            return 'nope$' + nl
+            try:
+                jsonstring['episode']['name']
+            except:
+                return 'nope$' + nl
     try:
-        epname = jsonstring[0]['name']
-        eps = str(jsonstring[0]['season'])
-        epe = str(jsonstring[0]['episode'])
-        etimeun = jsonstring[0]['time']
+        epname = jsonstring['episodes'][0]['name']
+        eps = str(jsonstring['episodes'][0]['season'])
+        epe = str(jsonstring['episodes'][0]['episode'])
+        etimeun = jsonstring['episodes'][0]['air_date']
+        movie = jsonstring['episodes'][0]['is_movie']
+        epnumbered = True
     except:
-        epname = jsonstring['name']
-        eps = str(jsonstring['season'])
-        epe = str(jsonstring['episode'])
-        etimeun = jsonstring['time']
-    dt = dateutil.parser.parse(etimeun)
-    timestamp1 = calendar.timegm(dt.timetuple())
-    etimegmt = time.gmtime(timestamp1)
+        try:
+            epname = jsonstring['episodes']['name']
+            eps = str(jsonstring['episodes']['season'])
+            epe = str(jsonstring['episodes']['episode'])
+            etimeun = jsonstring['episodes']['air_date']
+            movie = jsonstring['episodes']['is_movie']
+            epnumbered = False
+        except:
+            epname = jsonstring['episode']['name']
+            eps = str(jsonstring['episode']['season'])
+            epe = str(jsonstring['episode']['episode'])
+            etimeun = jsonstring['episode']['air_date']
+            movie = jsonstring['episode']['is_movie']
+            epnumbered = False
+    # dt = dateutil.parser.parse(etimeun)
+    # timestamp1 = calendar.timegm(dt.timetuple())
+    etimegmt = time.gmtime(etimeun)
     etimeus = time.strftime('%A %B %d, %G at %I:%M:%S %p',etimegmt)
-    if timestamp1 < time.time():
-        return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' aired on ' + etimeus + ' GMT'
-    if timestamp1 > time.time():
-        return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT'
+    if epnumbered is True and issearch is True:
+        try:
+            epname2 = jsonstring['episodes'][1]['name']
+            eps2 = str(jsonstring['episodes'][1]['season'])
+            epe2 = str(jsonstring['episodes'][1]['episode'])
+            etimeun2 = jsonstring['episodes'][1]['air_date']
+            movie2 = jsonstring['episodes'][1]['is_movie']
+            epsecond = True
+            etimegmt2 = time.gmtime(etimeun2)
+            etimeus2 = time.strftime('%A %B %d, %G at %I:%M:%S %p',etimegmt2)
+        except:
+            epsecond = False
+    else:
+        epsecond = False
+    if epsecond is True:
+        if movie is True:
+            if etimeun < time.time():
+                return epname + ' aired on ' + etimeus + ' GMT'
+            if etimeun > time.time():
+                return epname + ' will air on ' + etimeus + ' GMT'
+        else:
+            if etimeun < time.time():
+                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' aired on ' + etimeus + ' GMT and Season ' + eps2 + ', Episode ' + epe2 + ', ' + epname2 + ' aired on ' + etimeus2 + ' GMT'
+            if etimeun > time.time():
+                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT and Season ' + eps2 + ', Episode ' + epe2 + ', ' + epname2 + ' will air on ' + etimeus2 + ' GMT'
+    else:
+        if movie is True:
+            if etimeun < time.time():
+                return epname + ' aired on ' + etimeus + ' GMT'
+            if etimeun > time.time():
+                return epname + ' will air on ' + etimeus + ' GMT'
+        else:
+            if etimeun < time.time():
+                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' aired on ' + etimeus + ' GMT'
+            if etimeun > time.time():
+                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT'
 def episode(phenny, input): 
     """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep s2e1 or .ep next or .ep last"""
     query = input.group(2)
