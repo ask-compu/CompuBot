@@ -60,11 +60,21 @@ def episode_find(query, phenny):
                     issearch = False
                     isnextlast = True
                 else:
-                    webquery = web.quote(query)
-                    uri = 'http://ponyapi.apps.xeserv.us/search?q=' + webquery
-                    nl = query
-                    issearch = True
-                    isnextlast = False
+                    if re.compile('(?i)(movie)( )?\d+').match(query):
+                        regex = re.compile('(?i)movie(?: )?(\d+)')
+                        numbers = regex.findall(query)
+                        results = [int(i) for i in numbers[0]]
+                        mnum = str(int(results[0]))
+                        uri = 'http://ponyapi.apps.xeserv.us/season/99/episode/' + mnum
+                        nl = query
+                        issearch = False
+                        isnextlast = False
+                    else:
+                        webquery = web.quote(query)
+                        uri = 'http://ponyapi.apps.xeserv.us/search?q=' + webquery
+                        nl = query
+                        issearch = True
+                        isnextlast = False
                     
     try:
         rec_bytes = web.get(uri)
@@ -150,7 +160,7 @@ def episode_find(query, phenny):
             if etimeun > time.time():
                 return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT'
 def episode(phenny, input): 
-    """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep s2e1 or .ep return of harmony or .ep next or .ep last"""
+    """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep s2e1 or .ep return of harmony or .ep next or .ep last or .ep movie 3"""
     query = input.group(2)
     if not query: return phenny.reply('.ep what?')
 
