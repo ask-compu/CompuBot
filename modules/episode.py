@@ -21,10 +21,6 @@ class Grab(web.urllib.request.URLopener):
         return web.urllib.addinfourl(fp, [headers, errcode], "http:" + url)
 
 def episode_find(query, phenny): 
-    try:
-        import dateutil.parser
-    except:
-        return 'error'
     query = query.replace('!', '')
     if re.compile('(?i)(season \d+(,)? episode \d+)').match(query):
         regex = re.compile('(?i)season (\d+)(?:,)? episode (\d+)')
@@ -119,8 +115,6 @@ def episode_find(query, phenny):
             etimeun = jsonstring['episode']['air_date']
             movie = jsonstring['episode']['is_movie']
             epnumbered = False
-    # dt = dateutil.parser.parse(etimeun)
-    # timestamp1 = calendar.timegm(dt.timetuple())
     etimegmt = time.gmtime(etimeun)
     etimeus = time.strftime('%A %B %d, %G at %I:%M:%S %p',etimegmt)
     if epnumbered is True and issearch is True:
@@ -169,8 +163,6 @@ def episode(phenny, input):
         if uri.startswith('nope'):
             uris = uri.split('$')
             return phenny.say("Sorry " + input.nick + ", I couldn't find the " + uris[1] + " episode.")
-        if uri.startswith('error'):
-            return phenny.say('Please install dateutil with "pip install python-dateutil" and then say CompuBot: reload episode')
         else:
             phenny.say("Here's what I got, " + input.nick + ": " + uri)
             if not hasattr(phenny.bot, 'last_seen_uri'):
