@@ -21,6 +21,7 @@ from html.entities import name2codepoint
 import web
 from tools import deprecated
 import ast
+import calendar
 
 cj = http.cookiejar.LWPCookieJar(os.path.join(os.path.expanduser('~/.phenny'), 'cookies.lwp'))
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
@@ -278,6 +279,7 @@ def query(vid, auth_key):
     except IndexError: return None
     title = data['snippet']['title']
     uploader = data['snippet']['channelTitle']
+    uploaded = data['snippet']['publishedAt']
     try:
         viewcount = str(data['statistics']['viewCount'])
     except (KeyError, IndexError):
@@ -295,7 +297,7 @@ def query(vid, auth_key):
     
     time = iso_8601(duration)
     
-    return title, viewcount, time, uploader, likes, dislikes
+    return title, viewcount, time, uploader, uploaded, likes, dislikes
     
 def iso_8601(str_time):
     '''
@@ -351,12 +353,23 @@ def get_youtube_title(uri, auth_key):
     if video_data is None:
       return None
     else:
-      title, views, time, uploader, likes, dislikes = video_data
+      title, views, length, uploader, uploaded, likes, dislikes = video_data
+    try:
+        import dateutil.parser
+        isdateutil = True
+        dt = dateutil.parser.parse(uploaded)
+        timestamp1 = calendar.timegm(dt.timetuple())
+        timestamp1 = time.gmtime(timestamp1)
+        uploadedformat = time.strftime('%A %B %d, %G at %I:%M:%S %p',timestamp1)
+    except:
+        isdateutil = False
     if title == '':
         return None
     percentage = get_percentage(likes, dislikes)
-    # Not including the uploader in the title info; it's rarely important in determining a link's quality.
-    return "\002You\00300,04Tube\017 " + title + " - " + views + " views - Uploaded by " + uploader + " - " + time + "long - " + likes + " likes - " + dislikes + " dislikes - " + percentage + "%"
+    if isdateutil is False:
+        return "\002You\00300,04Tube\017 " + title + " - " + views + " views - Uploaded by " + uploader + " - " + length + "long - " + likes + " likes - " + dislikes + " dislikes - " + percentage + "%"
+    else:
+        return "\002You\00300,04Tube\017 " + title + " - " + views + " views - Uploaded by " + uploader + " on " + uploadedformat + " - " + length + "long - " + likes + " likes - " + dislikes + " dislikes - " + percentage + "%"
 
 def get_api_story_title(uri):
     story_id = uri.split('story/')[1]
