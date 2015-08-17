@@ -565,7 +565,10 @@ def flistchar(uri, phenny):
         return
 def deviantart(uri, phenny):
     apiuri = 'http://backend.deviantart.com/oembed?url=' + web.quote(uri)
-    rec_bytes = web.get(apiuri)
+    try:
+        rec_bytes = web.get(apiuri)
+    except:
+        return
     try:
         jsonstring = json.loads(rec_bytes)
     except:
