@@ -140,6 +140,9 @@ def snarfuri(phenny, input):
         if re.compile('http(s)?://(.+)?deviantart.com/art/').match(uri):
             title = deviantart(uri, phenny)
         
+        if re.compile('http(s)?://(.+)?deviantart.com/journal/').match(uri):
+            title = deviantart(uri, phenny)
+        
         if re.compile('http(s)?://fav.me/').match(uri):
             title = deviantart(uri, phenny)
         
