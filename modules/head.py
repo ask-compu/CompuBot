@@ -136,8 +136,20 @@ def snarfuri(phenny, input):
 
         if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
             title = ouroboros('e621',uri, phenny)
-            
-        if re.compile('http(s)?://(www.)?(f-list).net/c/').match(uri): #e621 or e926 link
+        
+        if re.compile('http(s)?://(.+)?deviantart.com/art/').match(uri):
+            title = deviantart(uri, phenny)
+        
+        if re.compile('http(s)?://fav.me/').match(uri):
+            title = deviantart(uri, phenny)
+        
+        if re.compile('http(s)?://sta.sh/').match(uri):
+            title = deviantart(uri, phenny)
+        
+        if re.compile('http(s)?://(.+)?deviantart.com/(.+)/d').match(uri):
+            title = deviantart(uri, phenny)
+        
+        if re.compile('http(s)?://(www.)?(f-list).net/c/').match(uri):
             title = flistchar(uri, phenny)
 
         if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
@@ -551,6 +563,46 @@ def flistchar(uri, phenny):
         return titlestr
     else:
         return
+def deviantart(uri, phenny):
+    apiuri = 'http://backend.deviantart.com/oembed?url=' + web.quote(uri)
+    rec_bytes = web.get(apiuri)
+    try:
+        jsonstring = json.loads(rec_bytes)
+    except:
+        return
+    type = jsonstring['type']
+    title = jsonstring['title']
+    category = jsonstring['category']
+    author = jsonstring['author_name']
+    safe = jsonstring['safety']
+    uploaded = jsonstring['pubdate']
+    views = str(jsonstring['community']['statistics']['_attributes']['views'])
+    favs = str(jsonstring['community']['statistics']['_attributes']['favorites'])
+    try:
+        import dateutil.parser
+        isdateutil = True
+        dt = dateutil.parser.parse(uploaded)
+        timestamp1 = calendar.timegm(dt.timetuple())
+        timestamp1 = time.gmtime(timestamp1)
+        uploadedformat = time.strftime('%A %B %d, %G at %I:%M:%S %p',timestamp1)
+    except:
+        isdateutil = False
+    if re.compile('nonadult').match(safe):
+        nsfw = False
+    else:
+        nsfw = True
+    if nsfw is True:
+        if isdateutil is True:
+            return '!!NSFW!! ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' uploaded on ' + uploadedformat + ' - ' + views + ' views - ' + favs + ' favs'
+        else:
+            return '!!NSFW!! ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' - ' + views + ' views - ' + favs + ' favs'
+    else:
+        if isdateutil is True:
+            return title + ' by ' + author + ' - ' + category + ' - ' + type + ' uploaded on ' + uploadedformat + ' - ' + views + ' views - ' + favs + ' favs'
+        else:
+            return title + ' by ' + author + ' - ' + category + ' - ' + type + ' - ' + views + ' views - ' + favs + ' favs'
+    
+    
 
 if __name__ == '__main__': 
     print(__doc__.strip())
