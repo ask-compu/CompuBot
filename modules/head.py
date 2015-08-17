@@ -593,14 +593,14 @@ def deviantart(uri, phenny):
         nsfw = True
     if nsfw is True:
         if isdateutil is True:
-            return '!!NSFW!! ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' uploaded on ' + uploadedformat + ' - ' + views + ' views - ' + favs + ' favs'
+            return '\002!!NSFW!! \00300,03DeviantArt\017 ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' uploaded on ' + uploadedformat + ' - ' + views + ' views - ' + favs + ' favs'
         else:
-            return '!!NSFW!! ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' - ' + views + ' views - ' + favs + ' favs'
+            return '\002!!NSFW!! \00300,03DeviantArt\017 ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' - ' + views + ' views - ' + favs + ' favs'
     else:
         if isdateutil is True:
-            return title + ' by ' + author + ' - ' + category + ' - ' + type + ' uploaded on ' + uploadedformat + ' - ' + views + ' views - ' + favs + ' favs'
+            return '\002\00300,03DeviantArt\017 ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' uploaded on ' + uploadedformat + ' - ' + views + ' views - ' + favs + ' favs'
         else:
-            return title + ' by ' + author + ' - ' + category + ' - ' + type + ' - ' + views + ' views - ' + favs + ' favs'
+            return '\002\00300,03DeviantArt\017 ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' - ' + views + ' views - ' + favs + ' favs'
     
     
 
