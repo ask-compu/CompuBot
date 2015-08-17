@@ -51,7 +51,7 @@ def episode_find(query, phenny):
                 isnextlast = True
             else:
                 if re.compile('(?i)last').match(query):
-                    uri = 'http://ponyapi.apps.xeserv.us/season/5/episode/13'
+                    uri = 'http://ponyapi.apps.xeserv.us/last_aired'
                     nl = 'last'
                     issearch = False
                     isnextlast = True
