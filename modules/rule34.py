@@ -17,6 +17,8 @@ import web
 import json
 import xml.etree.ElementTree as ET # parsing xml not html
 from random import choice 
+import time
+import calendar
 
 def rule34(phenny, input):
     """.rule34 <query> - Rule 34: If it exists there is porn of it."""
@@ -109,7 +111,7 @@ def derpibooru_search(query, phenny):
         results = choice(jsonstring['search'])
         url = 'https:' + results['image']
         uploader = results['uploader']
-        uploaded = results['updated_at']
+        uploaded = results['created_at']
         try:
             import dateutil.parser
             isdateutil = True
