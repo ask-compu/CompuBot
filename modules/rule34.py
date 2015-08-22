@@ -95,6 +95,52 @@ def tpc(phenny, input):
 
 tpc.commands = ['tpc', 'twentypercentcooler', 'ponies']
 
+def derpibooru_search(query, phenny):
+    query = query.replace('!', '')
+    query = web.quote(query)
+    if hasattr(phenny.config, 'derpibooru_key'):
+        uri = 'https://derpibooru.org/search.json?q=' + query + '&key=' + phenny.config.derpibooru_key
+    else:
+        uri = 'https://derpibooru.org/search.json?q=' + query
+    rec_bytes = web.get(uri)
+    jsonstring = json.loads(rec_bytes)
+    dhits = jsonstring['total']
+    if dhits > 0:
+        results = choice(jsonstring['search'])
+        url = 'https:' + results['image']
+        uploader = results['uploader']
+        uploaded = results['updated_at']
+        try:
+            import dateutil.parser
+            isdateutil = True
+            dt = dateutil.parser.parse(uploaded)
+            timestamp1 = calendar.timegm(dt.timetuple())
+            timestamp1 = time.gmtime(timestamp1)
+            uploadedformat = time.strftime('%A %B %d, %G at %I:%M:%S %p',timestamp1)
+        except:
+            isdateutil = False
+        if isdateutil is True:
+            return url + ' uploaded by ' + uploader + ' on ' + uploadedformat
+        else:
+            return url + ' uploaded by ' + uploader
+    else:
+        return
+
+def derpibooru(phenny, input):
+    '''Gets images from Derpibooru, needs an API key in the config to get NSFW images'''
+    query = input.group(2)
+    if not query: return phenny.reply('.derpi what?')
+
+    uri = derpibooru_search(query, phenny)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+derpibooru.commands = ['derpi','db','derpibooru']
+derpibooru.example = '.derpi sweetie belle,fluttershy'
+
 ##
 # Helper Functions
 ##
