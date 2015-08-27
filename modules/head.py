@@ -156,6 +156,14 @@ def snarfuri(phenny, input):
             title = spotify_track(uri, phenny, radio=False)
             istags = False
         
+        if re.compile('http(s)?://(.+)?ted.com/talks/').match(uri):
+            title = ted(uri, phenny)
+            istags = False
+        
+        if re.compile('http(s)?://(.+)?dailymotion.com/video/').match(uri):
+            title = dailymotion(uri, phenny)
+            istags = False
+        
         if re.compile('http(s)?://(.+)?spotify.com/.+/track/').match(uri):
             title = spotify_track(uri, phenny, radio=True)
             istags = False
@@ -811,6 +819,36 @@ def soundcloud(uri, phenny):
         return '\002\00307,14' + provider + '\017 ' + title + ' - ' + description
     else:
         return '\002\00307,14' + provider + '\017 ' + title
+    
+def ted(uri, phenny):
+    apiuri = "http://www.ted.com/services/v1/oembed.json?url=" + uri
+    try:
+        rec_bytes = web.get(apiuri)
+    except:
+        return
+    try:
+        jsonstring = json.loads(rec_bytes)
+    except:
+        return
+    title = jsonstring['title']
+    description = jsonstring['description']
+    description = smart_truncate_soundcloud(description)
+    return '\002\00304,00TED Talks\017 ' + title + ' - ' + description
+
+def dailymotion(uri, phenny):
+    apiuri = 'http://www.dailymotion.com/services/oembed?format=json&url=' + uri
+    try:
+        rec_bytes = web.get(apiuri)
+    except:
+        return
+    try:
+        jsonstring = json.loads(rec_bytes)
+    except:
+        return
+    title = jsonstring['title']
+    uploader = jsonstring['author_name']
+    provider = jsonstring['provider_name']
+    return '\002\00300,02' + provider + '\017 ' + title + ' by ' + uploader
     
 
 if __name__ == '__main__': 
