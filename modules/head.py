@@ -159,6 +159,9 @@ def snarfuri(phenny, input):
         if re.compile('http(s)?://(.+)?deviantart.com/journal/').match(uri):
             title = deviantart(uri, phenny)
         
+        if re.compile('http(s)?://(.+)?soundcloud.com/').match(uri):
+            title = soundcloud(uri, phenny)
+        
         if re.compile('http(s)?://fav.me/').match(uri):
             title = deviantart(uri, phenny)
         
@@ -458,6 +461,7 @@ def smart_truncate(content, phenny):
             return content[:length].rsplit(' ', 1)[0]+suffix
     else:
         return "Please set the tag_list_length option in the config"
+
 def ouroboros(site, uri, phenny):
     # e621 and twentypercentcooler use the same software
     # TODO: load tag file; compare tags, generate title
@@ -757,6 +761,38 @@ def spotify_track(uri, phenny, radio):
         return '\002\00303,01Spotify\017 ' + track + ' - ' + artist + ' - ' + album + ' - ' + tracktime + ' released on ' + releasedformat
     else:
         return '\002\00303,01Spotify\017 ' + track + ' - ' + artist + ' - ' + album + ' - ' + tracktime
+    
+def smart_truncate_soundcloud(content):
+    suffix='...'
+    length=int(150)
+    if len(content) <= length:
+        return content
+    else:
+        return content[:length].rsplit(' ', 1)[0]+suffix
+
+def soundcloud(uri, phenny):
+    apiuri = "https://soundcloud.com/oembed?format=json&url=" + uri
+    try:
+        rec_bytes = web.get(apiuri)
+    except:
+        return
+    try:
+        jsonstring = json.loads(rec_bytes)
+    except:
+        return
+    provider = jsonstring['provider_name']
+    title = jsonstring['title']
+    description = jsonstring['description']
+    if description is None:
+        descriptiont = False
+    else:
+        descriptiont = True
+        description = smart_truncate_soundcloud(description)
+    if descriptiont is True:
+        return '\002\00307,14' + provider + '\017 ' + title + ' - ' + description
+    else:
+        return '\002\00307,14' + provider + '\017 ' + title
+    
 
 if __name__ == '__main__': 
     print(__doc__.strip())
