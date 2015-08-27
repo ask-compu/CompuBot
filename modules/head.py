@@ -130,6 +130,7 @@ def snarfuri(phenny, input):
                 return
             else:
                 title = get_youtube_title(uri, phenny.config.youtube_api_key)
+                istags = False
 
         fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
         if fimfiction.match(uri):
@@ -137,51 +138,69 @@ def snarfuri(phenny, input):
 
         if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
             title = ouroboros('e621',uri, phenny)
+            istags = True
         
         if re.compile('http(s)?://(.+)?spotify.com/album/').match(uri):
             title = spotify_album(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://(.+)?spotify.com/artist/').match(uri):
             title = spotify_artist(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://(.+)?spotify.com/user/').match(uri):
             title = spotify_user(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://(.+)?spotify.com/track/').match(uri):
             title = spotify_track(uri, phenny, radio=False)
+            istags = False
         
         if re.compile('http(s)?://(.+)?spotify.com/.+/track/').match(uri):
             title = spotify_track(uri, phenny, radio=True)
+            istags = False
         
         if re.compile('http(s)?://(.+)?deviantart.com/art/').match(uri):
             title = deviantart(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://(.+)?deviantart.com/journal/').match(uri):
             title = deviantart(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://(.+)?soundcloud.com/').match(uri):
             title = soundcloud(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://fav.me/').match(uri):
             title = deviantart(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://sta.sh/').match(uri):
             title = deviantart(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://(.+)?deviantart.com/(.+)/d').match(uri):
             title = deviantart(uri, phenny)
+            istags = False
         
         if re.compile('http(s)?://(www.)?(f-list).net/c/').match(uri):
             title = flistchar(uri, phenny)
+            istags = False
 
         if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
             title = ouroboros('twentypercentcooler',uri, phenny)
+            istags = True
 
         if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
             title = derpibooru(uri, phenny)
+            istags = True
 
         if title:
-            phenny.msg(input.sender, '[ ' + title + ' ]')
+            if istags is True:
+                phenny.say('[ ' + title + ' ]')
+            else:
+                phenny.say(title)
         else:
             title = gettitle(uri)
             if title: phenny.msg(input.sender, '[ ' + title + ' ]')
