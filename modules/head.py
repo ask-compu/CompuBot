@@ -148,7 +148,10 @@ def snarfuri(phenny, input):
             title = spotify_user(uri, phenny)
         
         if re.compile('http(s)?://(.+)?spotify.com/track/').match(uri):
-            title = spotify_track(uri, phenny)
+            title = spotify_track(uri, phenny, radio=False)
+        
+        if re.compile('http(s)?://(.+)?spotify.com/.+/track/').match(uri):
+            title = spotify_track(uri, phenny, radio=True)
         
         if re.compile('http(s)?://(.+)?deviantart.com/art/').match(uri):
             title = deviantart(uri, phenny)
@@ -695,9 +698,12 @@ def spotify_user(uri, phenny):
     followers = str(jsonstring["followers"]["total"])
     return '\002\00303,01Spotify\017 ' + name + ' - ' + followers + ' followers'
 
-def spotify_track(uri, phenny):
+def spotify_track(uri, phenny, radio):
     idsplit = uri.split('/')
-    id = idsplit[4]
+    if radio is False:
+        id = idsplit[4]
+    else:
+        id = idsplit[5]
     apiuri = 'https://api.spotify.com/v1/tracks/' + id
     try:
         rec_bytes = web.get(apiuri)
@@ -745,7 +751,7 @@ def spotify_track(uri, phenny):
     seconds=(milliseconds/1000)%60
     minutes=(milliseconds/(1000*60))%60
     minutes = str(int(minutes))
-    seconds = str(round(seconds))
+    seconds = str(round(seconds)).zfill(2)
     tracktime = minutes + ":" + seconds
     if isdateutil is True:
         return '\002\00303,01Spotify\017 ' + track + ' - ' + artist + ' - ' + album + ' - ' + tracktime + ' released on ' + releasedformat
