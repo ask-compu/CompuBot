@@ -22,6 +22,7 @@ import web
 from tools import deprecated
 import ast
 import calendar
+import string
 
 cj = http.cookiejar.LWPCookieJar(os.path.join(os.path.expanduser('~/.phenny'), 'cookies.lwp'))
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
@@ -136,6 +137,18 @@ def snarfuri(phenny, input):
 
         if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
             title = ouroboros('e621',uri, phenny)
+        
+        if re.compile('http(s)?://(.+)?spotify.com/album/').match(uri):
+            title = spotify_album(uri, phenny)
+        
+        if re.compile('http(s)?://(.+)?spotify.com/artist/').match(uri):
+            title = spotify_artist(uri, phenny)
+        
+        if re.compile('http(s)?://(.+)?spotify.com/user/').match(uri):
+            title = spotify_user(uri, phenny)
+        
+        if re.compile('http(s)?://(.+)?spotify.com/track/').match(uri):
+            title = spotify_track(uri, phenny)
         
         if re.compile('http(s)?://(.+)?deviantart.com/art/').match(uri):
             title = deviantart(uri, phenny)
@@ -560,7 +573,7 @@ def flistchar(uri, phenny):
         try:
             titlestr = 'Error - ' + errname
         except UnboundLocalError:
-            titlestr = '\00312,01F-List\017 - ' + charname
+            titlestr = '\002\00312,01F-List\017 - ' + charname
         
         
         return titlestr
@@ -608,7 +621,136 @@ def deviantart(uri, phenny):
         else:
             return '\002\00300,03DeviantArt\017 ' + title + ' by ' + author + ' - ' + category + ' - ' + type + ' - ' + views + ' views - ' + favs + ' favs'
     
+def spotify_album(uri, phenny):
+    idsplit = uri.split('/')
+    id = idsplit[4]
+    apiuri = 'https://api.spotify.com/v1/albums/' + id
+    try:
+        rec_bytes = web.get(apiuri)
+    except:
+        return
+    jsonstring = json.loads(rec_bytes)
+    album = jsonstring['name']
+    artistarray = jsonstring['artists']
+    if len(artistarray) > 1:
+        multipleartists = True
+    else:
+        multipleartists = False
+    if multipleartists is False:
+        artist = artistarray[0]['name']
+    else:
+        artist = "Various Artists"
+    released = jsonstring['release_date']
+    try:
+        import dateutil.parser
+        isdateutil = True
+        dt = dateutil.parser.parse(released)
+        timestamp1 = calendar.timegm(dt.timetuple())
+        timestamp1 = time.gmtime(timestamp1)
+        if re.compile('day').match(jsonstring['release_date_precision']):
+            releasedformat = time.strftime('%A %B %d, %G',timestamp1)
+        else:
+            if re.compile('month').match(jsonstring['release_date_precision']):
+                releasedformat = time.strftime('%B, %G',timestamp1)
+            else:
+                if re.compile('year').match(jsonstring['release_date_precision']):
+                   releasedformat = time.strftime('%G',timestamp1)
+                else:
+                    isdateutil = False
+    except:
+        isdateutil = False
+    type = jsonstring['album_type']
+    type = string.capwords(type)
+    if isdateutil is True:
+        return '\002\00303,01Spotify\017 ' + type + ' - ' + artist + ' - ' + album + ' released on ' + releasedformat
+    else:
+        return '\002\00303,01Spotify\017 ' + type + ' - ' + artist + ' - ' + album
+
+def spotify_artist(uri, phenny):
+    idsplit = uri.split('/')
+    id = idsplit[4]
+    apiuri = 'https://api.spotify.com/v1/artists/' + id
+    try:
+        rec_bytes = web.get(apiuri)
+    except:
+        return
+    jsonstring = json.loads(rec_bytes)
+    followers = str(jsonstring['followers']['total'])
+    name = jsonstring['name']
+    return '\002\00303,01Spotify\017 ' + name + ' - ' + followers + ' followers'
     
+def spotify_user(uri, phenny):
+    idsplit = uri.split('/')
+    id = idsplit[4]
+    apiuri = 'https://api.spotify.com/v1/users/' + id
+    try:
+        rec_bytes = web.get(apiuri)
+    except:
+        return
+    jsonstring = json.loads(rec_bytes)
+    if jsonstring["display_name"]:
+        name = jsonstring["display_name"]
+    else:
+        name = jsonstring["id"]
+    followers = str(jsonstring["followers"]["total"])
+    return '\002\00303,01Spotify\017 ' + name + ' - ' + followers + ' followers'
+
+def spotify_track(uri, phenny):
+    idsplit = uri.split('/')
+    id = idsplit[4]
+    apiuri = 'https://api.spotify.com/v1/tracks/' + id
+    try:
+        rec_bytes = web.get(apiuri)
+    except:
+        return
+    jsonstring = json.loads(rec_bytes)
+    track = jsonstring['name']
+    album = jsonstring['album']['name']
+    artistarray = jsonstring['artists']
+    if len(artistarray) > 1:
+        multipleartists = True
+    else:
+        multipleartists = False
+    if multipleartists is False:
+        artist = artistarray[0]['name']
+    else:
+        artist = "Various Artists"
+    albumid = jsonstring['album']['id']
+    albumurl = 'https://api.spotify.com/v1/albums/' + albumid
+    try:
+        rec_bytes_album = web.get(albumurl)
+        jsonstringalbum = json.loads(rec_bytes_album)
+        released = jsonstringalbum['release_date']
+    except:
+        isdateutil = False
+    try:
+        import dateutil.parser
+        isdateutil = True
+        dt = dateutil.parser.parse(released)
+        timestamp1 = calendar.timegm(dt.timetuple())
+        timestamp1 = time.gmtime(timestamp1)
+        if re.compile('day').match(jsonstringalbum['release_date_precision']):
+            releasedformat = time.strftime('%A %B %d, %G',timestamp1)
+        else:
+            if re.compile('month').match(jsonstringalbum['release_date_precision']):
+                releasedformat = time.strftime('%B, %G',timestamp1)
+            else:
+                if re.compile('year').match(jsonstringalbum['release_date_precision']):
+                   releasedformat = time.strftime('%G',timestamp1)
+                else:
+                    isdateutil = False
+    except:
+        isdateutil = False
+    milliseconds = jsonstring['duration_ms']
+    seconds=(milliseconds/1000)%60
+    minutes=(milliseconds/(1000*60))%60
+    minutes = str(int(minutes))
+    seconds = str(round(seconds))
+    tracktime = minutes + ":" + seconds
+    if isdateutil is True:
+        return '\002\00303,01Spotify\017 ' + track + ' - ' + artist + ' - ' + album + ' - ' + tracktime + ' released on ' + releasedformat
+    else:
+        return '\002\00303,01Spotify\017 ' + track + ' - ' + artist + ' - ' + album + ' - ' + tracktime
 
 if __name__ == '__main__': 
     print(__doc__.strip())
