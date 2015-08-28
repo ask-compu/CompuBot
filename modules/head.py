@@ -135,6 +135,7 @@ def snarfuri(phenny, input):
         fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
         if fimfiction.match(uri):
             title = get_story_title(uri)
+            istags = False
 
         if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
             title = ouroboros('e621',uri, phenny)
@@ -449,12 +450,16 @@ def get_api_story_title(uri):
     content_rating = int(story['content_rating'])
     chapters = str(story['chapter_count'])
     categories = ''
+    updatedun = story['date_modified'] 
+    updatedgmt = time.gmtime(updatedun)
+    updated = time.strftime('%A %B %d, %G at %I:%M:%S %p',updatedgmt)
+    description = story['short_description']
     
     cat_dict = story['categories']
     for k in cat_dict:
         if cat_dict[k] is True:
             categories = categories + '[' + k + ']'
-    return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories
+    return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description
     
 def format_title(title):
     title = title.strip('"')
@@ -565,8 +570,8 @@ def derpibooru(uri, phenny):
     return title
 
 def get_story_title(uri):
-    story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories = get_api_story_title(uri)
-    title = ''
+    story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description = get_api_story_title(uri)
+    title = '\002\00312,00FIMFiction\017 '
     if content_rating > 1:
         title = title + '\u0002!!*NSFW*!!\u000F - '
     title = title + story_title + " by " + author
@@ -577,7 +582,7 @@ def get_story_title(uri):
         else:
             title = title + ' chapter'
     title = title + " - " + views + " views - " + categories + ' - ' + words + ' words'
-    title = title + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "%"
+    title = title + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "% - last updated on " + updated + " - " + description
     return title
 
 def flistchar(uri, phenny):
