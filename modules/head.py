@@ -454,12 +454,13 @@ def get_api_story_title(uri):
     updatedgmt = time.gmtime(updatedun)
     updated = time.strftime('%A %B %d, %G at %I:%M:%S %p',updatedgmt)
     description = story['short_description']
+    status = story['status']
     
     cat_dict = story['categories']
     for k in cat_dict:
         if cat_dict[k] is True:
             categories = categories + '[' + k + ']'
-    return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description
+    return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description, status
     
 def format_title(title):
     title = title.strip('"')
@@ -570,7 +571,7 @@ def derpibooru(uri, phenny):
     return title
 
 def get_story_title(uri):
-    story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description = get_api_story_title(uri)
+    story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description, status = get_api_story_title(uri)
     title = '\002\00312,00FIMFiction\017 '
     if content_rating > 1:
         title = title + '\u0002!!*NSFW*!!\u000F - '
@@ -581,7 +582,7 @@ def get_story_title(uri):
             title = title + ' chapters'
         else:
             title = title + ' chapter'
-    title = title + " - " + views + " views - " + categories + ' - ' + words + ' words'
+    title = title + " - " + views + " views - " + categories + ' -- ' + status + ' -- ' + words + ' words'
     title = title + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "% - last updated on " + updated + " - " + description
     return title
 
