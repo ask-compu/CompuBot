@@ -378,6 +378,7 @@ def dictionary(phenny, input):
         phenny.bot.last_seen_uri[input.sender] = uri
     else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
 dictionary.commands = ['d', 'def', 'define']
+dictionary.rule = ('$nick', ['define'], r'(\S+)?')
 dictionary.example = '.d swhack'
 
 def unabbreviate_search(query, phenny): 
@@ -512,6 +513,22 @@ def urban_dictionary(phenny, input):
     else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
 urban_dictionary.commands = ['ud','urban','urbandictionary']
 urban_dictionary.example = '.ud FTFY'
+
+def lmgtfy(phenny, input): 
+    """Let me google that for you"""
+    query = input.group(2)
+    query = re.sub("((?i) for me(\?)?)","",query)
+    query = query.rstrip()
+    if not query: return phenny.reply('.lmgtfy what?')
+
+    uri = "http://lmgtfy.com/?q=" + web.quote(query)
+    phenny.say(uri)
+    if not hasattr(phenny.bot, 'last_seen_uri'):
+        phenny.bot.last_seen_uri = {}
+    phenny.bot.last_seen_uri[input.sender] = uri
+lmgtfy.rule = ('$nick', ['google'], r'(.*)?')
+lmgtfy.commands = ['gf','lmgtfy']
+lmgtfy.example = '.lmgtfy body mass index'
 
 def search(phenny, input): 
     """Searches Duck Duck Go, Google, and Bing all at once."""
