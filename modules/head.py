@@ -688,13 +688,13 @@ def spotify_album(uri, phenny):
         timestamp1 = calendar.timegm(dt.timetuple())
         timestamp1 = time.gmtime(timestamp1)
         if re.compile('day').match(jsonstring['release_date_precision']):
-            releasedformat = time.strftime('%A %B %d, %G',timestamp1)
+            releasedformat = time.strftime('on %A %B %d, %G',timestamp1)
         else:
             if re.compile('month').match(jsonstring['release_date_precision']):
-                releasedformat = time.strftime('%B, %G',timestamp1)
+                releasedformat = time.strftime('in %B, %G',timestamp1)
             else:
                 if re.compile('year').match(jsonstring['release_date_precision']):
-                   releasedformat = time.strftime('%G',timestamp1)
+                   releasedformat = time.strftime('in %G',timestamp1)
                 else:
                     isdateutil = False
     except:
@@ -702,7 +702,7 @@ def spotify_album(uri, phenny):
     type = jsonstring['album_type']
     type = string.capwords(type)
     if isdateutil is True:
-        return '\002\00303,01Spotify\017 ' + type + ' - ' + artist + ' - ' + album + ' released on ' + releasedformat
+        return '\002\00303,01Spotify\017 ' + type + ' - ' + artist + ' - ' + album + ' released ' + releasedformat
     else:
         return '\002\00303,01Spotify\017 ' + type + ' - ' + artist + ' - ' + album
 
@@ -773,13 +773,13 @@ def spotify_track(uri, phenny, radio):
         timestamp1 = calendar.timegm(dt.timetuple())
         timestamp1 = time.gmtime(timestamp1)
         if re.compile('day').match(jsonstringalbum['release_date_precision']):
-            releasedformat = time.strftime('%A %B %d, %G',timestamp1)
+            releasedformat = time.strftime('on %A %B %d, %G',timestamp1)
         else:
             if re.compile('month').match(jsonstringalbum['release_date_precision']):
-                releasedformat = time.strftime('%B, %G',timestamp1)
+                releasedformat = time.strftime('in %B, %G',timestamp1)
             else:
                 if re.compile('year').match(jsonstringalbum['release_date_precision']):
-                   releasedformat = time.strftime('%G',timestamp1)
+                   releasedformat = time.strftime('in %G',timestamp1)
                 else:
                     isdateutil = False
     except:
@@ -791,7 +791,7 @@ def spotify_track(uri, phenny, radio):
     seconds = str(round(seconds)).zfill(2)
     tracktime = minutes + ":" + seconds
     if isdateutil is True:
-        return '\002\00303,01Spotify\017 ' + track + ' - ' + artist + ' - ' + album + ' - ' + tracktime + ' released on ' + releasedformat
+        return '\002\00303,01Spotify\017 ' + track + ' - ' + artist + ' - ' + album + ' - ' + tracktime + ' released ' + releasedformat
     else:
         return '\002\00303,01Spotify\017 ' + track + ' - ' + artist + ' - ' + album + ' - ' + tracktime
     
