@@ -65,7 +65,10 @@ def seen(phenny, input):
     else:
         
         seentime = seentimeun.strftime('%A %B %d, %G at %I:%M:%S %p GMT')
+        message = message.replace('\x01ACTION','/me')
+        message = message.replace('\x01','')
         message = smart_truncate(message)
+        message = message + '\017'
         if event == "PRIVMSG":
             phenny.say(nick + " was last seen in " + channel + ' saying "' + message + '" on ' + seentime)
         elif event == "JOIN":
