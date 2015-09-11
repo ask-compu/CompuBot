@@ -78,6 +78,8 @@ def seen(phenny, input):
         phenny.say("Sorry I haven't seen " + inputnick)
     elif input.nick == inputnick:
         phenny.say("Silly, that's you!")
+    elif inputnick == phenny.nick:
+        phenny.say("Silly, that's me!")
     else:
         
         seentime = seentimeun.strftime('%A %B %d, %G at %I:%M:%S %p GMT')
