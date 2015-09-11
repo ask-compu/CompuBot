@@ -74,12 +74,12 @@ def seen(phenny, input):
         phenny.say ("\x01ACTION pokes " + input.nick + "\x01")
         phenny.say("Are you broken?")
         phenny.say("I need a nick for that command")
-    elif not nick:
-        phenny.say("Sorry I haven't seen " + inputnick)
     elif input.nick == inputnick:
         phenny.say("Silly, that's you!")
     elif inputnick == phenny.nick:
         phenny.say("Silly, that's me!")
+    elif not nick:
+        phenny.say("Sorry I haven't seen " + inputnick)
     else:
         
         seentime = seentimeun.strftime('%A %B %d, %G at %I:%M:%S %p GMT')
