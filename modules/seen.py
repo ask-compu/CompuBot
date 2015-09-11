@@ -6,6 +6,7 @@ import sqlite3 as lite
 import os
 import datetime
 import time
+import re
 
 def db_connect(db):
     return lite.connect(db, check_same_thread = False, detect_types=lite.PARSE_DECLTYPES)
@@ -37,7 +38,18 @@ def smart_truncate(content):
 def seen(phenny, input):
     """Gives when a user was last seen."""
     inputnick = input.group(2)
-
+    regex = re.compile("\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
+    inputnick = regex.sub("", inputnick)
+    inputnick = inputnick.replace('\x0f','')
+    inputnick = inputnick.replace('\002','')
+    inputnick = inputnick.replace('\010','')
+    inputnick = inputnick.replace('\037','')
+    inputnick = inputnick.replace('\017','')
+    inputnick = inputnick.replace('\026','')
+    inputnick = inputnick.replace('\007','')
+    inputnick = inputnick.replace('\035','')
+    inputnick = inputnick.rstrip()
+    
     seen_db = os.path.join(os.path.expanduser('~/.phenny'), 'seen.db')
     seen_conn = db_connect(seen_db)
     conn = db_connect(seen_db)
