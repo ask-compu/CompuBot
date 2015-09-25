@@ -122,7 +122,7 @@ def snarfuri(phenny, input):
         
         title = None
 
-        youtube = re.compile('http(s)?://(www.)?youtube.(com|co.uk|ca)?/watch.*\?.*v\=\w+')
+        youtube = re.compile('http(s)?://((www|m).)?youtube.(com|co.uk|ca)?/watch.*\?.*v\=\w+')
         if youtube.match(uri) or re.compile('http(s)?://youtu.be/(.*)').match(uri):
             # due to changes in how Youtube gives out API access, we need a key from the config file
             if get_youtube_title(uri, phenny.config.youtube_api_key) is None:
