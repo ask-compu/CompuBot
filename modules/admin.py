@@ -94,6 +94,24 @@ def config_get(phenny, input):
     if config_to_get.lower() == 'password':
         phenny.say("Nuh uh! " + phenny.config.owner + " says that's a super-duper secret, and I promised to keep it!")
         return
+    elif config_to_get.lower() == 'f_list_password':
+        phenny.say("Nuh uh! " + phenny.config.owner + " says that's a super-duper secret, and I promised to keep it!")
+        return
+    elif config_to_get.lower() == 'youtube_api_key':
+        phenny.say("Nuh uh! " + phenny.config.owner + " says that's a super-duper secret, and I promised to keep it!")
+        return
+    elif config_to_get.lower() == 'wunderground_api_key':
+        phenny.say("Nuh uh! " + phenny.config.owner + " says that's a super-duper secret, and I promised to keep it!")
+        return
+    elif config_to_get.lower() == 'wordnik_api_key':
+        phenny.say("Nuh uh! " + phenny.config.owner + " says that's a super-duper secret, and I promised to keep it!")
+        return
+    elif config_to_get.lower() == 'serverpass':
+        phenny.say("Nuh uh! " + phenny.config.owner + " says that's a super-duper secret, and I promised to keep it!")
+        return
+    elif config_to_get.lower() == 'derpibooru_key':
+        phenny.say("Nuh uh! " + phenny.config.owner + " says that's a super-duper secret, and I promised to keep it!")
+        return
     config_option = ""
     try:
         config_option = str(getattr(phenny.config, config_to_get))
