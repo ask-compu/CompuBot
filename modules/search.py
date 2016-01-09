@@ -530,6 +530,43 @@ lmgtfy.rule = ('$nick', ['google'], r'(.*)?')
 lmgtfy.commands = ['gf','lmgtfy']
 lmgtfy.example = '.lmgtfy body mass index'
 
+def geoip_search(query): 
+    query = query.replace('!', '')
+    query = web.quote(query)
+    uri = 'https://freegeoip.net/json/' + query
+    try:
+        rec_bytes = web.get(uri)
+    except:
+        return
+    jsonstring = json.loads(rec_bytes)
+    ip = jsonstring['ip']
+    country = jsonstring['country_name']
+    countrycode = jsonstring['country_code']
+    state = jsonstring['region_name']
+    statecode = jsonstring['region_code']
+    city = jsonstring['city']
+    zipcode = jsonstring['zip_code']
+    timezone = jsonstring['time_zone']
+    if not country or countrycode == "RU":
+        return
+    else:
+        return(ip + ' is in ' + city + ', ' + state + ', ' + country + ', ' + zipcode + ' in the "' + timezone + '" timezone')
+
+def geoip(phenny, input): 
+    """Performs IP address geolocation."""
+    query = input.group(2)
+    if not query: return phenny.reply('.geo what?')
+
+    uri = geoip_search(query)
+    if uri: 
+        phenny.say("Here's what I got, " + input.nick + ": " + uri)
+        if not hasattr(phenny.bot, 'last_seen_uri'):
+            phenny.bot.last_seen_uri = {}
+        phenny.bot.last_seen_uri[input.sender] = uri
+    else: phenny.say("Sorry " + input.nick + ", I couldn't find anything for '%s'." % query)
+geoip.commands = ['geo', 'geoip']
+geoip.example = '.geo google.com'
+
 def search(phenny, input): 
     """Searches Duck Duck Go, Google, and Bing all at once."""
     if not input.group(2): 
