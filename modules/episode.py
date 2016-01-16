@@ -28,7 +28,7 @@ def episode_find(query, phenny):
         results = [int(i) for i in numbers[0]]
         snum = str(int(results[0]))
         enum = str(int(results[1]))
-        uri = 'http://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
+        uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
         nl = query
         issearch = False
         isnextlast = False
@@ -39,19 +39,19 @@ def episode_find(query, phenny):
             results = [int(i) for i in numbers[0]]
             snum = str(int(results[0]))
             enum = str(int(results[1]))
-            uri = 'http://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
+            uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
             nl = query
             issearch = False
             isnextlast = False
         else:
             if re.compile('(?i)next').match(query):
-                uri = 'http://ponyapi.apps.xeserv.us/newest'
+                uri = 'https://ponyapi.apps.xeserv.us/newest'
                 nl = 'next'
                 issearch = False
                 isnextlast = True
             else:
                 if re.compile('(?i)last').match(query):
-                    uri = 'http://ponyapi.apps.xeserv.us/last_aired'
+                    uri = 'https://ponyapi.apps.xeserv.us/last_aired'
                     nl = 'last'
                     issearch = False
                     isnextlast = True
@@ -61,13 +61,13 @@ def episode_find(query, phenny):
                         numbers = regex.findall(query)
                         results = [int(i) for i in numbers[0]]
                         mnum = str(int(results[0]))
-                        uri = 'http://ponyapi.apps.xeserv.us/season/99/episode/' + mnum
+                        uri = 'https://ponyapi.apps.xeserv.us/season/99/episode/' + mnum
                         nl = query
                         issearch = False
                         isnextlast = False
                     else:
                         webquery = web.quote(query)
-                        uri = 'http://ponyapi.apps.xeserv.us/search?q=' + webquery
+                        uri = 'https://ponyapi.apps.xeserv.us/search?q=' + webquery
                         nl = query
                         issearch = True
                         isnextlast = False
