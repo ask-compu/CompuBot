@@ -544,11 +544,7 @@ def derpibooru(uri, phenny):
     artists = []
     for tag in tags:
         if tag.startswith('artist:'):
-            artists.append(tag.replace('artist:', '', 1))
-    if artists:
-        artists = ' by '+', '.join(artists)
-    else:
-        artists = ''
+            artists.append(tag)
     # ratings are tags on Derpibooru
     ratings = []
     for tag in tags:
@@ -557,16 +553,8 @@ def derpibooru(uri, phenny):
     if not ratings:
         ratings = ['unknown']
     ratings = ' '.join(ratings)
-    tag_file = os.path.expanduser('~/.phenny/boru.py')
-    try:
-        boru = imp.load_source('boru',tag_file)
-    except Exception as e:
-        print("Error loading ignore tags: %s (in head.py)" %(e))
-    else:
-        tags = [tag for tag in tags if tag not in boru.ignore_tags]
-    tag_string = ' '.join(tag.replace(' ', '_') for tag in tags)
-    title = '{0} {1}'.format(ratings.title(),tag_string,artists)
-    content = title
+    tags = [tag for tag in tags if tag not in artists]
+    tags = [tag for tag in tags if tag not in ratings]
     title = smart_truncate(content, phenny)
     return title
 
