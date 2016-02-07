@@ -483,7 +483,6 @@ def get_percentage(likes, dislikes):
 
 def smart_truncate(content, phenny, splitat):
     if phenny.config.tag_list_length:
-        suffix=' ...'
         try:
             length=int(phenny.config.tag_list_length)
         except:
@@ -491,7 +490,9 @@ def smart_truncate(content, phenny, splitat):
         if len(content) <= length:
             return content
         else:
-            return content[:length].rsplit(splitat, 1)[0]+suffix
+            tag_list = content[:length]
+            unlisted_tags = len(content) - len(tag_list)
+            return(tag_list, unlisted_tags)
     else:
         return "Please set the tag_list_length option in the config"
 
@@ -524,7 +525,7 @@ def ouroboros(site, uri, phenny):
         filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
         filtered = re.sub(" +"," ",filtered).strip()
     content = filtered
-    filtered = smart_truncate(content, phenny)
+    filtered = smart_truncate(content, phenny, ' ')
     title = re.sub('_',"_",filtered)
     title = '{0} {1}'.format(rating.capitalize(),title)
     return title
@@ -555,8 +556,9 @@ def derpibooru(uri, phenny):
     ratings = ' '.join(ratings)
     tags = [tag for tag in tags if tag not in artists]
     tags = [tag for tag in tags if tag not in ratings]
-    tag_string = ', '.join(tags)
-    tag_string = smart_truncate(tag_string, phenny, ', ')
+    truncated = smart_truncate(tags, phenny, ', ')
+    
+    title = tag_string
     return title
 
 def get_story_title(uri):
