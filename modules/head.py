@@ -481,7 +481,7 @@ def get_percentage(likes, dislikes):
         percentage = '0.00'
     return percentage
 
-def smart_truncate(content, phenny, splitat):
+def smart_truncate(content, phenny):
     if phenny.config.tag_list_length:
         try:
             length=int(phenny.config.tag_list_length)
@@ -556,9 +556,22 @@ def derpibooru(uri, phenny):
     ratings = ' '.join(ratings)
     tags = [tag for tag in tags if tag not in artists]
     tags = [tag for tag in tags if tag not in ratings]
-    truncated = smart_truncate(tags, phenny, ', ')
+    (truncated, num_truncated) = smart_truncate(tags, phenny)
+    tag_string = (", ".join(truncated))
+    if num_truncated > 0:
+        tag_string = (tag_string + " (" + str(num_truncated) + " more)")
+    created_zulu = postdata['created_at']
+    uploader = postdata['uploader']
+    upvotes = postdata['upvotes']
+    downvotes = postdata['downvotes']
+    faves = postdata['faves']
+    comments = postdata['comment_count']
+    width = postdata['width']
+    height = postdata['height']
+    mime = postdata['mime_type']
+    num_artists = len(artists)
+    num_ratings = len(ratings)
     
-    title = tag_string
     return title
 
 def get_story_title(uri):
