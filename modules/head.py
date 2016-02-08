@@ -580,7 +580,7 @@ def derpibooru(uri, phenny):
         created_format = time.strftime('%A %B %d, %G at %I:%M:%S %p GMT',timestamp1)
     except:
         isdateutil = False
-    if num_artists = 2:
+    if num_artists == 2:
         artists_combiner = " and "
     else:
         artists_combiner = ", "
