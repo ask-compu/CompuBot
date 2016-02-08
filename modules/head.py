@@ -596,7 +596,10 @@ def derpibooru(uri, phenny):
         artists_tense = '\002 Artists:\017 '
     else:
         artists_tense = '\002 Artist:\017 '
-    title = title + artists_tense + artists_string
+    title = title + artists_tense + artists_string + '\002 Tags:\017 ' + tag_string + '\002 Uploaded by:\017 ' + uploader + ' \002↑' + str(upvotes) + '/' + str(downvotes) + '↓ '
+    if dateutil is True:
+        title = title + 'Uploaded on\017 ' + created_format + '\002 '
+    title = title + 'Resolution:\017 ' + str(width) + '×' + str(height) + ' \002Type:\017 ' + mime
     
         
     return title
