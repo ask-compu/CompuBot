@@ -586,6 +586,18 @@ def derpibooru(uri, phenny):
         artists_combiner = ", "
     artists_string = (artists_combiner.join(artists))
     ratings_string = (", ".join(ratings))
+    title = '\002Derpibooru -- '
+    if num_ratings > 1:
+        ratings_tense = 'Ratings:\017 '
+    else:
+        ratings_tense = 'Rating:\017 '
+    title = title + ratings_tense + ratings_string
+    if num_artists > 1:
+        artists_tense = '\002 Artists:\017 '
+    else:
+        artists_tense = '\002 Artist:\017 '
+    title = title + artists_tense + artists_string
+    
         
     return title
 
