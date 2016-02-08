@@ -486,15 +486,15 @@ def smart_truncate(content, phenny):
         try:
             length=int(phenny.config.tag_list_length)
         except:
-            return "The tag_list_length option is not set correctly, please fix it"
+            return("The tag_list_length option is not set correctly, please fix it",0)
         if len(content) <= length:
-            return content
+            return(content, 0)
         else:
             tag_list = content[:length]
             unlisted_tags = len(content) - len(tag_list)
             return(tag_list, unlisted_tags)
     else:
-        return "Please set the tag_list_length option in the config"
+        return("Please set the tag_list_length option in the config",0)
 
 def ouroboros(site, uri, phenny):
     # e621 and twentypercentcooler use the same software
