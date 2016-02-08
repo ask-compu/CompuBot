@@ -496,6 +496,20 @@ def smart_truncate(content, phenny):
     else:
         return("Please set the tag_list_length option in the config",0)
 
+def smart_truncate_tempe621(content, phenny):
+    if phenny.config.tag_list_length:
+        suffix=' ...'
+        try:
+            length=int(200)
+        except:
+            return "The tag_list_length option is not set correctly, please fix it"
+        if len(content) <= length:
+            return content
+        else:
+            return content[:length].rsplit(' ', 1)[0]+suffix
+    else:
+        return "Please set the tag_list_length option in the config"
+
 def ouroboros(site, uri, phenny):
     # e621 and twentypercentcooler use the same software
     # TODO: load tag file; compare tags, generate title
@@ -525,7 +539,7 @@ def ouroboros(site, uri, phenny):
         filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
         filtered = re.sub(" +"," ",filtered).strip()
     content = filtered
-    filtered = smart_truncate(content, phenny, ' ')
+    filtered = smart_truncate_tempe621(content, phenny)
     title = re.sub('_',"_",filtered)
     title = '{0} {1}'.format(rating.capitalize(),title)
     return title
@@ -563,7 +577,6 @@ def derpibooru(uri, phenny):
     uploader = postdata['uploader']
     upvotes = postdata['upvotes']
     downvotes = postdata['downvotes']
-    faves = postdata['faves']
     comments = postdata['comment_count']
     width = postdata['width']
     height = postdata['height']
