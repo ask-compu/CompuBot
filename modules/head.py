@@ -580,7 +580,13 @@ def derpibooru(uri, phenny):
         created_format = time.strftime('%A %B %d, %G at %I:%M:%S %p GMT',timestamp1)
     except:
         isdateutil = False
-    
+    if num_artists = 2:
+        artists_combiner = " and "
+    else:
+        artists_combiner = ", "
+    artists_string = (artists_combiner.join(artists))
+    ratings_string = (", ".join(ratings))
+        
     return title
 
 def get_story_title(uri):
