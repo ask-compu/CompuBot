@@ -583,8 +583,7 @@ def derpibooru(uri, phenny):
         artists_combiner = " and "
     else:
         artists_combiner = ", "
-    for artist in artists:
-        artist = artist[7:]
+    artists = [artist[7:] for artist in artists]
     artists_string = (artists_combiner.join(artists))
     ratings_string = (", ".join(ratings))
     title = '\002Derpibooru -- '
