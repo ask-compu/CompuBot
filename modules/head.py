@@ -203,7 +203,7 @@ def snarfuri(phenny, input):
 
         if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
             title = derpibooru(uri, phenny)
-            istags = True
+            istags = False
 
         if title:
             if istags is True:
@@ -553,7 +553,6 @@ def derpibooru(uri, phenny):
             ratings.append(tag)
     if not ratings:
         ratings = ['unknown']
-    ratings = ' '.join(ratings)
     tags = [tag for tag in tags if tag not in artists]
     tags = [tag for tag in tags if tag not in ratings]
     (truncated, num_truncated) = smart_truncate(tags, phenny)
@@ -584,6 +583,8 @@ def derpibooru(uri, phenny):
         artists_combiner = " and "
     else:
         artists_combiner = ", "
+    for artist in artists:
+        artist = artist[7:]
     artists_string = (artists_combiner.join(artists))
     ratings_string = (", ".join(ratings))
     title = '\002Derpibooru -- '
@@ -597,7 +598,7 @@ def derpibooru(uri, phenny):
     else:
         artists_tense = '\002 Artist:\017 '
     title = title + artists_tense + artists_string + '\002 Tags:\017 ' + tag_string + '\002 Uploaded by:\017 ' + uploader + ' \002↑' + str(upvotes) + '/' + str(downvotes) + '↓ '
-    if dateutil is True:
+    if isdateutil is True:
         title = title + 'Uploaded on\017 ' + created_format + '\002 '
     title = title + 'Resolution:\017 ' + str(width) + '×' + str(height) + ' \002Type:\017 ' + mime
     
