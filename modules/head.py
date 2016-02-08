@@ -571,6 +571,15 @@ def derpibooru(uri, phenny):
     mime = postdata['mime_type']
     num_artists = len(artists)
     num_ratings = len(ratings)
+    try:
+        import dateutil.parser
+        isdateutil = True
+        dt = dateutil.parser.parse(created_zulu)
+        timestamp1 = calendar.timegm(dt.timetuple())
+        timestamp1 = time.gmtime(timestamp1)
+        created_format = time.strftime('%A %B %d, %G at %I:%M:%S %p',timestamp1)
+    except:
+        isdateutil = False
     
     return title
 
