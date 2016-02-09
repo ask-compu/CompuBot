@@ -44,8 +44,8 @@ def create_default_config(fn):
     # password = 'example'
     # serverpass = 'serverpass'
 
-    # This sets the length in characters of the tag list given for e621, twentypercentcoolar, and derpibooru URLs
-    tag_list_length = '200'
+    # This sets the length of the tag list given for e621, twentypercentcoolar, and derpibooru URLs
+    tag_list_length = '10'
     
     # These are people who will be able to use admin.py's functions...
     admins = [owner, 'someoneyoutrust']
