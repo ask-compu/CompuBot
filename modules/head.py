@@ -130,86 +130,64 @@ def snarfuri(phenny, input):
                 return
             else:
                 title = get_youtube_title(uri, phenny.config.youtube_api_key)
-                istags = False
 
         fimfiction = re.compile('http(s)?://(www.)?fimfiction.net/story/')
         if fimfiction.match(uri):
             title = get_story_title(uri)
-            istags = False
 
         if re.compile('http(s)?://(www.)?((e621)|(e926)).net/post/show/').match(uri): #e621 or e926 link
             title = ouroboros('e621',uri, phenny)
-            istags = True
         
         if re.compile('http(s)?://(.+)?spotify.com/album/').match(uri):
             title = spotify_album(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(.+)?spotify.com/artist/').match(uri):
             title = spotify_artist(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(.+)?spotify.com/user/').match(uri):
             title = spotify_user(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(.+)?spotify.com/track/').match(uri):
             title = spotify_track(uri, phenny, radio=False)
-            istags = False
         
         if re.compile('http(s)?://(.+)?ted.com/talks/').match(uri):
             title = ted(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(.+)?dailymotion.com/video/').match(uri):
             title = dailymotion(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(.+)?spotify.com/.+/track/').match(uri):
             title = spotify_track(uri, phenny, radio=True)
-            istags = False
         
         if re.compile('http(s)?://(.+)?deviantart.com/art/').match(uri):
             title = deviantart(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(.+)?deviantart.com/journal/').match(uri):
             title = deviantart(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(.+)?soundcloud.com/').match(uri):
             title = soundcloud(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://fav.me/').match(uri):
             title = deviantart(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://sta.sh/').match(uri):
             title = deviantart(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(.+)?deviantart.com/(.+)/d').match(uri):
             title = deviantart(uri, phenny)
-            istags = False
         
         if re.compile('http(s)?://(www.)?(f-list).net/c/').match(uri):
             title = flistchar(uri, phenny)
-            istags = False
 
         if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
             title = ouroboros('twentypercentcooler',uri, phenny)
-            istags = True
 
         if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
             title = derpibooru(uri, phenny)
-            istags = True
 
         if title:
-            if istags is True:
-                phenny.say('[ ' + title + ' ]')
-            else:
-                phenny.say(title)
+            phenny.say(title)
         else:
             title = gettitle(uri)
             if title: phenny.msg(input.sender, '[ ' + title + ' ]')
@@ -483,9 +461,24 @@ def get_percentage(likes, dislikes):
 
 def smart_truncate(content, phenny):
     if phenny.config.tag_list_length:
-        suffix=' ...'
         try:
             length=int(phenny.config.tag_list_length)
+        except:
+            return("The tag_list_length option is not set correctly, please fix it",0)
+        if len(content) <= length:
+            return(content, 0)
+        else:
+            tag_list = content[:length]
+            unlisted_tags = len(content) - len(tag_list)
+            return(tag_list, unlisted_tags)
+    else:
+        return("Please set the tag_list_length option in the config",0)
+
+def smart_truncate_tempe621(content, phenny):
+    if phenny.config.tag_list_length:
+        suffix=' ...'
+        try:
+            length=int(200)
         except:
             return "The tag_list_length option is not set correctly, please fix it"
         if len(content) <= length:
@@ -506,27 +499,84 @@ def ouroboros(site, uri, phenny):
     post_id = get_id(uri)
     json_data = web.get('https://{0}.net/post/show.json?id={1}'.format(site, post_id))
     postdata = json.loads(json_data, encoding='utf-8')
-    tags = postdata['tags']
+    tags = postdata['tags'].split(' ')
 
     ratings = { 's' : 'Safe', 'q' : 'Questionable', 'e' : 'Explicit' }
     if postdata['rating'] in ratings:
         rating = ratings[postdata['rating']]
     else:
         rating = 'Unknown'
-    #compare tags to a list of uniportant tags and drop some/most
-    tag_file = os.path.expanduser('~/.phenny/boru.py')
-    try:
-        boru = imp.load_source('boru',tag_file)
-    except Exception as e:
-        print("Error loading ignore tags: {0} (in head.py)".format(e))
-        filtered = tags
+    rating_list = rating.split(' ')
+    if site == 'e621':
+        artists = postdata['artist']
+        tags = [tag for tag in tags if tag not in artists]
     else:
-        filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
-        filtered = re.sub(" +"," ",filtered).strip()
-    content = filtered
-    filtered = smart_truncate(content, phenny)
-    title = re.sub('_',"_",filtered)
-    title = '{0} {1}'.format(rating.capitalize(),title)
+        artists = ['none']
+    isdateutil = True
+    created_unix = postdata['created_at']['s']
+    uploader = postdata['author']
+    width = postdata['width']
+    height = postdata['height']
+    if site == 'e621':
+        title_starter = '\002e621 -- '
+    else:
+        title_starter = '\00220% Cooler -- '
+    info = {'site':site, 'title_starter':title_starter, 'tags':tags, 'ratings':rating_list, 'artists':artists, 'created_unix':created_unix, 'isdateutil':isdateutil, 'uploader':uploader, 'width':width, 'height':height, 'upvotes':0, 'downvotes':0, 'mime':None}
+    title = tags_parser(info, phenny)
+        
+    
+    return title
+
+def tags_parser(info, phenny):
+    site = info['site']
+    tags = info['tags']
+    ratings = info['ratings']
+    artists = info['artists']
+    created_unix = info['created_unix']
+    isdateutil = info['isdateutil']
+    uploader = info['uploader']
+    width = info['width']
+    height = info['height']
+    upvotes = info['upvotes']
+    downvotes = info['downvotes']
+    mime = info['mime']
+    (truncated, num_truncated) = smart_truncate(tags, phenny)
+    tag_string = (", ".join(truncated))
+    if num_truncated > 0:
+        tag_string = (tag_string + " (" + str(num_truncated) + " more)")
+    num_artists = len(artists)
+    num_ratings = len(ratings)
+    if isdateutil is True:
+        timestamp1 = time.gmtime(created_unix)
+        created_format = time.strftime('%A %B %d, %G at %I:%M:%S %p GMT',timestamp1)
+    if num_artists == 2:
+        artists_combiner = " and "
+    else:
+        artists_combiner = ", "
+    if site == 'derpibooru':
+        artists = [artist[7:] for artist in artists]
+    artists_string = (artists_combiner.join(artists))
+    ratings_string = (", ".join(ratings))
+    title = info['title_starter']
+    if num_ratings > 1:
+        ratings_tense = 'Ratings:\017 '
+    else:
+        ratings_tense = 'Rating:\017 '
+    title = title + ratings_tense + ratings_string
+    if site != 'twentypercentcooler':
+        if num_artists > 1:
+            artists_tense = '\002 Artists:\017 '
+        else:
+            artists_tense = '\002 Artist:\017 '
+        title = title + artists_tense + artists_string
+    title = title + ' \002Tags:\017 ' + tag_string + '\002 Uploaded by:\017 ' + uploader
+    if site == 'derpibooru':
+        title = title + ' \002↑' + str(upvotes) + '/' + str(downvotes) + '↓\017'
+    if isdateutil is True:
+        title = title + ' \002Uploaded on\017 ' + created_format
+    title = title + ' \002Resolution:\017 ' + str(width) + '×' + str(height)
+    if site == 'derpibooru':
+        title = title + ' \002Type:\017 ' + mime
     return title
 
 def derpibooru(uri, phenny):
@@ -544,11 +594,7 @@ def derpibooru(uri, phenny):
     artists = []
     for tag in tags:
         if tag.startswith('artist:'):
-            artists.append(tag.replace('artist:', '', 1))
-    if artists:
-        artists = ' by '+', '.join(artists)
-    else:
-        artists = ''
+            artists.append(tag)
     # ratings are tags on Derpibooru
     ratings = []
     for tag in tags:
@@ -556,18 +602,30 @@ def derpibooru(uri, phenny):
             ratings.append(tag)
     if not ratings:
         ratings = ['unknown']
-    ratings = ' '.join(ratings)
-    tag_file = os.path.expanduser('~/.phenny/boru.py')
+    tags = [tag for tag in tags if tag not in artists]
+    tags = [tag for tag in tags if tag not in ratings]
+    
+    created_zulu = postdata['created_at']
+    uploader = postdata['uploader']
+    upvotes = postdata['upvotes']
+    downvotes = postdata['downvotes']
+    width = postdata['width']
+    height = postdata['height']
+    mime = postdata['mime_type']
+    site = 'derpibooru'
+    title_starter = '\002Derpibooru -- '
     try:
-        boru = imp.load_source('boru',tag_file)
-    except Exception as e:
-        print("Error loading ignore tags: %s (in head.py)" %(e))
-    else:
-        tags = [tag for tag in tags if tag not in boru.ignore_tags]
-    tag_string = ' '.join(tag.replace(' ', '_') for tag in tags)
-    title = '{0} {1}'.format(ratings.title(),tag_string,artists)
-    content = title
-    title = smart_truncate(content, phenny)
+        import dateutil.parser
+        isdateutil = True
+        dt = dateutil.parser.parse(created_zulu)
+        created_unix = calendar.timegm(dt.timetuple())
+    except:
+        isdateutil = False
+        created_unix = 0
+    
+    info = {'site':site, 'title_starter':title_starter, 'tags':tags, 'ratings':ratings, 'artists':artists, 'created_unix':created_unix, 'isdateutil':isdateutil, 'uploader':uploader, 'width':width, 'height':height, 'upvotes':upvotes, 'downvotes':downvotes, 'mime':mime}
+    title = tags_parser(info,phenny)
+        
     return title
 
 def get_story_title(uri):
