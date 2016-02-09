@@ -521,27 +521,84 @@ def ouroboros(site, uri, phenny):
     post_id = get_id(uri)
     json_data = web.get('https://{0}.net/post/show.json?id={1}'.format(site, post_id))
     postdata = json.loads(json_data, encoding='utf-8')
-    tags = postdata['tags']
+    tags = postdata['tags'].split(' ')
 
     ratings = { 's' : 'Safe', 'q' : 'Questionable', 'e' : 'Explicit' }
     if postdata['rating'] in ratings:
         rating = ratings[postdata['rating']]
     else:
         rating = 'Unknown'
-    #compare tags to a list of uniportant tags and drop some/most
-    tag_file = os.path.expanduser('~/.phenny/boru.py')
-    try:
-        boru = imp.load_source('boru',tag_file)
-    except Exception as e:
-        print("Error loading ignore tags: {0} (in head.py)".format(e))
-        filtered = tags
+    rating_list = rating.split(' ')
+    if site == 'e621':
+        artists = postdata['artist']
+        tags = [tag for tag in tags if tag not in artists]
     else:
-        filtered = re.sub("\\b(("+")|(".join(boru.ignore_tags)+"))\\b","",tags)
-        filtered = re.sub(" +"," ",filtered).strip()
-    content = filtered
-    filtered = smart_truncate_tempe621(content, phenny)
-    title = re.sub('_',"_",filtered)
-    title = '{0} {1}'.format(rating.capitalize(),title)
+        artists = ['none']
+    isdateutil = True
+    created_unix = postdata['created_at']['s']
+    uploader = postdata['author']
+    width = postdata['width']
+    height = postdata['height']
+    if site == 'e621':
+        title_starter = '\002e621 -- '
+    else:
+        title_starter = '\00220% Cooler -- '
+    info = {'site':site, 'title_starter':title_starter 'tags':tags, 'ratings':rating_list, 'artists':artists, 'created_unix':created_unix, 'isdateutil':isdateutil, 'uploader':uploader, 'width':width, 'height':height, 'upvotes':0, 'downvotes':0, 'mime':None}
+    title = tags_parser(info, phenny)
+        
+    
+    return title
+
+def tags_parser(info, phenny):
+    site = info['site']
+    tags = info['tags']
+    ratings = info['ratings']
+    artists = info['artists']
+    created_unix = info['created_unix']
+    isdateutil = info['isdateutil']
+    uploader = info['uploader']
+    width = info['width']
+    height = info['height']
+    upvotes = info['upvotes']
+    downvotes = info['downvotes']
+    mime = info['mime']
+    (truncated, num_truncated) = smart_truncate(tags, phenny)
+    tag_string = (", ".join(truncated))
+    if num_truncated > 0:
+        tag_string = (tag_string + " (" + str(num_truncated) + " more)")
+    num_artists = len(artists)
+    num_ratings = len(ratings)
+    if isdateutil is True:
+        timestamp1 = time.gmtime(created_unix)
+        created_format = time.strftime('%A %B %d, %G at %I:%M:%S %p GMT',timestamp1)
+        if num_artists == 2:
+        artists_combiner = " and "
+    else:
+        artists_combiner = ", "
+    if site == 'derpibooru':
+        artists = [artist[7:] for artist in artists]
+    artists_string = (artists_combiner.join(artists))
+    ratings_string = (", ".join(ratings))
+    title = info['title_starter']
+    if num_ratings > 1:
+        ratings_tense = 'Ratings:\017 '
+    else:
+        ratings_tense = 'Rating:\017 '
+    title = title + ratings_tense + ratings_string
+    if site != 'twentypercentcooler''
+        if num_artists > 1:
+            artists_tense = '\002 Artists:\017 '
+        else:
+            artists_tense = '\002 Artist:\017 '
+        title = title + artists_tense + artists_string + ' '
+    title = title + '\002Tags:\017 ' + tag_string + '\002 Uploaded by:\017 ' + uploader
+    if site == 'derpibooru':
+        title = title +  + ' \002↑' + str(upvotes) + '/' + str(downvotes) + '↓\017'
+    if isdateutil is True:
+        title = title + ' \002Uploaded on\017 ' + created_format
+    title = title + ' \002Resolution:\017 ' + str(width) + '×' + str(height)
+    if site == 'derpibooru':
+        title = title + ' \002Type:\017 ' + mime
     return title
 
 def derpibooru(uri, phenny):
@@ -569,51 +626,27 @@ def derpibooru(uri, phenny):
         ratings = ['unknown']
     tags = [tag for tag in tags if tag not in artists]
     tags = [tag for tag in tags if tag not in ratings]
-    (truncated, num_truncated) = smart_truncate(tags, phenny)
-    tag_string = (", ".join(truncated))
-    if num_truncated > 0:
-        tag_string = (tag_string + " (" + str(num_truncated) + " more)")
+    
     created_zulu = postdata['created_at']
     uploader = postdata['uploader']
     upvotes = postdata['upvotes']
     downvotes = postdata['downvotes']
-    comments = postdata['comment_count']
     width = postdata['width']
     height = postdata['height']
     mime = postdata['mime_type']
-    num_artists = len(artists)
-    num_ratings = len(ratings)
+    site = 'derpibooru'
+    title_starter = '\002Derpibooru -- '
     try:
         import dateutil.parser
         isdateutil = True
         dt = dateutil.parser.parse(created_zulu)
-        timestamp1 = calendar.timegm(dt.timetuple())
-        timestamp1 = time.gmtime(timestamp1)
-        created_format = time.strftime('%A %B %d, %G at %I:%M:%S %p GMT',timestamp1)
+        created_unix = calendar.timegm(dt.timetuple())
     except:
         isdateutil = False
-    if num_artists == 2:
-        artists_combiner = " and "
-    else:
-        artists_combiner = ", "
-    artists = [artist[7:] for artist in artists]
-    artists_string = (artists_combiner.join(artists))
-    ratings_string = (", ".join(ratings))
-    title = '\002Derpibooru -- '
-    if num_ratings > 1:
-        ratings_tense = 'Ratings:\017 '
-    else:
-        ratings_tense = 'Rating:\017 '
-    title = title + ratings_tense + ratings_string
-    if num_artists > 1:
-        artists_tense = '\002 Artists:\017 '
-    else:
-        artists_tense = '\002 Artist:\017 '
-    title = title + artists_tense + artists_string + '\002 Tags:\017 ' + tag_string + '\002 Uploaded by:\017 ' + uploader + ' \002↑' + str(upvotes) + '/' + str(downvotes) + '↓ '
-    if isdateutil is True:
-        title = title + 'Uploaded on\017 ' + created_format + '\002 '
-    title = title + 'Resolution:\017 ' + str(width) + '×' + str(height) + ' \002Type:\017 ' + mime
+        created_unix = 0
     
+    info = {'site':site, 'title_starter':title_starter 'tags':tags, 'ratings':rating_list, 'artists':artists, 'created_unix':created_unix, 'isdateutil':isdateutil, 'uploader':uploader, 'width':width, 'height':height, 'upvotes':upvotes, 'downvotes':downvotes, 'mime':mime}
+    title = tags_parser(info,phenny)
         
     return title
 
