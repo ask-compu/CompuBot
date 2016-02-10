@@ -16,7 +16,7 @@ CompuBot runs on a Ubuntu 14.04 LTS server and therefore doesn't get tested on o
 
 * CompuBot can run on Windows as long as Python 3.2 or later is installed. It's recommended to use the lastest version of Python to avoid the issues described above. 
 
-Python dateutil is recommended but not required
+Python dateutil is recommended but not required, it can be installed with `sudo apt-get install python3-dateutil`
 
 Installation
 ------------
