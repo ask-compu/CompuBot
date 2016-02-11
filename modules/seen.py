@@ -38,25 +38,29 @@ def smart_truncate(content):
 def seen(phenny, input):
     """Gives when a user was last seen."""
     inputnick = input.group(2)
-    regex = re.compile("\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
-    inputnick = regex.sub("", inputnick)
-    inputnick = inputnick.replace('\x0f','')
-    inputnick = inputnick.replace('\002','')
-    inputnick = inputnick.replace('\010','')
-    inputnick = inputnick.replace('\037','')
-    inputnick = inputnick.replace('\017','')
-    inputnick = inputnick.replace('\026','')
-    inputnick = inputnick.replace('\007','')
-    inputnick = inputnick.replace('\035','')
-    inputnick = inputnick.rstrip()
-    
-    seen_db = os.path.join(os.path.expanduser('~/.phenny'), 'seen.db')
-    seen_conn = db_connect(seen_db)
-    conn = db_connect(seen_db)
-    c = conn.cursor()
-    query = (inputnick,)
-    c.execute("SELECT * FROM seen WHERE nick LIKE ?;", query)
-    resultsun = c.fetchall()
+    if inputnick:
+        regex = re.compile("\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
+        inputnick = regex.sub("", inputnick)
+        inputnick = inputnick.replace('\x0f','')
+        inputnick = inputnick.replace('\002','')
+        inputnick = inputnick.replace('\010','')
+        inputnick = inputnick.replace('\037','')
+        inputnick = inputnick.replace('\017','')
+        inputnick = inputnick.replace('\026','')
+        inputnick = inputnick.replace('\007','')
+        inputnick = inputnick.replace('\035','')
+        inputnick = inputnick.rstrip()
+        
+        seen_db = os.path.join(os.path.expanduser('~/.phenny'), 'seen.db')
+        seen_conn = db_connect(seen_db)
+        conn = db_connect(seen_db)
+        c = conn.cursor()
+        query = (inputnick,)
+        c.execute("SELECT * FROM seen WHERE nick LIKE ?;", query)
+        resultsun = c.fetchall()
+        gotresults = True
+    else:
+        gotresults = False
     try:
         results = resultsun[0]
     except:
@@ -82,7 +86,7 @@ def seen(phenny, input):
         phenny.say("Sorry I haven't seen " + inputnick)
     else:
         
-        seentime = seentimeun.strftime('%A %B %d, %G at %I:%M:%S %p GMT')
+        seentime = seentimeun.strftime('%A %B %d, %Y at %I:%M:%S %p GMT')
         message = message.replace('\x01ACTION','/me')
         message = message.replace('\x01','')
         message = smart_truncate(message)
@@ -95,7 +99,8 @@ def seen(phenny, input):
             phenny.say(nick + " was last seen leaving " + channel + ' with message "' + message + '" on ' + seentime)
         elif event == "QUIT":
             phenny.say(nick + ' was last seen quitting with message "' + message + '" on ' + seentime)
-    c.close()
+    if gotresults == True:
+        c.close()
 seen.commands = ['seen']
 seen.example = ".seen somenick"
 
