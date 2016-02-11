@@ -400,7 +400,7 @@ def get_youtube_title(uri, auth_key):
         dt = dateutil.parser.parse(uploaded)
         timestamp1 = calendar.timegm(dt.timetuple())
         timestamp1 = time.gmtime(timestamp1)
-        uploadedformat = time.strftime('%A %B %d, %G at %I:%M:%S %p',timestamp1)
+        uploadedformat = time.strftime('%A %B %d, %Y at %I:%M:%S %p',timestamp1)
     except:
         isdateutil = False
     if title == '':
@@ -430,7 +430,7 @@ def get_api_story_title(uri):
     categories = ''
     updatedun = story['date_modified'] 
     updatedgmt = time.gmtime(updatedun)
-    updated = time.strftime('%A %B %d, %G at %I:%M:%S %p',updatedgmt)
+    updated = time.strftime('%A %B %d, %Y at %I:%M:%S %p',updatedgmt)
     description = story['short_description']
     status = story['status']
     
@@ -535,7 +535,7 @@ def tags_parser(info, phenny):
     num_ratings = len(ratings)
     if isdateutil is True:
         timestamp1 = time.gmtime(created_unix)
-        created_format = time.strftime('%A %B %d, %G at %I:%M:%S %p GMT',timestamp1)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
     if num_artists == 2:
         artists_combiner = " and "
     else:
@@ -688,7 +688,7 @@ def deviantart(uri, phenny):
         dt = dateutil.parser.parse(uploaded)
         timestamp1 = calendar.timegm(dt.timetuple())
         timestamp1 = time.gmtime(timestamp1)
-        uploadedformat = time.strftime('%A %B %d, %G at %I:%M:%S %p',timestamp1)
+        uploadedformat = time.strftime('%A %B %d, %Y at %I:%M:%S %p',timestamp1)
     except:
         isdateutil = False
     if re.compile('nonadult').match(safe):
@@ -733,13 +733,13 @@ def spotify_album(uri, phenny):
         timestamp1 = calendar.timegm(dt.timetuple())
         timestamp1 = time.gmtime(timestamp1)
         if re.compile('day').match(jsonstring['release_date_precision']):
-            releasedformat = time.strftime('on %A %B %d, %G',timestamp1)
+            releasedformat = time.strftime('on %A %B %d, %Y',timestamp1)
         else:
             if re.compile('month').match(jsonstring['release_date_precision']):
-                releasedformat = time.strftime('in %B, %G',timestamp1)
+                releasedformat = time.strftime('in %B, %Y',timestamp1)
             else:
                 if re.compile('year').match(jsonstring['release_date_precision']):
-                   releasedformat = time.strftime('in %G',timestamp1)
+                   releasedformat = time.strftime('in %Y',timestamp1)
                 else:
                     isdateutil = False
     except:
@@ -818,13 +818,13 @@ def spotify_track(uri, phenny, radio):
         timestamp1 = calendar.timegm(dt.timetuple())
         timestamp1 = time.gmtime(timestamp1)
         if re.compile('day').match(jsonstringalbum['release_date_precision']):
-            releasedformat = time.strftime('on %A %B %d, %G',timestamp1)
+            releasedformat = time.strftime('on %A %B %d, %Y',timestamp1)
         else:
             if re.compile('month').match(jsonstringalbum['release_date_precision']):
-                releasedformat = time.strftime('in %B, %G',timestamp1)
+                releasedformat = time.strftime('in %B, %Y',timestamp1)
             else:
                 if re.compile('year').match(jsonstringalbum['release_date_precision']):
-                   releasedformat = time.strftime('in %G',timestamp1)
+                   releasedformat = time.strftime('in %Y',timestamp1)
                 else:
                     isdateutil = False
     except:
