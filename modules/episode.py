@@ -116,7 +116,7 @@ def episode_find(query, phenny):
             movie = jsonstring['episode']['is_movie']
             epnumbered = False
     etimegmt = time.gmtime(etimeun)
-    etimeus = time.strftime('%A %B %d, %G at %I:%M:%S %p',etimegmt)
+    etimeus = time.strftime('%A %B %d, %Y at %I:%M:%S %p',etimegmt)
     if epnumbered is True and issearch is True:
         try:
             epname2 = jsonstring['episodes'][1]['name']
@@ -126,7 +126,7 @@ def episode_find(query, phenny):
             movie2 = jsonstring['episodes'][1]['is_movie']
             epsecond = True
             etimegmt2 = time.gmtime(etimeun2)
-            etimeus2 = time.strftime('%A %B %d, %G at %I:%M:%S %p',etimegmt2)
+            etimeus2 = time.strftime('%A %B %d, %Y at %I:%M:%S %p',etimegmt2)
         except:
             epsecond = False
     else:
