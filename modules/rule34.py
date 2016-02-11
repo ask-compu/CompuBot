@@ -118,7 +118,7 @@ def derpibooru_search(query, phenny):
             dt = dateutil.parser.parse(uploaded)
             timestamp1 = calendar.timegm(dt.timetuple())
             timestamp1 = time.gmtime(timestamp1)
-            uploadedformat = time.strftime('%A %B %d, %G at %I:%M:%S %p',timestamp1)
+            uploadedformat = time.strftime('%A %B %d, %Y at %I:%M:%S %p',timestamp1)
         except:
             isdateutil = False
         if isdateutil is True:
