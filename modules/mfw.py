@@ -39,3 +39,26 @@ def mlfw(phenny, input):
     phenny.say('Here ya go ' + input.nick + ': ' + imgtitle + ' - ' + image)
 
 mlfw.commands = ('mlfw', 'mfw')
+
+def dawg(phenny, input):
+    """http://knowyourmeme.com/memes/xzibit-yo-dawg (.dawg <1>, <2>) I heard you like <1> so I put a <1> in your <1> so you can <2> while you <2>"""
+    q = input.group(2)
+    if q:
+        words = q.split(', ')
+    else:
+        return phenny.say("I need 1 or 2 phrases dawg")
+    if words[0].endswith('s'):
+        wordss = words[0] + 'es'
+    else:
+        wordss = words[0] + 's'
+    if len(words) > 1:
+        phenny.say("Yo dawg")
+        phenny.say("I heard you like " + wordss)
+        phenny.say("So I put a " + words[0] + " in your " + words[0] + " so you can " + words[1] + " while you " + words[1])
+    elif len(words) == 1:
+        phenny.say("Yo dawg")
+        phenny.say("I heard you like " + wordss)
+        phenny.say("So I put a " + words[0] + " in your " + words[0] + " so you can " + words[0] + " while you " + words[0])
+    else:
+        return phenny.say("I need 1 or 2 phrases dawg")
+dawg.commands = ['dawg']
