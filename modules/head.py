@@ -542,6 +542,8 @@ def tags_parser(info, phenny):
         artists_combiner = ", "
     if site == 'derpibooru':
         artists = [artist[7:] for artist in artists]
+    if num_artists < 1:
+        artists = ['unknown']
     artists_string = (artists_combiner.join(artists))
     ratings_string = (", ".join(ratings))
     title = info['title_starter']
