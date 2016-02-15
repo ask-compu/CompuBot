@@ -194,6 +194,37 @@ def wikipedia(phenny, input):
 wikipedia.commands = ['wi', 'wikipedia']
 wikipedia.example = '.wi swhack'
 
+def alerts(phenny,input):
+    """Checks for weather alerts."""
+    query = input.group(2)
+    if not query: return phenny.reply('.wa what?')
+    alertstext, alertsnumber = alerts_search(query, phenny)
+    
+alerts.commands = ['wa', 'alert', 'alerts']
+alerts.example = '.wa San Francisco, CA'
+
+def alerts_search(query, phenny):
+    if hasattr(phenny.config, 'wunderground_api_key'):
+        query = query.replace('!', '')
+        query = query.replace(' ', '_')
+        query = web.quote(query)
+        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/alerts/q/' + query + '.json'
+        rec_bytes = web.get(uri)
+        jsonstring - json.loads(rec_bytes)
+        werror = 0
+        try:
+            werrorexist = jsonstring['response']['error']['type']
+            werror = 1
+        except:
+            werror = 0
+        if werror is 1:
+            werrortype = jsonstring['response']['error']['type']
+            werrordesc = jsonstring['response']['error']['description']
+            werrorfull = 'Error Code: ' + werrortype + ' - ' + werrordesc
+            return werrorfull, 0
+        alertsnumber = len(jsonstring['alerts'])
+        
+
 def weather_search(query, phenny): 
     if hasattr(phenny.config, 'wunderground_api_key'):
         query = query.replace('!', '')
