@@ -194,6 +194,64 @@ def wikipedia(phenny, input):
 wikipedia.commands = ['wi', 'wikipedia']
 wikipedia.example = '.wi swhack'
 
+def alerts(phenny,input):
+    """Checks for weather alerts."""
+    query = input.group(2)
+    if not query: return phenny.reply('.wa what?')
+    alertstext, alertsnumber = alerts_search(query, phenny)
+    if alertstext: 
+        if alertstext.startswith('Error Code'):
+            phenny.say("Sorry, " + input.nick +", I got an error. Here's the error i got, " + alertstext)
+        else:
+            phenny.say("Here's what I got, " + input.nick + ": " + alertstext)
+    else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
+    
+alerts.commands = ['wa', 'alert', 'alerts']
+alerts.example = '.wa San Francisco, CA'
+
+def alerts_search(query, phenny):
+    if hasattr(phenny.config, 'wunderground_api_key'):
+        query = query.replace('!', '')
+        query = query.replace(' ', '_')
+        query = web.quote(query)
+        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/alerts/q/' + query + '.json'
+        rec_bytes = web.get(uri)
+        jsonstring = json.loads(rec_bytes)
+        werror = 0
+        try:
+            werrorexist = jsonstring['response']['error']['type']
+            werror = 1
+        except:
+            werror = 0
+        if werror is 1:
+            werrortype = jsonstring['response']['error']['type']
+            werrordesc = jsonstring['response']['error']['description']
+            werrorfull = 'Error Code: ' + werrortype + ' - ' + werrordesc
+            return werrorfull, 0
+        try:
+            alertsnumber = len(jsonstring['alerts'])
+            if alertsnumber > 0:
+                currentnum = 1
+                alertsdict1 = jsonstring['alerts'][0]
+                alertstype1 = alertsdict1['description']
+                alertsend1 = alertsdict1['expires']
+                alertstext = "You have " + str(alertsnumber)
+                if alertsnumber > 1:
+                    alertstext = alertstext + " alerts: "
+                else:
+                    alertstext = alertstext + " alert: "
+                alertstext = alertstext + "Alert " + str(currentnum) + " is a " + alertstype1 + " and expires at " + alertsend1
+                return alertstext, alertsnumber 
+            else:
+                return "You have no alerts", 0
+        except KeyError:
+            return None, 0
+    else:
+        return 'Sorry but you need to set your wunderground_api_key in the config file.', 0
+            
+            
+        
+
 def weather_search(query, phenny): 
     if hasattr(phenny.config, 'wunderground_api_key'):
         query = query.replace('!', '')
@@ -251,6 +309,19 @@ def weather(phenny, input):
             if not hasattr(phenny.bot, 'last_seen_uri'):
                 phenny.bot.last_seen_uri = {}
             phenny.bot.last_seen_uri[input.sender] = uri
+            alertstext, alertsnumber = alerts_search(query, phenny)
+            if alertsnumber > 0:
+                alertstext = "You have " + str(alertsnumber)
+                if alertsnumber > 1:
+                    alertstext = alertstext + " weather alerts"
+                else:
+                    alertstext = alertstext + " weather alert"
+                alertstext = alertstext + ", please use .wa " + query + " to see "
+                if alertsnumber > 1:
+                    alertstext = alertstext + "them."
+                else:
+                    alertstext = alertstext + "it."
+                phenny.say(alertstext)
     else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
 weather.commands = ['w', 'weather']
 weather.example = '.w San Francisco, CA'
@@ -327,6 +398,19 @@ def forecast(phenny, input):
             if not hasattr(phenny.bot, 'last_seen_uri'):
                 phenny.bot.last_seen_uri = {}
             phenny.bot.last_seen_uri[input.sender] = uri
+            alertstext, alertsnumber = alerts_search(query, phenny)
+            if alertsnumber > 0:
+                alertstext = "You have " + str(alertsnumber)
+                if alertsnumber > 1:
+                    alertstext = alertstext + " weather alerts"
+                else:
+                    alertstext = alertstext + " weather alert"
+                alertstext = alertstext + ", please use .wa " + query + " to see "
+                if alertsnumber > 1:
+                    alertstext = alertstext + "them."
+                else:
+                    alertstext = alertstext + "it."
+                phenny.say(alertstext)
     else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
 forecast.commands = ['wf', 'forecast']
 forecast.example = '.wf San Francisco, CA'
