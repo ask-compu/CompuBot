@@ -61,31 +61,5 @@ def calculate(phenny, input):
 calculate.commands = ['c','calc','calculate']
 calculate.example = '.c 5 + 3'
 
-def py(phenny, input):
-    if not input.group(2):
-        return phenny.reply(".py what?") 
-    query = input.group(2)
-    uri = 'http://tumbolia.appspot.com/py/'
-    answer = web.get(uri + web.quote(query))
-    if answer: 
-        phenny.say(answer)
-    else: phenny.reply('Sorry, no result.')
-py.commands = ['py']
-
-def wa(phenny, input): 
-    if not input.group(2):
-        return phenny.reply("No search term.")
-    query = input.group(2)
-    uri = 'http://tumbolia.appspot.com/wa/'
-    answer = web.get(uri + web.quote(query.replace('+', '%2B')))
-    answerindex = 1
-    if (len(answer.split(";")) < 2):
-        answerindex = 0
-    answer = answer.split(";")[answerindex]
-    if answer: 
-        phenny.say(answer)
-    else: phenny.reply('Sorry, no result.')
-wa.commands = ['wa']
-
 if __name__ == '__main__': 
     print(__doc__.strip())
