@@ -231,19 +231,17 @@ def alerts_search(query, phenny):
         try:
             alertsnumber = len(jsonstring['alerts'])
             if alertsnumber > 0:
-                currentnum = 1
                 alertstext = "You have " + str(alertsnumber)
                 if alertsnumber > 1:
                     alertstext = alertstext + " alerts: "
                 else:
                     alertstext = alertstext + " alert: "
-                for alertsdict in jsonstring['alerts']:
+                for currentnum, alertsdict in enumerate(jsonstring['alerts'], start=1):
                     alertstype = alertsdict['description']
                     alertsend = alertsdict['expires']
-                    alertstext = alertstext + "Alert " + str(currentnum) + " is a " + alertstype1 + " and expires at " + alertsend1
+                    alertstext = alertstext + "Alert " + str(currentnum) + " is a " + alertstype + " and expires at " + alertsend
                     if not currentnum == alertsnumber:
                         alertstext = alertstext + ", "
-                    currentnum = currentnum + 1
                 return alertstext, alertsnumber 
             else:
                 return "You have no alerts", 0
