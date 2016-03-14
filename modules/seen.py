@@ -106,9 +106,12 @@ seen.example = ".seen somenick"
 
 def seenstore(phenny, input, event):
     nick = input.nick
-    channel = input.sender
+    if event == "QUIT":
+        channel = "None"
+    else:
+        channel = input.sender
     if event == "JOIN":
-        message = None
+        message = "None"
     else:
         message = input.group()
     seen_db = os.path.join(os.path.expanduser('~/.phenny'), 'seen.db')
@@ -134,16 +137,16 @@ seenmsg.priority = 'low'
 #seenjoin.rule = r'(.*)'
 #seenjoin.priority = 'low'
 
-#def seenquit(phenny, input):
-#    event = "QUIT"
-#    seenstore(phenny, input, event)
-#seenquit.event = 'QUIT'
-#seenquit.rule = r'(.*)'
-#seenquit.priority = 'low'
+def seenquit(phenny, input):
+    event = "QUIT"
+    seenstore(phenny, input, event)
+seenquit.event = 'QUIT'
+seenquit.rule = r'(.*)'
+seenquit.priority = 'low'
 
-#def seenpart(phenny, input):
-#    event = "PART"
-#    seenstore(phenny, input, event)
-#seenpart.event = 'PART'
-#seenpart.rule = r'(.*)'
-#seenpart.priority = 'low'
+def seenpart(phenny, input):
+    event = "PART"
+    seenstore(phenny, input, event)
+seenpart.event = 'PART'
+seenpart.rule = r'(.*)'
+seenpart.priority = 'low'
