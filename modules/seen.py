@@ -101,6 +101,9 @@ def seen(phenny, input):
             phenny.say(nick + ' was last seen quitting with message "' + message + '" on ' + seentime)
         elif event == "NICK":
             phenny.say(nick + ' was last seen switching to the nick ' + channel + ' on ' + seentime)
+        elif event == "KICK":
+            messagekick = message.split("----------")
+            phenny.say(nick + ' was last seen being kicked by ' + messagekick[1] + ' in ' + channel + ' with message "' + messagekick[0] + '" on ' + seentime)
     if gotresults == True:
         c.close()
 seen.commands = ['seen']
@@ -116,6 +119,13 @@ def seenstore(phenny, input, event):
         message = "None"
     else:
         message = input.group()
+    if event == "KICK":
+        args = input.args
+        kicker = input.nick
+        nick = args[1]
+        message = message + "----------" + kicker
+        
+        
     seen_db = os.path.join(os.path.expanduser('~/.phenny'), 'seen.db')
     seen_conn = db_connect(seen_db)
     conn = db_connect(seen_db)
@@ -145,6 +155,13 @@ def seennick(phenny, input):
 seennick.event = "NICK"
 seennick.rule = r'(.*)'
 seennick.priority = 'low'
+
+def seenkick(phenny, input):
+    event = "KICK"
+    seenstore(phenny, input, event)
+seenkick.event = "KICK"
+seenkick.rule = r'(.*)'
+seenkick.priority = 'low'
 
 def seenquit(phenny, input):
     event = "QUIT"
