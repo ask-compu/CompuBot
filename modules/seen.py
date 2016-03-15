@@ -99,6 +99,8 @@ def seen(phenny, input):
             phenny.say(nick + " was last seen leaving " + channel + ' with message "' + message + '" on ' + seentime)
         elif event == "QUIT":
             phenny.say(nick + ' was last seen quitting with message "' + message + '" on ' + seentime)
+        elif event == "NICK":
+            phenny.say(nick + ' was last seen switching to the nick ' + channel + ' on ' + seentime)
     if gotresults == True:
         c.close()
 seen.commands = ['seen']
@@ -110,7 +112,7 @@ def seenstore(phenny, input, event):
         channel = "None"
     else:
         channel = input.sender
-    if event == "JOIN":
+    if event == "JOIN" or event == "NICK":
         message = "None"
     else:
         message = input.group()
@@ -136,6 +138,13 @@ seenmsg.priority = 'low'
 #seenjoin.event = 'JOIN'
 #seenjoin.rule = r'(.*)'
 #seenjoin.priority = 'low'
+
+def seennick(phenny, input):
+    event = "NICK"
+    seenstore(phenny, input, event)
+seennick.event = "NICK"
+seennick.rule = r'(.*)'
+seennick.priority = 'low'
 
 def seenquit(phenny, input):
     event = "QUIT"
