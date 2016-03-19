@@ -56,7 +56,7 @@ def seen(phenny, input):
         conn = db_connect(seen_db)
         c = conn.cursor()
         query = (inputnick,)
-        c.execute("SELECT * FROM seen WHERE nick LIKE ?;", query)
+        c.execute("SELECT * FROM seen WHERE nick LIKE ? COLLATE NOCASE ORDER BY time DESC LIMIT 1;", query)
         resultsun = c.fetchall()
         gotresults = True
     else:
@@ -78,9 +78,9 @@ def seen(phenny, input):
         phenny.say ("\x01ACTION pokes " + input.nick + "\x01")
         phenny.say("Are you broken?")
         phenny.say("I need a nick for that command")
-    elif input.nick == inputnick:
+    elif input.nick.upper().lower() == inputnick.upper().lower():
         phenny.say("Silly, that's you!")
-    elif inputnick == phenny.nick:
+    elif inputnick.upper().lower() == phenny.nick.upper().lower():
         phenny.say("Silly, that's me!")
     elif not nick:
         phenny.say("Sorry I haven't seen " + inputnick)
