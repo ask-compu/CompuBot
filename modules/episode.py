@@ -32,45 +32,41 @@ def episode_find(query, phenny):
         nl = query
         issearch = False
         isnextlast = False
+    elif re.compile('(?i)((s|se)\d+(, | |,)?(e|ep)\d+)').match(query):
+        regex = re.compile('(?i)(?:s|se)(\d+)(?:, | |,)?(?:e|ep)(\d+)')
+        numbers = regex.findall(query)
+        results = [int(i) for i in numbers[0]]
+        snum = str(int(results[0]))
+        enum = str(int(results[1]))
+        uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
+        nl = query
+        issearch = False
+        isnextlast = False
+    elif re.compile('(?i)next').match(query):
+        uri = 'https://ponyapi.apps.xeserv.us/newest'
+        nl = 'next'
+        issearch = False
+        isnextlast = True
+    elif re.compile('(?i)last').match(query):
+        uri = 'https://ponyapi.apps.xeserv.us/last_aired'
+        nl = 'last'
+        issearch = False
+        isnextlast = True
+    elif re.compile('(?i)(movie)( )?\d+').match(query):
+        regex = re.compile('(?i)movie(?: )?(\d+)')
+        numbers = regex.findall(query)
+        results = [int(i) for i in numbers[0]]
+        mnum = str(int(results[0]))
+        uri = 'https://ponyapi.apps.xeserv.us/season/99/episode/' + mnum
+        nl = query
+        issearch = False
+        isnextlast = False
     else:
-        if re.compile('(?i)((s|se)\d+(, | |,)?(e|ep)\d+)').match(query):
-            regex = re.compile('(?i)(?:s|se)(\d+)(?:, | |,)?(?:e|ep)(\d+)')
-            numbers = regex.findall(query)
-            results = [int(i) for i in numbers[0]]
-            snum = str(int(results[0]))
-            enum = str(int(results[1]))
-            uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
-            nl = query
-            issearch = False
-            isnextlast = False
-        else:
-            if re.compile('(?i)next').match(query):
-                uri = 'https://ponyapi.apps.xeserv.us/newest'
-                nl = 'next'
-                issearch = False
-                isnextlast = True
-            else:
-                if re.compile('(?i)last').match(query):
-                    uri = 'https://ponyapi.apps.xeserv.us/last_aired'
-                    nl = 'last'
-                    issearch = False
-                    isnextlast = True
-                else:
-                    if re.compile('(?i)(movie)( )?\d+').match(query):
-                        regex = re.compile('(?i)movie(?: )?(\d+)')
-                        numbers = regex.findall(query)
-                        results = [int(i) for i in numbers[0]]
-                        mnum = str(int(results[0]))
-                        uri = 'https://ponyapi.apps.xeserv.us/season/99/episode/' + mnum
-                        nl = query
-                        issearch = False
-                        isnextlast = False
-                    else:
-                        webquery = web.quote(query)
-                        uri = 'https://ponyapi.apps.xeserv.us/search?q=' + webquery
-                        nl = query
-                        issearch = True
-                        isnextlast = False
+        webquery = web.quote(query)
+        uri = 'https://ponyapi.apps.xeserv.us/search?q=' + webquery
+        nl = query
+        issearch = True
+        isnextlast = False
                     
     try:
         rec_bytes = web.get(uri)
@@ -134,25 +130,49 @@ def episode_find(query, phenny):
     if epsecond is True:
         if movie is True:
             if etimeun < time.time():
-                return epname + ' aired on ' + etimeus + ' GMT'
-            if etimeun > time.time():
-                return epname + ' will air on ' + etimeus + ' GMT'
+                euntil = timecompare(etimeun, False)
+                return epname + ' aired on ' + etimeus + ' GMT (' + etimeun + ' ago)'
+            elif etimeun > time.time():
+                euntil = timecompare(etimeun, True)
+                return epname + ' will air on ' + etimeus + ' GMT (' + etimeun + ' from now)'
         else:
             if etimeun < time.time():
-                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' aired on ' + etimeus + ' GMT and Season ' + eps2 + ', Episode ' + epe2 + ', ' + epname2 + ' aired on ' + etimeus2 + ' GMT'
-            if etimeun > time.time():
-                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT and Season ' + eps2 + ', Episode ' + epe2 + ', ' + epname2 + ' will air on ' + etimeus2 + ' GMT'
+                euntil = timecompare(etimeun, False)
+                response = 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' aired on ' + etimeus + ' GMT (' + euntil + ' ago) and Season ' + eps2 + ', '
+                if etimeun2 > time.time():
+                    euntil2 = timecompare(etimeun2, True)
+                    response = response + 'Episode ' + epe2 + ', ' + epname2 + ' will air on ' + etimeus2 + ' GMT (' + euntil2 + ' from now)'
+                elif etimeun2 < time.time():
+                    euntil2 = timecompare(etimeun2, False)
+                    response = response + 'Episode ' + epe2 + ', ' + epname2 + ' aired on ' + etimeus2 + ' GMT (' + euntil2 + ' ago)'
+                return response
+            elif etimeun > time.time():
+                euntil = timecompare(etimeun, True)
+                response =  'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT (' + etimeun + ' from now) and Season ' + eps2 + ', '
+                if etimeun2 > time.time():
+                    euntil2 = timecompare(etimeun2, True)
+                    response = response + 'Episode ' + epe2 + ', ' + epname2 + ' will air on ' + etimeus2 + ' GMT (' + euntil2 + ' from now)'
+                elif etimun2 < time.time():
+                    euntil2 = timecompare(etimeun2, False)
+                    response = response + 'Episode ' + epe2 + ', ' + epname2 + ' aired on ' + etimeus2 + ' GMT (' + euntil2 + ' ago)'
+                return response
+                    
+                    
     else:
         if movie is True:
             if etimeun < time.time():
-                return epname + ' aired on ' + etimeus + ' GMT'
-            if etimeun > time.time():
-                return epname + ' will air on ' + etimeus + ' GMT'
+                euntil = timecompare(etimeun, False)
+                return epname + ' aired on ' + etimeus + ' GMT (' + etimeun + ' ago)'
+            elif etimeun > time.time():
+                euntil = timecompare(etimeun, True)
+                return epname + ' will air on ' + etimeus + ' GMT (' + etimeun + ' from now)'
         else:
             if etimeun < time.time():
-                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' aired on ' + etimeus + ' GMT'
-            if etimeun > time.time():
-                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT'
+                euntil = timecompare(etimeun, False)
+                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' aired on ' + etimeus + ' GMT (' + euntil + ' ago)'
+            elif etimeun > time.time():
+                euntil = timecompare(etimeun, True)
+                return 'Season ' + eps + ', Episode ' + epe + ', ' + epname + ' will air on ' + etimeus + ' GMT (' + euntil + ' from now)'
 def episode(phenny, input): 
     """Finds MLP Episodes. Commands can be .ep season 2 episode 1 or .ep s2e1 or .ep return of harmony or .ep next or .ep last or .ep movie 3"""
     query = input.group(2)
@@ -170,6 +190,25 @@ def episode(phenny, input):
             phenny.bot.last_seen_uri[input.sender] = uri
     else: phenny.say("Sorry " + input.nick + ", I couldn't find any episodes for '%s'." % query)
 episode.commands = ['ep','episode']
+
+def duration(seconds, _maxweeks=99999999999):
+    return ', '.join('%d %s' % (num, unit)
+		     for num, unit in zip([(seconds // d) % m
+					   for d, m in ((604800, _maxweeks), 
+                                                        (86400, 7), (3600, 24), 
+                                                        (60, 60), (1, 60))],
+					  ['weeks', 'days', 'hours', 'minutes', 'seconds'])
+		     if num)
+
+def timecompare(etimeun, eairfuture):
+    if eairfuture == True:
+        compareun = etimeun - time.time()
+    if eairfuture == False:
+        compareun = time.time() - etimeun
+    return duration(compareun)
+    
+    
+    
 
 if __name__ == '__main__': 
     print(__doc__.strip())
