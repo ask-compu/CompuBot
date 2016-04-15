@@ -10,9 +10,11 @@
 
 import re
 import web
+from decimal import Decimal
 
 r_result = re.compile(r'(?i)<A NAME=results>(.*?)</A>')
 r_tag = re.compile(r'<\S+.*?>')
+degree_sign = u'\N{DEGREE SIGN}'
 
 subs = [
     (' in ', ' -> '), 
@@ -60,6 +62,87 @@ def calculate(phenny, input):
         return phenny.say('Sorry, no result.')
 calculate.commands = ['c','calc','calculate']
 calculate.example = '.c 5 + 3'
+
+def ctof(phenny, input):
+    """Converts Celsius to Fahrenheit"""
+    try:
+        non_decimal = re.compile(r'[^\d.]+')
+        celsiusstr = non_decimal.sub('', input.group(2))
+        celsius = float(celsiusstr)
+    except:
+        return phenny.say("Sorry I need a numeric Celsius temperature value.")
+    fahrenheit = round(Decimal(celsius * 1.8 + 32), 1)
+    phenny.say(celsiusstr + degree_sign + 'C is ' + str(fahrenheit) + degree_sign + 'F')
+ctof.commands = ['ctof', 'celsiustofahrenheit']
+ctof.example = '.ctof 5'
+
+def ftoc(phenny, input):
+    """Converts Fahrenheit to Celsius"""
+    try:
+        non_decimal = re.compile(r'[^\d.]+')
+        fahrenheitstr = non_decimal.sub('', input.group(2))
+        fahrenheit = float(fahrenheitstr)
+    except:
+        return phenny.say("Sorry I need a numeric Fahrenheit temperature value.")
+    celsius = round(Decimal((fahrenheit - 32) / 1.8), 1)
+    phenny.say(fahrenheitstr + degree_sign + 'F is ' + str(celsius) + degree_sign + 'C')
+ftoc.commands = ['ftoc', 'fahrenheittocelsius']
+ftoc.example = '.ftoc 5'
+
+def ctok(phenny, input):
+    """Converts Celsius to Kelvin"""
+    try:
+        non_decimal = re.compile(r'[^\d.]+')
+        celsiusstr = non_decimal.sub('', input.group(2))
+        celsius = float(celsiusstr)
+    except:
+        return phenny.say("Sorry I need a numeric Celsius temperature value.")
+    kelvin = round(Decimal(celsius + 273.15), 2)
+    phenny.say(celsiusstr + degree_sign + 'C is ' + str(kelvin) + 'K')
+ctok.commands = ['ctok', 'celsiustokelvin']
+ctok.example = '.ctok 5'
+
+def ktoc(phenny, input):
+    """Converts Kelvin to Celsius"""
+    try:
+        non_decimal = re.compile(r'[^\d.]+')
+        kelvinstr = non_decimal.sub('', input.group(2))
+        kelvin = float(kelvinstr)
+    except:
+        return phenny.say("Sorry I need a numeric Kelvin temperature value.")
+    celsius = round(Decimal(kelvin - 273.15), 1)
+    phenny.say(kelvinstr + 'K is ' + str(celsius) + degree_sign + 'C')
+ktoc.commands = ['ktoc', 'kelvintocelsius']
+ktoc.example = '.ktoc 5'
+
+def ftok(phenny, input):
+    """Converts Fahrenheit to Kelvin"""
+    try:
+        non_decimal = re.compile(r'[^\d.]+')
+        fahrenheitstr = non_decimal.sub('', input.group(2))
+        fahrenheit = float(fahrenheitstr)
+    except:
+        return phenny.say("Sorry I need a numeric Fahrenheit temperature value.")
+    kelvin = round(Decimal(((fahrenheit - 32) / 1.8) + 273.15), 2)
+    phenny.say(fahrenheitstr + degree_sign + 'F is ' + str(kelvin) + 'K')
+ftok.commands = ['ftok', 'fahrenheittokelvin']
+ftok.example = '.ftok 5'
+
+def ktof(phenny, input):
+    """Converts Kelvin to Fahrenheit"""
+    try:
+        non_decimal = re.compile(r'[^\d.]+')
+        kelvinstr = non_decimal.sub('', input.group(2))
+        kelvin = float(kelvinstr)
+    except:
+        return phenny.say("Sorry I need a numeric Kelvin temperature value.")
+    celsius = (kelvin - 273.15)
+    fahrenheit = round(Decimal(celsius * 1.8 + 32), 1)
+    phenny.say(kelvinstr + 'K is ' + str(fahrenheit) + degree_sign + 'F')
+ktof.commands = ['ktof', 'fahrenheittokelvin']
+ktof.example = '.ktof 5'
+
+
 
 if __name__ == '__main__': 
     print(__doc__.strip())
