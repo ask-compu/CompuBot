@@ -578,6 +578,20 @@ def derpibooru(uri, phenny):
         return gettitle(uri)
     json_data = web.get('http://derpiboo.ru/{0}.json'.format(id))
     postdata = json.loads(json_data, encoding='utf-8')
+    if 'deletion_reason' in postdata:
+        deleted = postdata['deletion_reason']
+        created_zulu = postdata['created_at']
+        try:
+            import dateutil.parser
+            dt = dateutil.parser.parse(created_zulu)
+            created_unix = calendar.timegm(dt.timetuple())
+            timestamp1 = time.gmtime(created_unix)
+            created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+            created_format = ", it was uploaded on " + created_format
+        except:
+            created_format = ""
+        
+        return '\002Derpibooru -- \017This image was deleted because of "' + deleted + '"' + created_format
     tags = postdata['tags'].split(', ')
     
     artists = []
