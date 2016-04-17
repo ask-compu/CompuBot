@@ -11,9 +11,16 @@ body {
 /* General & 'Reset' Stuff */
 
 .container {
+  width: 90%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.containerbody {
   width: auto;
   max-width: 800px;
   margin: 1em;
+  text-align: center;
 }
 
 section {
