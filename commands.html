@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <link rel="shortcut icon" type='image/x-icon' href="http://www.compu.ml/favicon.ico"/>	
+    <meta name="theme-color" content="#171717">
+
+    <title>CompuBot by ask-compu</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Compubot</h1>
+        <h2>Python IRC bot remixed for Canternet, the Pony IRC. Based on JordanKinsley&#39;s Python 3 fork.</h2>
+
+        <section id="downloads">
+          <a href="../" class="btn">Home</a>
+          <a href="https://github.com/ask-compu/CompuBot" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="compubot" class="anchor" href="#compubot" aria-hidden="true"><span class="octicon octicon-link"></span></a>CompuBot</h1>
+<h3>These are the commands that CompuBot recognizes and what they do</h3>
+
+<table>
+  <tbody><tr>
+<th>Command Name</th>
+<th>Module</th>
+<th>Function Name</th>
+<th>Commands</th>
+<th>Rule</th>
+<th>Typical Usage</th>
+<th>Description</th>
+<th>Admin Only?</th>
+</tr>
+  <tr>
+<td>Abbreviate</td>
+<td>search.py</td>
+<td>abbreviate</td>
+<td>.ab, .abbr, .abbreviate</td>
+<td></td>
+<td>.abbr retinoic acid receptor alpha</td>
+<td>Gives the abbreviation for full words</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Add</td>
+<td>img.py</td>
+<td>add</td>
+<td>.add</td>
+<td></td>
+<td>.add Fluttershy http://mlp.wikia.com/wiki/Fluttershy</td>
+<td>Adds a url to the url database</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Beats</td>
+<td>clock.py</td>
+<td>beats</td>
+<td>.beats</td>
+<td></td>
+<td>.beats</td>
+<td>Shows the internet time in Swatch beats</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Botsnack</td>
+<td>botsnack.py</td>
+<td>botsnack</td>
+<td>.botsnack</td>
+<td></td>
+<td>.botsnack</td>
+<td>Give CompuBot a snack</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Calculate</td>
+<td>calc.py</td>
+<td>calculate</td>
+<td>.c, .calc, .calculate</td>
+<td></td>
+<td>.c 2+2</td>
+<td>Calculate Stuff</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Celsius to Fahrenheit</td>
+<td>calc.py</td>
+<td>ctof</td>
+<td>.ctof, .celsiustofahrenheit</td>
+<td></td>
+<td>.ctof 5</td>
+<td>Convert Celsius to Fahrenheit</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Celsius to Kelvin</td>
+<td>calc.py</td>
+<td>ctok</td>
+<td>.ctok, .celsiustokelvin</td>
+<td></td>
+<td>.ctof 5</td>
+<td>Convert Celsius to Kelvin</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Dawg</td>
+<td>mfw.py</td>
+<td>dawg</td>
+<td>.dawg</td>
+<td></td>
+<td>.dawg car, ride</td>
+<td>Yo Dawg, I heard you like yo dawg memes</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Delete</td>
+<td>img.py</td>
+<td>delete</td>
+<td>.del, .delete, .remove</td>
+<td></td>
+<td>.del Bluh</td>
+<td>Deletes a url from the url database</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Docs</td>
+<td>info.py</td>
+<td>doc</td>
+<td></td>
+<td>CompuBot(:|,) (help|doc)</td>
+<td>CompuBot: help add</td>
+<td>Gets the documentation for a command</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Fahrenheit to Celsius</td>
+<td>calc.py</td>
+<td>ftoc</td>
+<td>.ftoc, .fahrenheittocelsius</td>
+<td></td>
+<td>.ftoc 80</td>
+<td>Converts Fahrenheit to Celsius</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Fahrenheit to Kelvin</td>
+<td>calc.py</td>
+<td>ftok</td>
+<td>.ftok, .fahrenheittokelvin</td>
+<td></td>
+<td>.ftok 80</td>
+<td>Converts Fahrenheit to Kelvin</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>GeoIP</td>
+<td>search.py</td>
+<td>geoip</td>
+<td>.geo, .geoip</td>
+<td></td>
+<td>.geo 8.8.8.8</td>
+<td>Does IP address geolocation</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Get</td>
+<td>img.py</td>
+<td>get</td>
+<td>.get</td>
+<td></td>
+<td>.get Fluttershy</td>
+<td>Gets a url from the url database</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Get Config</td>
+<td>admin.py</td>
+<td>config_get</td>
+<td>.config_get, .c_get</td>
+<td></td>
+<td>.c_get channels</td>
+<td>Shows configuration options</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Google Count</td>
+<td>search.py</td>
+<td>gc</td>
+<td>.gc</td>
+<td></td>
+<td>.gc bluh</td>
+<td>Shows the number of Google search results for a query</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Head</td>
+<td>head.py</td>
+<td>head</td>
+<td>.head</td>
+<td></td>
+<td>.head github.com</td>
+<td>Shows HTTP Header information</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Join</td>
+<td>admin.py</td>
+<td>join</td>
+<td>.join</td>
+<td></td>
+<td>.join #Compu</td>
+<td>Makes the bot join a channel</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Kelvin to Celsius</td>
+<td>calc.py</td>
+<td>ktoc</td>
+<td>.ktoc, .kelvintocelsius</td>
+<td></td>
+<td>.ktoc 273.15</td>
+<td>Converts Kelvin to Celsius</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Kelvin to Fahrenheit</td>
+<td>calc.py</td>
+<td>ktof</td>
+<td>.ktof, .kelvintofahrenheit</td>
+<td></td>
+<td>.ktof 273.15</td>
+<td>Converts Kelvin to Fahrenheit</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>LMGTFY</td>
+<td>search.py</td>
+<td>lmgtfy</td>
+<td>.gf, .lmgtfy</td>
+<td>CompuBot(:|,) google ?? for me?</td>
+<td>.lmgtfy bluh</td>
+<td>Let Me Google That For You</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>MLFW</td>
+<td>mfw.py</td>
+<td>mlfw</td>
+<td>.mlfw, .mfw</td>
+<td></td>
+<td>.mlfw trollface</td>
+<td>MLP Reaction Images</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>MLP:FIM Episodes</td>
+<td>episode.py</td>
+<td>episode</td>
+<td>.ep, .episode</td>
+<td></td>
+<td>.ep next</td>
+<td>Find MLP:FIM Episodes</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>NPL</td>
+<td>clock.py</td>
+<td>npl</td>
+<td>.npl</td>
+<td></td>
+<td>.npl</td>
+<td>Shows the time from NPL’s SNTP server</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Part</td>
+<td>admin.py</td>
+<td>part</td>
+<td>.part</td>
+<td></td>
+<td>.part #Compu</td>
+<td>Makes the bot leave a channel</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Ping</td>
+<td>info.py</td>
+<td>ping</td>
+<td>.ping</td>
+<td></td>
+<td>.ping</td>
+<td>Will give a “Pong!” if everything is working correctly</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Quit</td>
+<td>admin.py</td>
+<td>quit</td>
+<td>.quit</td>
+<td></td>
+<td>.quit bye</td>
+<td>Makes the bot disconnect from the server and stop</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Random Number</td>
+<td>info.py</td>
+<td>randnum</td>
+<td>.rand, .random</td>
+<td></td>
+<td>.rand 1, 10</td>
+<td>Picks a random number within a given range</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Reload Config</td>
+<td>reload.py</td>
+<td>c_reload</td>
+<td></td>
+<td>CompuBot(:|,) creload</td>
+<td>CompuBot: creload admins</td>
+<td>Reloads a given configuration option</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Reload Module</td>
+<td>reload.py</td>
+<td>f_reload</td>
+<td></td>
+<td>CompuBot(:|,) reload</td>
+<td>CompuBot: reload episode</td>
+<td>Reloads a given module</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Search Bing</td>
+<td>search.py</td>
+<td>bing</td>
+<td>.bing</td>
+<td></td>
+<td>.bing bluh</td>
+<td>Searches Bing</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search Derpibooru</td>
+<td>rule34.py</td>
+<td>derpibooru</td>
+<td>.derpi, .db, .derpibooru</td>
+<td></td>
+<td>.derpi princess luna</td>
+<td>Searches Derpibooru</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search Dictionary</td>
+<td>search.py</td>
+<td>dictionary</td>
+<td>.d, .def, .define</td>
+<td>Compubot(:|,) define</td>
+<td>.d duck</td>
+<td>Gives definitions for words</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search DuckDuckGo</td>
+<td>search.py</td>
+<td>duck</td>
+<td>.ddg, .duck</td>
+<td></td>
+<td>.ddg bluh</td>
+<td>Searches DuckDuckGo</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search e621</td>
+<td>rule34.py</td>
+<td>e621</td>
+<td>.e621</td>
+<td></td>
+<td>.e621 princess_luna_(mlp)</td>
+<td>Searches e621</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search Google</td>
+<td>search.py</td>
+<td>g</td>
+<td>.g</td>
+<td></td>
+<td>.g bluh</td>
+<td>Searches Google</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search rule34</td>
+<td>rule34.py</td>
+<td>rule34</td>
+<td>.r34, .rule34</td>
+<td></td>
+<td>.r34 fluttershy</td>
+<td>Searches rule34</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search TwentyPercentCooler</td>
+<td>rule34.py</td>
+<td>tpc</td>
+<td>.tpc, .twentypercentcooler, .ponies</td>
+<td></td>
+<td>.tpc princess_luna</td>
+<td>Searches TwentyPercentCooler</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search Urban Dictionary</td>
+<td>search.py</td>
+<td>urban_dictionary</td>
+<td>.ud, .urban, .urbandictionary</td>
+<td></td>
+<td>.ud FTFY</td>
+<td>Searches Urban Dictionary for definitions</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Search Wikipedia</td>
+<td>search.py</td>
+<td>wikipedia</td>
+<td>.wi, .wikipedia</td>
+<td></td>
+<td>.wi aircraft</td>
+<td>Searches Wikipedia</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Seen</td>
+<td>seen.py</td>
+<td>seen</td>
+<td>.seen</td>
+<td></td>
+<td>.seen Compu</td>
+<td>Tells when a nick was last seen</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Set Config</td>
+<td>admin.py</td>
+<td>config_set</td>
+<td>.config_set, .c_set</td>
+<td></td>
+<td>.c_set nsfw [#nsfw]</td>
+<td>Sets configuration options while the bot is running, better to set the config manually and use creload</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Stats</td>
+<td>info.py</td>
+<td>stats</td>
+<td>.stats</td>
+<td></td>
+<td>.stats</td>
+<td>Gives stats about bot usage</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Time</td>
+<td>clock.py</td>
+<td>f_time</td>
+<td>.t</td>
+<td></td>
+<td>.t EST</td>
+<td>Gives the time in a certain time zone</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Tock</td>
+<td>clock.py</td>
+<td>tock</td>
+<td>.tock</td>
+<td></td>
+<td>.tock</td>
+<td>Shows the time from the USNO’s atomic clock</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Unabbreviate</td>
+<td>search.py</td>
+<td>unabbreviate</td>
+<td>.uab, .uabbr, .unabbreviate</td>
+<td></td>
+<td>.uab BMI</td>
+<td>Gives the full words for abbreviations</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Weather Alerts</td>
+<td>search.py</td>
+<td>alerts</td>
+<td>.wa, .alert, .alerts</td>
+<td></td>
+<td>.wa Reno, NV</td>
+<td>Gives any weather alerts for a location</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Weather Conditions</td>
+<td>search.py</td>
+<td>weather</td>
+<td>.w, .weather</td>
+<td></td>
+<td>.w Reno, NV</td>
+<td>Gives the current weather conditions for a location</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Weather Forecast</td>
+<td>search.py</td>
+<td>forecast</td>
+<td>.wf, .forecast</td>
+<td></td>
+<td>.wf Reno, NV</td>
+<td>Gives the weather forecast for a location</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Web Search</td>
+<td>search.py</td>
+<td>search</td>
+<td>.search</td>
+<td></td>
+<td>.search bluh</td>
+<td>Searches Duck Duck Go, Google, and Bing all at once</td>
+<td>No</td>
+</tr>
+  <tr>
+<td>Yi</td>
+<td>clock.py</td>
+<td>yi</td>
+<td>.yi</td>
+<td></td>
+<td>.yi</td>
+<td>Shows whether it is currently yi or not</td>
+<td>No</td>
+</tr>
+</tbody></table>
+      </section>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-37704845-6");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
