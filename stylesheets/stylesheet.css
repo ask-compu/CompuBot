@@ -16,6 +16,10 @@ body {
   margin: 0 auto;
 }
 
+.sortable th {
+  background-colour: "black";
+}
+
 .containerbody {
   width: auto;
   max-width: 800px;
