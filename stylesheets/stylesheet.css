@@ -16,6 +16,10 @@ body {
   margin: 0 auto;
 }
 
+.oneliner {
+  white-space: nowrap;
+}
+
 .sortable th {
   background-color: black;
 }
