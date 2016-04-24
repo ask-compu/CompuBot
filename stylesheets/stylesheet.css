@@ -116,7 +116,7 @@ h1, h2, h3, h4, h5, h6, th{
                0 0 10px rgba(181, 232, 83, 0.1);
 }
 
-.glowytext{
+.glowytext {
   font-weight: normal;
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   color: #b5e853;
