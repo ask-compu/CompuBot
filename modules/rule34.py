@@ -34,7 +34,7 @@ def rule34(phenny, input):
         return
 
     try:
-        req = web.get('http://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={0}'.format(urlquote(q))) #Lets use XML!
+        req = web.get('https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={0}'.format(urlquote(q))) #Lets use XML!
     except (HTTPError, IOError):
         raise GrumbleError("THE INTERNET IS FUCKING BROKEN. Please try again later.")
 
@@ -148,7 +148,7 @@ derpibooru.example = '.derpi sweetie belle,fluttershy'
 ##
 def get_boru(phenny, site, tags):
     try:
-        req = web.get("http://{0}.net/post/index.json?tags={1}".format(site,urlquoteplus(tags)))
+        req = web.get("https://{0}.net/post/index.json?tags={1}".format(site,urlquoteplus(tags)))
     except (HTTPError, IOError):
         phenny.say('Oopsies, looks like the Internet is broken.')
         return
@@ -160,11 +160,11 @@ def get_boru(phenny, site, tags):
         return
     
     try:
-        link = 'http://{0}.net/post/show/{1}/'.format(site,choice(results)['id'])
+        link = 'https://{0}.net/post/show/{1}/'.format(site,choice(results)['id'])
         if site is 'e621':
             image = (choice(results)['file_url'])
         if site is 'twentypercentcooler':
-            image = 'http://twentypercentcooler.net' + (choice(results)['file_url'])
+            image = 'https://twentypercentcooler.net' + (choice(results)['file_url'])
     except AttributeError:
         phenny.say('Oopsies, looks like the Internet is broken.')
 

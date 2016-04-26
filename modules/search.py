@@ -25,7 +25,7 @@ def google_ajax(query):
     """Search using AjaxSearch, and return its JSON."""
     if isinstance(query, str): 
         query = query.encode('utf-8')
-    uri = 'http://ajax.googleapis.com/ajax/services/search/web'
+    uri = 'https://ajax.googleapis.com/ajax/services/search/web'
     args = '?v=1.0&safe=off&q=' + web.quote(query)
     handler = web.urllib.request._urlopener
     web.urllib.request._urlopener = Grab()
@@ -112,7 +112,7 @@ r_bing = re.compile(r'<h3><a href="([^"]+)"')
 
 def bing_search(query, lang='en-GB'): 
     query = web.quote(query)
-    base = 'http://www.bing.com/search?mkt=%s&q=' % lang
+    base = 'https://www.bing.com/search?mkt=%s&q=' % lang
     bytes = web.get(base + query)
     m = r_bing.search(bytes)
     if m: return m.group(1)
@@ -142,7 +142,7 @@ r_duck = re.compile(r'nofollow" class="[^"]+" href="(http.*?)">')
 def duck_search(query): 
     query = query.replace('!', '')
     query = web.quote(query)
-    uri = 'http://duckduckgo.com/html/?q=%s&kl=uk-en' % query
+    uri = 'https://duckduckgo.com/html/?q=%s&kl=uk-en' % query
     rec_bytes = web.get(uri)
     m = r_duck.search(rec_bytes)
     if m: return web.decode(m.group(1))
@@ -214,7 +214,7 @@ def alerts_search(query, phenny):
         query = query.replace('!', '')
         query = query.replace(' ', '_')
         query = web.quote(query)
-        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/alerts/q/' + query + '.json'
+        uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/alerts/q/' + query + '.json'
         rec_bytes = web.get(uri)
         jsonstring = json.loads(rec_bytes)
         werror = 0
@@ -264,7 +264,7 @@ def weather_search(query, phenny):
         query = query.replace('!', '')
         query = query.replace(' ', '_')
         query = web.quote(query)
-        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/q/' + query + '.json'
+        uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/q/' + query + '.json'
         rec_bytes = web.get(uri)
         jsonstring = json.loads(rec_bytes)
         werror = 0
@@ -338,7 +338,7 @@ def forecast_search(query, phenny):
         query = query.replace('!', '')
         query = query.replace(' ', '_')
         query = web.quote(query)
-        uri = 'http://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/forecast/q/' + query + '.json'
+        uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/forecast/q/' + query + '.json'
         rec_bytes = web.get(uri)
         jsonstring = json.loads(rec_bytes)
         wferror = 0
@@ -427,20 +427,20 @@ def dictionary_search(query, phenny):
         query = query.replace('!', '')
         query = web.quote(query)
         try:
-            uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+            uri = 'https://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
             rec_bytes = web.get(uri)
             jsonstring = json.loads(rec_bytes)
             dword = jsonstring[0]['word']
         except:
             try:
                 query = query.lower()
-                uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+                uri = 'https://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
                 rec_bytes = web.get(uri)
                 jsonstring = json.loads(rec_bytes)
                 dword = jsonstring[0]['word']
             except:
                 query = string.capwords(query)
-                uri = 'http://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
+                uri = 'https://api.wordnik.com/v4/word.json/' + query + '/definitions?limit=1&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=' + phenny.config.wordnik_api_key
                 rec_bytes = web.get(uri)
                 jsonstring = json.loads(rec_bytes)
         try:
@@ -476,7 +476,7 @@ def unabbreviate_search(query, phenny):
     query = query.replace('!', '')
     query = web.quote(query)
     uri = 'http://www.nactem.ac.uk/software/acromine/dictionary.py?sf=' + query
-    rec_bytes = web.get(uri)
+    rec_bytes = web.get(uri, isSecure=False)
     jsonstring = json.loads(rec_bytes)
     try:
         asf = jsonstring[0]['sf']
@@ -521,7 +521,7 @@ def abbreviate_search(query, phenny):
     query = query.replace('!', '')
     webquery = web.quote(query)
     uri = 'http://www.nactem.ac.uk/software/acromine/dictionary.py?lf=' + webquery
-    rec_bytes = web.get(uri)
+    rec_bytes = web.get(uri, isSecure=False)
     jsonstring = json.loads(rec_bytes)
     try:
         asf = jsonstring[0]['sf']
@@ -566,7 +566,7 @@ def urban_dictionary_search(query, phenny):
     query = query.replace('!', '')
     webquery = web.quote(query)
     uri = 'http://api.urbandictionary.com/v0/define?term=' + webquery
-    rec_bytes = web.get(uri)
+    rec_bytes = web.get(uri, isSecure=False)
     jsonstring = json.loads(rec_bytes)
     udresult = jsonstring['result_type']
     
@@ -690,7 +690,7 @@ def suggest(phenny, input):
         return phenny.reply("No query term.")
     query = input.group(2)
     uri = 'http://websitedev.de/temp-bin/suggest.pl?q='
-    answer = web.get(uri + web.quote(query).replace('+', '%2B'))
+    answer = web.get(uri + web.quote(query).replace('+', '%2B'), isSecure=False)
     if answer: 
         phenny.say(answer)
     else: phenny.reply('Sorry, no result.')

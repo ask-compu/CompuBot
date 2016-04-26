@@ -246,7 +246,7 @@ def gettitle(uri):
         except:
             return None
 
-        bytes = web.get(uri)
+        bytes = web.get(uri, isSecure=False)
         #bytes = u.read(262144)
         #u.close()
 
@@ -415,7 +415,7 @@ def get_api_story_title(uri):
     story_id = uri.split('story/')[1]
     if story_id.find('/') > 1:
         story_id = story_id.split('/')[0]
-    data = web.get('http://fimfiction.net/api/story.php?story=' + story_id)
+    data = web.get('https://fimfiction.net/api/story.php?story=' + story_id)
     story = json.loads(data, encoding='utf-8')['story']
     
     story_title = format_title(story['title'])
@@ -576,7 +576,7 @@ def derpibooru(uri, phenny):
     id = get_id(uri)
     if not id:
         return gettitle(uri)
-    json_data = web.get('http://derpiboo.ru/{0}.json'.format(id))
+    json_data = web.get('https://derpiboo.ru/{0}.json'.format(id))
     postdata = json.loads(json_data, encoding='utf-8')
     if 'deletion_reason' in postdata:
         deleted = postdata['deletion_reason']
@@ -649,7 +649,7 @@ def get_story_title(uri):
 
 def flistchar(uri, phenny):
     if hasattr(phenny.config, 'f_list_account') and hasattr(phenny.config, 'f_list_password') :
-        ticketuri = 'http://www.f-list.net/json/getApiTicket.php'
+        ticketuri = 'https://www.f-list.net/json/getApiTicket.php'
         ticketquery = {'account' : phenny.config.f_list_account, 'password' : phenny.config.f_list_password}
         ticketjson = web.post(ticketuri, ticketquery)
         
@@ -660,7 +660,7 @@ def flistchar(uri, phenny):
         urilist = uri.split('/')
         urlcharname = urilist[4]
         urlcharname = web.unquote(urlcharname)
-        charuri = 'http://www.f-list.net/json/api/character-get.php'
+        charuri = 'https://www.f-list.net/json/api/character-get.php'
         charquery = {'name' : urlcharname}
         charjson = web.post(charuri, charquery)
         
@@ -683,7 +683,7 @@ def flistchar(uri, phenny):
 def deviantart(uri, phenny):
     apiuri = 'http://backend.deviantart.com/oembed?url=' + web.quote(uri)
     try:
-        rec_bytes = web.get(apiuri)
+        rec_bytes = web.get(apiuri, isSecure=False)
     except:
         return
     try:
@@ -888,7 +888,7 @@ def soundcloud(uri, phenny):
         return '\002\00307,14' + provider + '\017 ' + title
     
 def ted(uri, phenny):
-    apiuri = "http://www.ted.com/services/v1/oembed.json?url=" + uri
+    apiuri = "https://www.ted.com/services/v1/oembed.json?url=" + uri
     try:
         rec_bytes = web.get(apiuri)
     except:
@@ -903,7 +903,7 @@ def ted(uri, phenny):
     return '\002\00304,00TED Talks\017 ' + title + ' - ' + description
 
 def dailymotion(uri, phenny):
-    apiuri = 'http://www.dailymotion.com/services/oembed?format=json&url=' + uri
+    apiuri = 'https://www.dailymotion.com/services/oembed?format=json&url=' + uri
     try:
         rec_bytes = web.get(apiuri)
     except:

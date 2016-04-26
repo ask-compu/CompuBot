@@ -16,7 +16,7 @@ def mlfw(phenny, input):
         phenny.say(mlfw.__doc__.strip())
         return
     try:
-        req = web.get('http://mylittlefacewhen.com/api/v3/face/?tags__all={0}&order_by=-id&format=json'.format(urlquote(q)))
+        req = web.get('http://mylittlefacewhen.com/api/v3/face/?tags__all={0}&order_by=-id&format=json'.format(urlquote(q)), isSecure=False)
     except (HTTPError, IOError):
         phenny.say("Oopsie, looks like the Internet is broken")
         return
