@@ -17,14 +17,19 @@ class Grab(urllib.request.URLopener):
         return urllib.addinfourl(fp, [headers, errcode], "http:" + url)
 urllib.request._urlopener = Grab()
 
-def get(uri): 
+def get(uri, headers=None, isSecure=True): 
     if not uri.startswith('http'): 
         return
-    '''try:
-    	u = urllib.request.urlopen(uri)
-    except urllib.error.HTTPError:'''
+    if isSecure == True:
+        if not uri.startswith('http'):
+            uri = uri.replace(uri[:3], 'https')
+    else:
+        headers=None
     opener = urllib.request.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    finalheaders = [('User-agent', 'Mozilla/5.0 (CompuBot)')]
+    if headers:
+        finalheaders += headers
+    opener.addheaders = finalheaders
     u = opener.open(uri)
     bytes = u.read()
     try:
@@ -33,6 +38,7 @@ def get(uri):
         bytes = bytes.decode('ISO-8859-1')
     u.close()
     return bytes
+    
 
 def head(uri): 
     if not uri.startswith('http'): 
