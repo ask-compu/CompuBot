@@ -117,8 +117,6 @@ def snarfuri(phenny, input):
     if input.nick in ('derpy','Chance'):
         return
     try:
-        if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
-            return None
         
         title = None
 
@@ -162,6 +160,9 @@ def snarfuri(phenny, input):
         if re.compile('http(s)?://(.+)?deviantart.com/art/').match(uri):
             title = deviantart(uri, phenny)
         
+        if re.compile('http(s)?://(.+)?imgur.com/(.+)').match(uri):
+            title = imgur(uri, phenny)
+        
         if re.compile('http(s)?://(.+)?deviantart.com/journal/').match(uri):
             title = deviantart(uri, phenny)
         
@@ -197,6 +198,8 @@ snarfuri.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
 snarfuri.priority = 'low'
 
 def gettitle(uri):
+    if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
+        return None
     if not ':' in uri: 
         uri = 'http://' + uri
     uri = uri.replace('#!', '?_escaped_fragment_=')
@@ -917,6 +920,25 @@ def dailymotion(uri, phenny):
     provider = jsonstring['provider_name']
     return '\002\00300,02' + provider + '\017 ' + title + ' by ' + uploader
     
+def imgur(uri, phenny):
+    if hasattr(phenny.config, 'imgur_client_id'):
+        client_id = phenny.config.imgur_client_id
+    else:
+        return
+    headers = [('Authorization', 'Client-ID ' + client_id)]
+    m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
+    if m.group('comment_id'):
+        return "comment id " + m.group('comment_id') + ' image id ' + m.group('iid')
+    elif m.group('itype'):
+        if m.group('itype') == 'a':
+            itype = 'album'
+        else:
+            itype = m.group('itype')
+        return itype + ' id ' + m.group('iid')
+    else:
+        return 'image id ' + m.group('iid')
+        
+        
 
 if __name__ == '__main__': 
     print(__doc__.strip())
