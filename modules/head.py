@@ -987,6 +987,7 @@ class Imgurfunctions:
         except:
             return self.album(m, False, 2)
         
+        
     def album(self, m, startinclass, origin):
         iid = m.group('iid')
         
