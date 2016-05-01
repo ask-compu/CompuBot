@@ -933,9 +933,17 @@ def imgur(uri, phenny):
 class Imgurfunctions:
     def __init__(self, client_id):
         self.headers = [('Authorization', 'Client-ID ' + client_id)]
+        self.imgurcolors = '\002\00309,01Imgur\017 '
     def comments(self, m):
         cid = m.group('comment_id')
-        print(web.get('https://api.imgur.com/3/comment/'+cid, self.headers))
+        rec_bytes = web.get('https://api.imgur.com/3/comment/'+cid, self.headers)
+        jsonstring = json.loads(rec_bytes)
+        timestamp = jsonstring['data']['datetime']
+        timestamp1 = time.gmtime(timestamp)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+        comment = jsonstring['data']['comment']
+        author = jsonstring['data']['author']
+        return self.imgurcolors + '\002Comment\017 - ' + comment + ' - by ' + author + ' on ' + created_format
         
         
 
