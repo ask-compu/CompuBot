@@ -920,17 +920,17 @@ def dailymotion(uri, phenny):
     provider = jsonstring['provider_name']
     return '\002\00300,02' + provider + '\017 ' + title + ' by ' + uploader
     
-def imgur(uri, phenny):
-    if hasattr(phenny.config, 'imgur_client_id'):
-        client_id = phenny.config.imgur_client_id
-    else:
-        return
-    headers = [('Authorization', 'Client-ID ' + client_id)]
-    m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery|r/(?P<reddit>.+)|t/memes)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
-    if m.group('comment_id'):
-        return icomments(m, headers)
+class imgur:
+headers = [('Authorization', 'Client-ID ' + client_id)]
+    def imgur(uri, phenny):
+        if hasattr(phenny.config, 'imgur_client_id'):
+            client_id = phenny.config.imgur_client_id
+        else:
+            return
+        m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery|r/(?P<reddit>.+)|t/memes)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
+        if m.group('comment_id'):
+            return comments(m, headers)
         
-    def comments(m, headers):
         
 
 if __name__ == '__main__': 
