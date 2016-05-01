@@ -932,7 +932,7 @@ def imgur(uri, phenny):
     elif m.group('itype') == 'gallery':
         return apis.gallery(m)
     elif m.group('itype') == 'gallery/a':
-        return 'gallery album test'
+        return apis.galleryalbum(m)
 
 class Imgurfunctions:
     def __init__(self, client_id):
@@ -953,7 +953,7 @@ class Imgurfunctions:
         try:
             rec_bytes = web.get('https://api.imgur.com/3/gallery/image/'+iid, self.headers)
         except:
-            return galleryalbum(m)
+            return self.galleryalbum(m)
         jsonstring = json.loads(rec_bytes)
         title = jsonstring['data']['title']
         timestamp = jsonstring['data']['datetime']
@@ -980,7 +980,8 @@ class Imgurfunctions:
             reply += ' Animated'
         return reply
     def galleryalbum(self, m):
-        bluh
+        iid = m.group('iid')
+        
         
         
 
