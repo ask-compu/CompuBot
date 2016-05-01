@@ -926,7 +926,7 @@ def imgur(uri, phenny):
     else:
         return
     headers = [('Authorization', 'Client-ID ' + client_id)]
-    m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery|(?P<reddit>r/.+))/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
+    m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery|r/(?P<reddit>.+))/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
     if m.group('comment_id'):
         reply = "comment id " + m.group('comment_id') + ' image id ' + m.group('iid')
         if m.group('itype'):
