@@ -926,9 +926,13 @@ def imgur(uri, phenny):
     else:
         return
     apis = Imgurfunctions(client_id)
-    m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery|r/(?P<reddit>.+)|t/memes)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
+    m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery(/a)?|r/(?P<reddit>.+)|t/memes)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
     if m.group('comment_id'):
         return apis.comments(m)
+    elif m.group('itype') == 'gallery':
+        return apis.gallery(m)
+    elif m.group('itype') == 'gallery/a':
+        return 'gallery album test'
 
 class Imgurfunctions:
     def __init__(self, client_id):
@@ -944,6 +948,39 @@ class Imgurfunctions:
         comment = jsonstring['data']['comment']
         author = jsonstring['data']['author']
         return self.imgurcolors + '\002Comment\017 - ' + comment + ' - by ' + author + ' on ' + created_format
+    def gallery(self, m):
+        iid = m.group('iid')
+        try:
+            rec_bytes = web.get('https://api.imgur.com/3/gallery/image/'+iid, self.headers)
+        except:
+            return galleryalbum(m)
+        jsonstring = json.loads(rec_bytes)
+        title = jsonstring['data']['title']
+        timestamp = jsonstring['data']['datetime']
+        timestamp1 = time.gmtime(timestamp)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+        mime = jsonstring['data']['type']
+        ups = jsonstring['data']['ups']
+        downs = jsonstring['data']['downs']
+        animated = jsonstring['data']['animated']
+        width = jsonstring['data']['width']
+        height = jsonstring['data']['height']
+        author = jsonstring['data']['account_url']
+        reply = self.imgurcolors
+        if title:
+            reply += title
+        else:
+            reply += ' - No Title'
+        if author:
+            reply += ' by ' + author
+        else:
+            reply += ' by Anonymous'
+        reply += ' \002↑' + str(ups) + '/' + str(downs) + '↓\017 Uploaded on ' + created_format + ' \002Resolution:\017' + str(width) + '×' + str(height) + ' \002Type:\017' + mime
+        if animated == True:
+            reply += ' Animated'
+        return reply
+    def galleryalbum(self, m):
+        bluh
         
         
 
