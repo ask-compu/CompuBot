@@ -930,8 +930,8 @@ def imgur(uri, phenny):
     if m.group('comment_id'):
         return icomments(m, headers)
         
-def icomments(m, headers):
-    
+    def comments(m, headers):
+        
 
 if __name__ == '__main__': 
     print(__doc__.strip())
