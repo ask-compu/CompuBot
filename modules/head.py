@@ -928,20 +928,10 @@ def imgur(uri, phenny):
     headers = [('Authorization', 'Client-ID ' + client_id)]
     m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery|r/(?P<reddit>.+)|t/memes)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
     if m.group('comment_id'):
-        reply = "comment id " + m.group('comment_id') + ' image id ' + m.group('iid')
-        if m.group('itype'):
-            reply = reply + ' type ' + m.group('itype')
-        return reply
-    elif m.group('itype'):
-        if m.group('itype') == 'a':
-            itype = 'album'
-        else:
-            itype = m.group('itype')
-        return itype + ' id ' + m.group('iid')
-    else:
-        return 'image id ' + m.group('iid')
+        return icomments(m, headers)
         
-        
+def icomments(m, headers):
+    
 
 if __name__ == '__main__': 
     print(__doc__.strip())
