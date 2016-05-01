@@ -926,13 +926,14 @@ def imgur(uri, phenny):
     else:
         return
     apis = Imgurfunctions(client_id)
+    startinclass = False
     m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery(/a)?|r/(?P<reddit>.+)|t/memes)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
     if m.group('comment_id'):
         return apis.comments(m)
     elif m.group('itype') == 'gallery':
-        return apis.gallery(m)
+        return apis.gallery(m, startinclass, 0)
     elif m.group('itype') == 'gallery/a':
-        return apis.galleryalbum(m)
+        return apis.galleryalbum(m, startinclass, 0)
 
 class Imgurfunctions:
     def __init__(self, client_id):
@@ -948,12 +949,12 @@ class Imgurfunctions:
         comment = jsonstring['data']['comment']
         author = jsonstring['data']['author']
         return self.imgurcolors + '\002Comment\017 - ' + comment + ' - by ' + author + ' on ' + created_format
-    def gallery(self, m):
+    def gallery(self, m, startinclass, origin):
         iid = m.group('iid')
         try:
             rec_bytes = web.get('https://api.imgur.com/3/gallery/image/'+iid, self.headers)
         except:
-            return self.galleryalbum(m)
+            return self.galleryalbum(m, False, 1)
         jsonstring = json.loads(rec_bytes)
         title = jsonstring['data']['title']
         timestamp = jsonstring['data']['datetime']
@@ -979,8 +980,17 @@ class Imgurfunctions:
         if animated == True:
             reply += ' Animated'
         return reply
-    def galleryalbum(self, m):
+    def galleryalbum(self, m, startinclass, origin):
         iid = m.group('iid')
+        try:
+            rec_bytes = web.get('https://api.imgur.com/3/gallery/album/'+iid, self.headers)
+        except:
+            return self.album(m, False, 2)
+        
+    def album(self, m, startinclass, origin):
+        iid = m.group('iid')
+        
+        
         
         
         
