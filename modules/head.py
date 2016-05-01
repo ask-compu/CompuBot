@@ -921,9 +921,7 @@ def dailymotion(uri, phenny):
     return '\002\00300,02' + provider + '\017 ' + title + ' by ' + uploader
     
 def imgur(uri, phenny):
-    if hasattr(phenny.config, 'imgur_client_id'):
-        client_id = phenny.config.imgur_client_id
-    else:
+    if not hasattr(phenny.config, 'imgur_client_id'):
         return
     apis = imgurfunctions()
     m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery|r/(?P<reddit>.+)|t/memes)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
@@ -931,6 +929,7 @@ def imgur(uri, phenny):
         return apis.comments(m)
 
 class imgurfunctions:
+    client_id = phenny.config.imgur_client_id
     headers = [('Authorization', 'Client-ID ' + client_id)]
     def comments(m):
         
