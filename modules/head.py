@@ -925,17 +925,17 @@ def imgur(uri, phenny):
         client_id = phenny.config.imgur_client_id
     else:
         return
-    apis = imgurfunctions(client_id)
+    apis = Imgurfunctions(client_id)
     m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery|r/(?P<reddit>.+)|t/memes)/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
     if m.group('comment_id'):
         return apis.comments(m)
 
-class imgurfunctions:
+class Imgurfunctions:
     def __init__(self, client_id):
         self.headers = [('Authorization', 'Client-ID ' + client_id)]
     def comments(self, m):
         cid = m.group('comment_id')
-        print(web.get('https://api.imgur.com/3/comment/'+cid, headers))
+        print(web.get('https://api.imgur.com/3/comment/'+cid, self.headers))
         
         
 
