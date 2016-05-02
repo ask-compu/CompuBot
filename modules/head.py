@@ -117,8 +117,6 @@ def snarfuri(phenny, input):
     if input.nick in ('derpy','Chance'):
         return
     try:
-        if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
-            return None
         
         title = None
 
@@ -162,6 +160,9 @@ def snarfuri(phenny, input):
         if re.compile('http(s)?://(.+)?deviantart.com/art/').match(uri):
             title = deviantart(uri, phenny)
         
+        if re.compile('http(s)?://(.+)?imgur.com/(.+)').match(uri):
+            title = imgur(uri, phenny)
+        
         if re.compile('http(s)?://(.+)?deviantart.com/journal/').match(uri):
             title = deviantart(uri, phenny)
         
@@ -197,6 +198,8 @@ snarfuri.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
 snarfuri.priority = 'low'
 
 def gettitle(uri):
+    if re.compile('http(s)?://(.*).(jpg|jpeg|png|gif|tiff|bmp)').match(uri):
+        return None
     if not ':' in uri: 
         uri = 'http://' + uri
     uri = uri.replace('#!', '?_escaped_fragment_=')
@@ -917,6 +920,193 @@ def dailymotion(uri, phenny):
     provider = jsonstring['provider_name']
     return '\002\00300,02' + provider + '\017 ' + title + ' by ' + uploader
     
+def imgur(uri, phenny):
+    if hasattr(phenny.config, 'imgur_client_id'):
+        client_id = phenny.config.imgur_client_id
+    else:
+        return
+    apis = Imgurfunctions(client_id)
+    startinclass = False
+    m = re.compile('http(s)?://(.+)?imgur.com/((?P<itype>a|gallery(/a)?|r/(?P<reddit>.+))/)?(?P<iid>[^\./]+)(?P<extension>\.[a-z]{3})?(/comment/(?P<comment_id>\d+)$)?').match(uri)
+    print(m)
+    if m.group('comment_id'):
+        return apis.comments(m)
+    elif m.group('itype') == 'gallery':
+        return apis.gallery(m, startinclass, 0)
+    elif m.group('itype') == 'gallery/a':
+        return apis.galleryalbum(m, startinclass, 0)
+    elif m.group('itype') == 'a':
+        return apis.album(m, startinclass, 0)
+    elif not m.group('itype'):
+        return apis.image(m, startinclass, 0)
+    elif m.group('itype').startswith('r/'):
+        return apis.reddit(m, startinclass, 0)
+
+class Imgurfunctions:
+    def __init__(self, client_id):
+        self.headers = [('Authorization', 'Client-ID ' + client_id)]
+        self.imgurcolors = '\002\00309,01Imgur\017 '
+    def comments(self, m):
+        cid = m.group('comment_id')
+        rec_bytes = web.get('https://api.imgur.com/3/comment/'+cid, self.headers)
+        jsonstring = json.loads(rec_bytes)
+        timestamp = jsonstring['data']['datetime']
+        timestamp1 = time.gmtime(timestamp)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+        comment = jsonstring['data']['comment']
+        author = jsonstring['data']['author']
+        return self.imgurcolors + '\002Comment\017 - ' + comment + ' - by ' + author + ' on ' + created_format
+    def gallery(self, m, startinclass, origin):
+        if origin == 1:
+            return
+        iid = m.group('iid')
+        
+        try:
+            rec_bytes = web.get('https://api.imgur.com/3/gallery/image/'+iid, self.headers)
+        except:
+            if startinclass == False:
+                return self.galleryalbum(m, True, 1)
+            else:
+                return self.galleryalbum(m, True, origin)
+        jsonstring = json.loads(rec_bytes)
+        title = jsonstring['data']['title']
+        timestamp = jsonstring['data']['datetime']
+        timestamp1 = time.gmtime(timestamp)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+        mime = jsonstring['data']['type']
+        ups = jsonstring['data']['ups']
+        downs = jsonstring['data']['downs']
+        animated = jsonstring['data']['animated']
+        width = jsonstring['data']['width']
+        height = jsonstring['data']['height']
+        author = jsonstring['data']['account_url']
+        reply = self.imgurcolors
+        if title:
+            reply += title
+        else:
+            reply += 'No Title'
+        if author:
+            reply += ' by ' + author
+        else:
+            reply += ' by Anonymous'
+        reply += ' \002↑' + str(ups) + '/' + str(downs) + '↓\017 Uploaded on ' + created_format + ' \002Resolution:\017' + str(width) + '×' + str(height) + ' \002Type:\017' + mime
+        if animated == True:
+            reply += ' Animated'
+        return reply
+    def galleryalbum(self, m, startinclass, origin):
+        if origin == 2:
+            return
+        iid = m.group('iid')
+        try:
+            rec_bytes = web.get('https://api.imgur.com/3/gallery/album/'+iid, self.headers)
+        except:
+            if startinclass == False:
+                return self.album(m, True, 2)
+            else:
+                return self.album(m, True, origin)
+        jsonstring = json.loads(rec_bytes)
+        title = jsonstring['data']['title']
+        timestamp = jsonstring['data']['datetime']
+        timestamp1 = time.gmtime(timestamp)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+        author = jsonstring['data']['account_url']
+        ups = jsonstring['data']['ups']
+        downs = jsonstring['data']['downs']
+        reply = self.imgurcolors + 'Album - '
+        if title:
+            reply += title
+        else:
+            reply += 'No Title'
+        if author:
+            reply += ' by ' + author
+        else:
+            reply += ' by Anonymous'
+        reply += ' \002↑' + str(ups) + '/' + str(downs) + '↓\017 Uploaded on ' + created_format
+        return reply 
+    def album(self, m, startinclass, origin):
+        if origin == 3:
+            return
+        iid = m.group('iid')
+        try:
+            rec_bytes = web.get('https://api.imgur.com/3/album/'+iid, self.headers)
+        except:
+            if startinclass == False:
+                return self.image(m, True, 3)
+            else:
+                return self.image(m, True, origin)
+        jsonstring = json.loads(rec_bytes)
+        title = jsonstring['data']['title']
+        timestamp = jsonstring['data']['datetime']
+        timestamp1 = time.gmtime(timestamp)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+        author = jsonstring['data']['account_url']
+        reply = self.imgurcolors + 'Album - '
+        if title:
+            reply += title
+        else:
+            reply += 'No Title'
+        if author:
+            reply += ' by ' + author
+        else:
+            reply += ' by Anonymous'
+        reply += ' Uploaded on ' + created_format
+        return reply
+    def image(self, m, startinclass, origin):
+        if origin == 4:
+            return
+        iid = m.group('iid')
+        try:
+            rec_bytes = web.get('https://api.imgur.com/3/image/'+iid, self.headers)
+        except:
+            if startinclass == False:
+                return self.gallery(m, True, 4)
+            else:
+                return self.gallery(m, True, origin)
+        jsonstring = json.loads(rec_bytes)
+        title = jsonstring['data']['title']
+        timestamp = jsonstring['data']['datetime']
+        timestamp1 = time.gmtime(timestamp)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+        mime = jsonstring['data']['type']
+        animated = jsonstring['data']['animated']
+        width = jsonstring['data']['width']
+        height = jsonstring['data']['height']
+        reply = self.imgurcolors
+        if title:
+            reply += title
+        else:
+            reply += 'No Title'
+        reply += ' Uploaded on ' + created_format + ' \002Resolution:\017' + str(width) + '×' + str(height) + ' \002Type:\017' + mime
+        if animated == True:
+            reply += ' Animated'
+        return reply
+    def reddit(self, m, startinclass, origin):
+        iid = m.group('iid')
+        subreddit = m.group('reddit')
+        try:
+            rec_bytes = web.get('https://api.imgur.com/3/gallery/r/' + subreddit + '/' + iid, self.headers)
+        except:
+            return
+        jsonstring = json.loads(rec_bytes)
+        title = jsonstring['data']['title']
+        timestamp = jsonstring['data']['datetime']
+        timestamp1 = time.gmtime(timestamp)
+        created_format = time.strftime('%A %B %d, %Y at %I:%M:%S %p GMT',timestamp1)
+        mime = jsonstring['data']['type']
+        animated = jsonstring['data']['animated']
+        width = jsonstring['data']['width']
+        height = jsonstring['data']['height']
+        subreddit = jsonstring['data']['section']
+        reply = self.imgurcolors
+        if title:
+            reply += title
+        else:
+            reply += 'No Title'
+        reply += ' Uploaded to /r/' + subreddit + ' on ' + created_format + ' \002Resolution:\017' + str(width) + '×' + str(height) + ' \002Type:\017' + mime
+        if animated == True:
+            reply += ' Animated'
+        return reply
+        
 
 if __name__ == '__main__': 
     print(__doc__.strip())

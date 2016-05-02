@@ -65,6 +65,10 @@ def create_default_config(fn):
     # Please uncomment these and add the API Key
     # wunderground_api_key = ''
     
+    # Imgur Client ID
+    # Please uncomment these and add the Client ID
+    # imgur_client_id = ''
+    
     # Wordnik API Key
     # Please uncomment these and add the API Key
     # wordnik_api_key = ''
