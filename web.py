@@ -21,7 +21,7 @@ def get(uri, headers=None, isSecure=True):
     if not uri.startswith('http'): 
         return
     if isSecure == True:
-        if not uri.startswith('http'):
+        if not uri.startswith('https'):
             uri = uri.replace(uri[:3], 'https')
     else:
         headers=None
