@@ -1014,9 +1014,9 @@ class Imgurfunctions:
         downs = jsonstring['data']['downs']
         reply = self.imgurcolors + 'Album - '
         if title:
-            reply += title
+            reply += title + ' -'
         else:
-            reply += 'No Title'
+            reply += 'No Title -'
         if author:
             reply += ' by ' + author
         else:
@@ -1042,9 +1042,9 @@ class Imgurfunctions:
         author = jsonstring['data']['account_url']
         reply = self.imgurcolors + 'Album - '
         if title:
-            reply += title
+            reply += title + ' -'
         else:
-            reply += 'No Title'
+            reply += 'No Title -'
         if author:
             reply += ' by ' + author
         else:
@@ -1073,9 +1073,9 @@ class Imgurfunctions:
         height = jsonstring['data']['height']
         reply = self.imgurcolors
         if title:
-            reply += title
+            reply += title + ' -'
         else:
-            reply += 'No Title'
+            reply += 'No Title -'
         reply += ' Uploaded on ' + created_format + ' \002Resolution:\017' + str(width) + '×' + str(height) + ' \002Type:\017' + mime
         if animated == True:
             reply += ' Animated'
@@ -1099,9 +1099,9 @@ class Imgurfunctions:
         subreddit = jsonstring['data']['section']
         reply = self.imgurcolors
         if title:
-            reply += title
+            reply += title + ' -'
         else:
-            reply += 'No Title'
+            reply += 'No Title -'
         reply += ' Uploaded to /r/' + subreddit + ' on ' + created_format + ' \002Resolution:\017' + str(width) + '×' + str(height) + ' \002Type:\017' + mime
         if animated == True:
             reply += ' Animated'
