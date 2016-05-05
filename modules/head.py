@@ -18,6 +18,7 @@ import http.cookiejar
 import time
 from datetime import timedelta
 from html.entities import name2codepoint
+name2codepoint['apos'] = 0x0027
 import web
 from tools import deprecated
 import ast
