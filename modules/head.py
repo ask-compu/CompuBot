@@ -982,9 +982,9 @@ class Imgurfunctions:
         author = jsonstring['data']['account_url']
         reply = self.imgurcolors
         if title:
-            reply += title
+            reply += title + ' -'
         else:
-            reply += 'No Title'
+            reply += 'No Title -'
         if author:
             reply += ' by ' + author
         else:
