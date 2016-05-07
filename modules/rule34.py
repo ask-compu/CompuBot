@@ -45,7 +45,7 @@ def rule34(phenny, input):
         return
 
     try:
-        link = (choice(results).attrib['file_url'])
+        link = "https:" + (choice(results).attrib['file_url'])
     except AttributeError:
         raise GrumbleError("THE INTERNET IS BROKEN. Please try again later.")
 
