@@ -173,6 +173,16 @@ def cookie(phenny, input):
         phenny.say(cookieresponse)
 cookie.rule = r'(?i)(($nickname(:|,)? )?(C|c)ookies (P|p)lease(\?)?)|(?i)(($nickname(:|,)? )?(((C|c)an (I|i))|((I|i) (C|c)an)) (((H|h)ave)|((H|h)a(s|z))) (C|c)ookie(s)?( (P|p)lease)?(\?)?)'
 
+def cuddle(phenny, input): 
+    if input.nick in phenny.config.user_ignore:
+        return
+    # TODO: add more responses
+    cuddleresponse = random.choice(('\x01ACTION cuddles back\x01', '\x01ACTION nyas and cuddles back\x01', '\x01ACTION snuggles back\x01', '\x01ACTION nyas and snuggles back\x01', '\x01ACTION wraps around ' + input.nick + ' warmly\x01', '\x01ACTION nyas and wraps around ' + input.nick + ' warmly\x01', '\x01ACTION nuzzles ' + input.nick + '\x01'))
+    phenny.say(cuddleresponse)
+    if cuddleresponse.startswith('\x01ACTION nuzzles'):
+        phenny.say('nya! ^_^')
+cuddle.rule = r'(?i)(\x01ACTION (?i)(cuddle(s)?|snuggle(s)?) (?i)$nickname)'
+
 #def boopcommand(phenny, input):
 #    if input.nick in phenny.config.user_ignore:
 #        return
