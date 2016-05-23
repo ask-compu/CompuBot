@@ -113,7 +113,7 @@ def smiles(phenny, input):
     if input.nick in phenny.config.user_ignore:
         return
     # \x01ACTION smiles back!\x01 gets extra "weight" because it's a good response
-    smilesresponse = random.choice(('Aww, I love to see my friends smile!','\x01ACTION smiles back!\x01','#youtubelink','\x01ACTION grins!\x01','\x01ACTION claps her hooves together!\x01','\x01ACTION smiles back!\x01'))
+    smilesresponse = random.choice(('Aww, I love to see my friends smile!','\x01ACTION smiles back!\x01','\x01ACTION grins!\x01','\x01ACTION claps her hooves together!\x01','\x01ACTION smiles back!\x01'))
     phenny.say(smilesresponse)
 smiles.rule = r'(\x01ACTION)? (?i)smiles (?i)(at|with|to|because of) (?i)$nickname'
 
