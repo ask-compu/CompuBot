@@ -209,14 +209,15 @@ def alerts(phenny,input):
 alerts.commands = ['wa', 'alert', 'alerts']
 alerts.example = '.wa San Francisco, CA'
 
-def alerts_search(query, phenny):
+def alerts_search(query, phenny, jsonstring=None):
     if hasattr(phenny.config, 'wunderground_api_key'):
-        query = query.replace('!', '')
-        query = query.replace(' ', '_')
-        query = web.quote(query)
-        uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/alerts/q/' + query + '.json'
-        rec_bytes = web.get(uri)
-        jsonstring = json.loads(rec_bytes)
+        if not jsonstring:
+            query = query.replace('!', '')
+            query = query.replace(' ', '_')
+            query = web.quote(query)
+            uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/alerts/q/' + query + '.json'
+            rec_bytes = web.get(uri)
+            jsonstring = json.loads(rec_bytes)
         werror = 0
         try:
             werrorexist = jsonstring['response']['error']['type']
@@ -264,7 +265,7 @@ def weather_search(query, phenny):
         query = query.replace('!', '')
         query = query.replace(' ', '_')
         query = web.quote(query)
-        uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/q/' + query + '.json'
+        uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/alerts/q/' + query + '.json'
         rec_bytes = web.get(uri)
         jsonstring = json.loads(rec_bytes)
         werror = 0
@@ -278,7 +279,7 @@ def weather_search(query, phenny):
             werrortype = jsonstring['response']['error']['type']
             werrordesc = jsonstring['response']['error']['description']
             werrorfull = 'Error Code: ' + werrortype + ' - ' + werrordesc
-            return werrorfull
+            return werrorfull, None
         else:
             try:
                 wcity = jsonstring['current_observation']['display_location']['full']
@@ -296,18 +297,18 @@ def weather_search(query, phenny):
                 wfeels = wfeels.replace(' F', degree_sign + 'F')
                 wfeels = wfeels.replace(' C', degree_sign + 'C')
                 
-                return ('In ' + wcity + ' it is currently ' + wcondition + ', the temperature is ' + wtemp + ' and it feels like ' + wfeels + '. The wind speed is ' + wwindspd + ' MPH ' + wwinddir + ' with gusts of up to ' + wwindgust + " MPH. The UV level is " + wuv + ". Weather from " + wurl)
+                return ('In ' + wcity + ' it is currently ' + wcondition + ', the temperature is ' + wtemp + ' and it feels like ' + wfeels + '. The wind speed is ' + wwindspd + ' MPH ' + wwinddir + ' with gusts of up to ' + wwindgust + " MPH. The UV level is " + wuv + ". Weather from " + wurl), jsonstring
             except KeyError:
-                return None
+                return None, None
     else:
-        return 'Sorry but you need to set your wunderground_api_key in the config file.'
+        return 'Sorry but you need to set your wunderground_api_key in the config file.', None
 
 def weather(phenny, input): 
     """Queries Wunderground for the weather."""
     query = input.group(2)
     if not query: return phenny.reply('.w what?')
 
-    uri = weather_search(query, phenny)
+    uri, jsonstring = weather_search(query, phenny)
     if uri: 
         if uri.startswith('Error Code'):
             phenny.say("Sorry, " + input.nick +", I got an error. Here's the error i got, " + uri)
@@ -316,19 +317,20 @@ def weather(phenny, input):
             if not hasattr(phenny.bot, 'last_seen_uri'):
                 phenny.bot.last_seen_uri = {}
             phenny.bot.last_seen_uri[input.sender] = uri
-            alertstext, alertsnumber = alerts_search(query, phenny)
-            if alertsnumber > 0:
-                alertstext = "You have " + str(alertsnumber)
-                if alertsnumber > 1:
-                    alertstext = alertstext + " weather alerts"
-                else:
-                    alertstext = alertstext + " weather alert"
-                alertstext = alertstext + ", please use .wa " + query + " to see "
-                if alertsnumber > 1:
-                    alertstext = alertstext + "them."
-                else:
-                    alertstext = alertstext + "it."
-                phenny.say(alertstext)
+            if jsonstring:
+                alertstext, alertsnumber = alerts_search(query, phenny, jsonstring)
+                if alertsnumber > 0:
+                    alertstext = "You have " + str(alertsnumber)
+                    if alertsnumber > 1:
+                        alertstext = alertstext + " weather alerts"
+                    else:
+                        alertstext = alertstext + " weather alert"
+                    alertstext = alertstext + ", please use .wa " + query + " to see "
+                    if alertsnumber > 1:
+                        alertstext = alertstext + "them."
+                    else:
+                        alertstext = alertstext + "it."
+                    phenny.say(alertstext)
     else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
 weather.commands = ['w', 'weather']
 weather.example = '.w San Francisco, CA'
@@ -338,7 +340,7 @@ def forecast_search(query, phenny):
         query = query.replace('!', '')
         query = query.replace(' ', '_')
         query = web.quote(query)
-        uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/forecast/q/' + query + '.json'
+        uri = 'https://api.wunderground.com/api/' + phenny.config.wunderground_api_key + '/conditions/forecast/alerts/q/' + query + '.json'
         rec_bytes = web.get(uri)
         jsonstring = json.loads(rec_bytes)
         wferror = 0
@@ -352,7 +354,7 @@ def forecast_search(query, phenny):
             wferrortype = jsonstring['response']['error']['type']
             wferrordesc = jsonstring['response']['error']['description']
             wferrorfull = 'Error Code: ' + wferrortype + ' - ' + wferrordesc
-            return wferrorfull
+            return wferrorfull, None
         else:
             try:
                 wfcity = jsonstring['current_observation']['display_location']['full']
@@ -383,18 +385,18 @@ def forecast_search(query, phenny):
                 
                 degree_sign = u'\N{DEGREE SIGN}'
                 
-                return ('The forecast for ' + wfdate1 + ' in ' + wfcity + ' is ' + wfcond1 + ' with a high of ' + wfhigh1f + degree_sign + 'F (' + wfhigh1c + degree_sign + 'C) and a low of ' + wflow1f + degree_sign + 'F (' + wflow1c + degree_sign + 'C). On ' + wfdate2 + ' it will be ' + wfcond2 + ' with a high of ' + wfhigh2f + degree_sign + 'F (' + wfhigh2c + degree_sign + 'C) and a low of ' + wflow2f + degree_sign + 'F (' + wflow2c + degree_sign + 'C). On ' + wfdate3 + ' it will be ' + wfcond3 + ' with a high of ' + wfhigh3f + degree_sign + 'F (' + wfhigh3c + degree_sign + 'C) and a low of ' + wflow3f + degree_sign + 'F (' + wflow3c + degree_sign + 'C). On ' + wfdate4 + ' it will be ' + wfcond4 + ' with a high of ' + wfhigh4f + degree_sign + 'F (' + wfhigh4c + degree_sign + 'C) and a low of ' + wflow4f + degree_sign + 'F (' + wflow4c + degree_sign + 'C).')
+                return ('The forecast for ' + wfdate1 + ' in ' + wfcity + ' is ' + wfcond1 + ' with a high of ' + wfhigh1f + degree_sign + 'F (' + wfhigh1c + degree_sign + 'C) and a low of ' + wflow1f + degree_sign + 'F (' + wflow1c + degree_sign + 'C). On ' + wfdate2 + ' it will be ' + wfcond2 + ' with a high of ' + wfhigh2f + degree_sign + 'F (' + wfhigh2c + degree_sign + 'C) and a low of ' + wflow2f + degree_sign + 'F (' + wflow2c + degree_sign + 'C). On ' + wfdate3 + ' it will be ' + wfcond3 + ' with a high of ' + wfhigh3f + degree_sign + 'F (' + wfhigh3c + degree_sign + 'C) and a low of ' + wflow3f + degree_sign + 'F (' + wflow3c + degree_sign + 'C). On ' + wfdate4 + ' it will be ' + wfcond4 + ' with a high of ' + wfhigh4f + degree_sign + 'F (' + wfhigh4c + degree_sign + 'C) and a low of ' + wflow4f + degree_sign + 'F (' + wflow4c + degree_sign + 'C).'), jsonstring
             except KeyError:
-                return None
+                return None, None
     else:
-        return 'Sorry but you need to set your wunderground_api_key in the config file.'
+        return 'Sorry but you need to set your wunderground_api_key in the config file.', None
 
 def forecast(phenny, input): 
     """Queries Wunderground for the weather forecast."""
     query = input.group(2)
     if not query: return phenny.reply('.wf what?')
 
-    uri = forecast_search(query, phenny)
+    uri, jsonstring = forecast_search(query, phenny)
     if uri: 
         if uri.startswith('Error Code'):
             phenny.say("Sorry, " + input.nick +", I got an error. Here's the error i got, " + uri)
@@ -406,18 +408,20 @@ def forecast(phenny, input):
                 phenny.bot.last_seen_uri = {}
             phenny.bot.last_seen_uri[input.sender] = uri
             alertstext, alertsnumber = alerts_search(query, phenny)
-            if alertsnumber > 0:
-                alertstext = "You have " + str(alertsnumber)
-                if alertsnumber > 1:
-                    alertstext = alertstext + " weather alerts"
-                else:
-                    alertstext = alertstext + " weather alert"
-                alertstext = alertstext + ", please use .wa " + query + " to see "
-                if alertsnumber > 1:
-                    alertstext = alertstext + "them."
-                else:
-                    alertstext = alertstext + "it."
-                phenny.say(alertstext)
+            if jsonstring:
+                alertstext, alertsnumber = alerts_search(query, phenny, jsonstring)
+                if alertsnumber > 0:
+                    alertstext = "You have " + str(alertsnumber)
+                    if alertsnumber > 1:
+                        alertstext = alertstext + " weather alerts"
+                    else:
+                        alertstext = alertstext + " weather alert"
+                    alertstext = alertstext + ", please use .wa " + query + " to see "
+                    if alertsnumber > 1:
+                        alertstext = alertstext + "them."
+                    else:
+                        alertstext = alertstext + "it."
+                    phenny.say(alertstext)
     else: phenny.say("Sorry " + input.nick + ', try something more specific than "' + query + '"')
 forecast.commands = ['wf', 'forecast']
 forecast.example = '.wf San Francisco, CA'
