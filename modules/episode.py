@@ -68,8 +68,9 @@ def episode_find(query, phenny):
         issearch = True
         isnextlast = False
                     
+    headers = [('Accept', 'application/json')]
     try:
-        rec_bytes = web.get(uri)
+        rec_bytes = web.get(uri, headers)
     except:
         if isnextlast is True:
             return 'nope$' + nl
