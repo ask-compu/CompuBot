@@ -66,8 +66,8 @@ calculate.example = '.c 5 + 3'
 def ctof(phenny, input):
     """Converts Celsius to Fahrenheit"""
     try:
-        non_decimal = re.compile(r'[^\d.]+')
-        celsiusstr = non_decimal.sub('', input.group(2))
+        decimal_match = re.match(r'-?[\d.]+', input.group(2))
+        celsiusstr = decimal_match.group(0)
         celsius = float(celsiusstr)
     except:
         return phenny.say("Sorry I need a numeric Celsius temperature value.")
@@ -79,8 +79,8 @@ ctof.example = '.ctof 5'
 def ftoc(phenny, input):
     """Converts Fahrenheit to Celsius"""
     try:
-        non_decimal = re.compile(r'[^\d.]+')
-        fahrenheitstr = non_decimal.sub('', input.group(2))
+        decimal_match = re.match(r'-?[\d.]+', input.group(2))
+        fahrenheitstr = decimal_match.group(0)
         fahrenheit = float(fahrenheitstr)
     except:
         return phenny.say("Sorry I need a numeric Fahrenheit temperature value.")
@@ -92,8 +92,8 @@ ftoc.example = '.ftoc 5'
 def ctok(phenny, input):
     """Converts Celsius to Kelvin"""
     try:
-        non_decimal = re.compile(r'[^\d.]+')
-        celsiusstr = non_decimal.sub('', input.group(2))
+        decimal_match = re.match(r'-?[\d.]+', input.group(2))
+        celsiusstr = decimal_match.group(0)
         celsius = float(celsiusstr)
     except:
         return phenny.say("Sorry I need a numeric Celsius temperature value.")
@@ -118,8 +118,8 @@ ktoc.example = '.ktoc 5'
 def ftok(phenny, input):
     """Converts Fahrenheit to Kelvin"""
     try:
-        non_decimal = re.compile(r'[^\d.]+')
-        fahrenheitstr = non_decimal.sub('', input.group(2))
+        decimal_match = re.match(r'-?[\d.]+', input.group(2))
+        fahrenheitstr = decimal_match.group(0)
         fahrenheit = float(fahrenheitstr)
     except:
         return phenny.say("Sorry I need a numeric Fahrenheit temperature value.")
