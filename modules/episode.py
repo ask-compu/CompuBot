@@ -72,7 +72,7 @@ def episode_find(query, phenny):
         except IndexError:
             snum = 99
         enum = result.group('episode')
-        uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
+        uri = 'https://ponyapi.apps.xeserv.us/season/{season}/episode/{episode}'.format(season = snum, episode = enum)
         nl = query
         issearch = False
         isnextlast = False
@@ -87,8 +87,7 @@ def episode_find(query, phenny):
         issearch = False
         isnextlast = True
     else:
-        webquery = web.quote(query)
-        uri = 'https://ponyapi.apps.xeserv.us/search?q=' + webquery
+        uri = 'https://ponyapi.apps.xeserv.us/search?q=' + web.quote(query)
         nl = query
         issearch = True
         isnextlast = False
@@ -150,13 +149,13 @@ def episode(phenny, input):
     if uri: 
         if uri.startswith('nope'):
             uris = uri.split('$')
-            return phenny.say("Sorry " + input.nick + ", I couldn't find the " + uris[1] + " episode.")
+            return phenny.say("Sorry {you}, I couldn't find the {episode} episode.".format(you = input.nick, episode = uris[1]))
         else:
-            phenny.say("Here's what I got, " + input.nick + ": " + uri)
+            phenny.say("Here's what I got, {you}: {response}".format(you = input.nick, response = uri))
             if not hasattr(phenny.bot, 'last_seen_uri'):
                 phenny.bot.last_seen_uri = {}
             phenny.bot.last_seen_uri[input.sender] = uri
-    else: phenny.say("Sorry " + input.nick + ", I couldn't find any episodes for '%s'." % query)
+    else: phenny.say("Sorry {you}, I couldn't find any episodes for '{query}'.".format(you = input.nick, query = query))
 episode.commands = ['ep','episode']
 
 if __name__ == '__main__': 
