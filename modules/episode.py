@@ -15,20 +15,13 @@ _re_movie = re.compile('(?i)movie ?(?P<episode>\d+)')
 
 def episode_find(query, phenny): 
     query = query.replace('!', '')
-    if _re_full.match(query):
-        regex = _re_full
-        results = regex.findall(query)
-        snum = results[0].group('season')
-        enum = results[0].group('episode')
-        uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
-        nl = query
-        issearch = False
-        isnextlast = False
-    elif _re_short.match(query):
-        regex = _re_short
-        results = regex.findall(query)
-        snum = results[0].group('season')
-        enum = results[0].group('episode')
+    result = _re_full.match(query) or _re_short.match(query) or _re_movie.match(query)
+    if result:
+        try:
+            snum = result.group('season')
+        except IndexError:
+            snum = 99
+        enum = result.group('episode')
         uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
         nl = query
         issearch = False
@@ -43,14 +36,6 @@ def episode_find(query, phenny):
         nl = 'last'
         issearch = False
         isnextlast = True
-    elif _re_movie.match(query):
-        regex = _re_movie
-        results = regex.findall(query)
-        mnum = results[0].group('episode')
-        uri = 'https://ponyapi.apps.xeserv.us/season/99/episode/' + mnum
-        nl = query
-        issearch = False
-        isnextlast = False
     else:
         webquery = web.quote(query)
         uri = 'https://ponyapi.apps.xeserv.us/search?q=' + webquery
