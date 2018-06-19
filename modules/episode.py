@@ -7,18 +7,7 @@ episode.py - Phenny MLP Episodes Module
 import re
 import web
 import json
-import string
-import ast
-import calendar
 import time
-
-class Grab(web.urllib.request.URLopener):
-    def __init__(self, *args):
-        self.version = 'Mozilla/5.0 (CompuBot)'
-        web.urllib.request.URLopener.__init__(self, *args)
-        self.addheader('Referer', 'https://github.com/sbp/phenny')
-    def http_error_default(self, url, fp, errcode, errmsg, headers):
-        return web.urllib.addinfourl(fp, [headers, errcode], "http:" + url)
 
 def episode_find(query, phenny): 
     query = query.replace('!', '')
