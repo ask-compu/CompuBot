@@ -9,49 +9,44 @@ import web
 import json
 import time
 
-_re_full = re.compile('(?i)season (\d+)(?:,)? episode (\d+)')
-_re_short = re.compile('(?i)(?:s|se)(\d+)(?:, | |,)?(?:e|ep)(\d+)')
-_re_next = re.compile('(?i)next')
-_re_last = re.compile('(?i)last')
-_re_movie = re.compile('(?i)movie(?: )?(\d+)')
+_re_full = re.compile('(?i)season (?P<season>\d+),? episode (?<episode>\d+)')
+_re_short = re.compile('(?i)se?(?P<season>\d+),? ?ep?(?P<episode>\d+)')
+_re_movie = re.compile('(?i)movie ?(?P<episode>\d+)')
 
 def episode_find(query, phenny): 
     query = query.replace('!', '')
     if _re_full.match(query):
         regex = _re_full
-        numbers = regex.findall(query)
-        results = [int(i) for i in numbers[0]]
-        snum = str(int(results[0]))
-        enum = str(int(results[1]))
+        results = regex.findall(query)
+        snum = results[0].group('season')
+        enum = results[0].group('episode')
         uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
         nl = query
         issearch = False
         isnextlast = False
     elif _re_short.match(query):
         regex = _re_short
-        numbers = regex.findall(query)
-        results = [int(i) for i in numbers[0]]
-        snum = str(int(results[0]))
-        enum = str(int(results[1]))
+        results = regex.findall(query)
+        snum = results[0].group('season')
+        enum = results[0].group('episode')
         uri = 'https://ponyapi.apps.xeserv.us/season/' + snum + '/episode/' + enum
         nl = query
         issearch = False
         isnextlast = False
-    elif _re_next.match(query):
+    elif query.startswith('next'):
         uri = 'https://ponyapi.apps.xeserv.us/newest'
         nl = 'next'
         issearch = False
         isnextlast = True
-    elif _re_last.match(query):
+    elif query.startswith('last'):
         uri = 'https://ponyapi.apps.xeserv.us/last_aired'
         nl = 'last'
         issearch = False
         isnextlast = True
     elif _re_movie.match(query):
         regex = _re_movie
-        numbers = regex.findall(query)
-        results = [int(i) for i in numbers[0]]
-        mnum = str(int(results[0]))
+        results = regex.findall(query)
+        mnum = results[0].group('episode')
         uri = 'https://ponyapi.apps.xeserv.us/season/99/episode/' + mnum
         nl = query
         issearch = False
