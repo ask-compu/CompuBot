@@ -9,10 +9,16 @@ import web
 import json
 import time
 
+_re_full = re.compile('(?i)season (\d+)(?:,)? episode (\d+)')
+_re_short = re.compile('(?i)(?:s|se)(\d+)(?:, | |,)?(?:e|ep)(\d+)')
+_re_next = re.compile('(?i)next')
+_re_last = re.compile('(?i)last')
+_re_movie = re.compile('(?i)movie(?: )?(\d+)')
+
 def episode_find(query, phenny): 
     query = query.replace('!', '')
-    if re.compile('(?i)(season \d+(,)? episode \d+)').match(query):
-        regex = re.compile('(?i)season (\d+)(?:,)? episode (\d+)')
+    if _re_full.match(query):
+        regex = _re_full
         numbers = regex.findall(query)
         results = [int(i) for i in numbers[0]]
         snum = str(int(results[0]))
@@ -21,8 +27,8 @@ def episode_find(query, phenny):
         nl = query
         issearch = False
         isnextlast = False
-    elif re.compile('(?i)((s|se)\d+(, | |,)?(e|ep)\d+)').match(query):
-        regex = re.compile('(?i)(?:s|se)(\d+)(?:, | |,)?(?:e|ep)(\d+)')
+    elif _re_short.match(query):
+        regex = _re_short
         numbers = regex.findall(query)
         results = [int(i) for i in numbers[0]]
         snum = str(int(results[0]))
@@ -31,18 +37,18 @@ def episode_find(query, phenny):
         nl = query
         issearch = False
         isnextlast = False
-    elif re.compile('(?i)next').match(query):
+    elif _re_next.match(query):
         uri = 'https://ponyapi.apps.xeserv.us/newest'
         nl = 'next'
         issearch = False
         isnextlast = True
-    elif re.compile('(?i)last').match(query):
+    elif _re_last.match(query):
         uri = 'https://ponyapi.apps.xeserv.us/last_aired'
         nl = 'last'
         issearch = False
         isnextlast = True
-    elif re.compile('(?i)(movie)( )?\d+').match(query):
-        regex = re.compile('(?i)movie(?: )?(\d+)')
+    elif _re_movie.match(query):
+        regex = _re_movie
         numbers = regex.findall(query)
         results = [int(i) for i in numbers[0]]
         mnum = str(int(results[0]))
