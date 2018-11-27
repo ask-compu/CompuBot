@@ -582,14 +582,13 @@ def tags_parser(info, phenny):
 def derpibooru(uri, phenny):
     # TODO: research derpibooru's API and get data
     def get_id(link):
-        srcexp = '(.*//)(?P<url>derpi((cdn.net)|(booru.org)))?'
-        src = re.search(srcexp, link).group('url')
+        srcexp = 'http[s]://(?P<domain>.*?)/.*'
+        src = re.search(srcexp, link).group('domain')
         if src == 'derpicdn.net':
-            exp = '(.*)derpicdn.net(/img/view/[0-9]*/[0-9]*/[0-9]*)/(?P<id>[0-9]*)'
-            return re.search(exp, link).group('id')
+            exp = 'http[s]://derpicdn\.net/.*/(?P<id>[0-9]*).*'
         else:
-            exp = '(.*)derpiboo((.ru)|(ru.org))(/images)?/(?P<id>[0-9]*)/?'
-            return re.search(exp, link).group('id')
+            exp = 'http[s]://derpibooru\.org(/images)?/(?P<id>[0-9]*).*'
+        return re.search(exp, link).group('id')
     id = get_id(uri)
     if not id:
         return gettitle(uri)
