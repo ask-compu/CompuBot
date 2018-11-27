@@ -242,11 +242,11 @@ def alerts_search(query, phenny, jsonstring=None):
                     alertsend = alertsdict['expires']
                     alertsdetails = alertsdict['message']
                     alertsdetails = alertsdetails.replace('\u000A', ' ')
-                    if alertsdict['type'] == "SPE":
-                        alertsdetails = re.search(r'\.\.\.(.*?)\.\.\.', alertsdetails).group(1)
-                        alertstext = alertstext + "Alert " + str(currentnum) + " is a " + alertstype + " (" + alertsdetails + ") and expires at " + alertsend
-                    else:
-                        alertstext = alertstext + "Alert " + str(currentnum) + " is a " + alertstype + " and expires at " + alertsend
+                    #if alertsdict['type'] == "SPE":
+                    #    alertsdetails = re.search(r'\.\.\.(.*?)\.\.\.', alertsdetails).group(1)
+                    #    alertstext = alertstext + "Alert " + str(currentnum) + " is a " + alertstype + " (" + alertsdetails + ") and expires at " + alertsend
+                    #else:
+                    alertstext = alertstext + "Alert " + str(currentnum) + " is a " + alertstype + " and expires at " + alertsend
                     if not currentnum == alertsnumber:
                         alertstext = alertstext + ", "
                 return alertstext, alertsnumber 

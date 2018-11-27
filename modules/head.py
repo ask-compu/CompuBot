@@ -178,14 +178,20 @@ def snarfuri(phenny, input):
         
         if re.compile('http(s)?://(.+)?deviantart.com/(.+)/d').match(uri):
             title = deviantart(uri, phenny)
+            
+        if re.compile('http(s)?://(.+)?deviantart.com/(.+)/art/(.+)').match(uri):
+            title = deviantart(uri, phenny)
         
-        if re.compile('http(s)?://(www.)?(f-list).net/c/').match(uri):
-            title = flistchar(uri, phenny)
+        #if re.compile('http(s)?://(www.)?(f-list).net/c/').match(uri):
+        #    title = flistchar(uri, phenny)
 
         if re.compile('http(s)?://(www.)?twentypercentcooler.net/post/show/').match(uri):
             title = ouroboros('twentypercentcooler',uri, phenny)
 
         if re.compile('http(s)?://(www.)?derpiboo((.ru)|(ru.org))(/images)?/').match(uri):
+            title = derpibooru(uri, phenny)
+
+        if re.compile('http(s)?://(www.)?derpicdn.net(/img)?/').match(uri):
             title = derpibooru(uri, phenny)
 
         if title:
@@ -438,11 +444,12 @@ def get_api_story_title(uri):
     description = story['short_description']
     status = story['status']
     
-    cat_dict = story['categories']
-    for k in cat_dict:
-        if cat_dict[k] is True:
-            categories = categories + '[' + k + ']'
-    return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description, status
+    #cat_dict = story['categories']
+    #for k in cat_dict:
+    #    if cat_dict[k] is True:
+    #        categories = categories + '[' + k + ']'
+    #return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description, status
+    return story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, updated, description, status
     
 def format_title(title):
     title = title.strip('"')
@@ -575,8 +582,14 @@ def tags_parser(info, phenny):
 def derpibooru(uri, phenny):
     # TODO: research derpibooru's API and get data
     def get_id(link):
-        exp = '(.*)derpiboo((.ru)|(ru.org))(/images)?/(?P<id>[0-9]*)/?'
-        return re.search(exp, link).group('id')
+        srcexp = '(.*//)(?P<url>derpi((cdn.net)|(booru.org)))?'
+        src = re.search(srcexp, link).group('url')
+        if src == 'derpicdn.net':
+            exp = '(.*)derpicdn.net(/img/view/[0-9]*/[0-9]*/[0-9]*)/(?P<id>[0-9]*)'
+            return re.search(exp, link).group('id')
+        else:
+            exp = '(.*)derpiboo((.ru)|(ru.org))(/images)?/(?P<id>[0-9]*)/?'
+            return re.search(exp, link).group('id')
     id = get_id(uri)
     if not id:
         return gettitle(uri)
@@ -636,7 +649,8 @@ def derpibooru(uri, phenny):
     return title
 
 def get_story_title(uri):
-    story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description, status = get_api_story_title(uri)
+    #story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, categories, updated, description, status = get_api_story_title(uri)
+    story_title, likes, dislikes, percentage, author, views, words, content_rating, chapters, updated, description, status = get_api_story_title(uri)
     title = '\002\00312,00FIMFiction\017 '
     if content_rating > 1:
         title = title + '\u0002!!*NSFW*!!\u000F - '
@@ -647,7 +661,8 @@ def get_story_title(uri):
             title = title + ' chapters'
         else:
             title = title + ' chapter'
-    title = title + " - " + views + " views - " + categories + ' -- ' + status + ' -- ' + words + ' words'
+    #title = title + " - " + views + " views - " + categories + ' -- ' + status + ' -- ' + words + ' words'
+    title = title + " - " + views + " views" + ' -- ' + status + ' -- ' + words + ' words'
     title = title + " - Likes: " + likes + " - Dislikes: " + dislikes + " - " + percentage + "% - last updated on " + updated + " - " + description
     return title
 
