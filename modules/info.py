@@ -47,7 +47,7 @@ def source(phenny, input):
             source_uri = phenny.config.source_url
     except AttributeError:
         # someone didn't add a 'source_url' line to their dotdir (i.e. ~/.phenny)
-        source_uri = 'http://compubot.compu.ml/'
+        source_uri = 'http://compubot.compupony.net/'
     phenny.say("Hey there! I'm a Python 3 bot owned and maintained by {0}.".format(phenny.config.owner) + 
         " My source is available at {0}".format(source_uri))
 source.commands = ['source','github']
