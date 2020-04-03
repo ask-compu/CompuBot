@@ -583,7 +583,10 @@ def derpibooru(uri, phenny):
     # TODO: research derpibooru's API and get data
     def get_id(link):
         exp = 'https?://.*/(?P<id>[0-9]+)'
-        return re.search(exp, link).group('id')
+        try:
+            return re.search(exp, link).group('id')
+        except:
+            return
     id = get_id(uri)
     if not id:
         return gettitle(uri)
