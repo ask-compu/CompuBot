@@ -587,9 +587,10 @@ def derpibooru(uri, phenny):
     id = get_id(uri)
     if not id:
         return gettitle(uri)
-    json_data = web.get('https://derpibooru.org/{0}.json'.format(id))
-    postdata = json.loads(json_data, encoding='utf-8')
-    if 'deletion_reason' in postdata:
+    json_data = web.get('https://derpibooru.org/api/v1/json/images/{0}'.format(id))
+    postdataimage = json.loads(json_data, encoding='utf-8')
+    postdata = postdataimage['image']
+    if postdata['deletion_reason']:
         deleted = postdata['deletion_reason']
         created_zulu = postdata['created_at']
         try:
@@ -603,7 +604,8 @@ def derpibooru(uri, phenny):
             created_format = ""
         
         return '\002Derpibooru -- \017This image was deleted because of "' + deleted + '"' + created_format
-    tags = postdata['tags'].split(', ')
+    #tags = postdata['tags'].split(', ')
+    tags = postdata['tags']
     
     artists = []
     for tag in tags:
