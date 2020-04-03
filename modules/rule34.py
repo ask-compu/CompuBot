@@ -101,15 +101,15 @@ def derpibooru_search(query, phenny):
     query = query.replace('!', '')
     query = web.quote(query)
     if hasattr(phenny.config, 'derpibooru_key'):
-        uri = 'https://derpibooru.org/search.json?q=' + query + '&key=' + phenny.config.derpibooru_key
+        uri = 'https://derpibooru.org/api/v1/json/search/images?q=' + query + '&key=' + phenny.config.derpibooru_key
     else:
-        uri = 'https://derpibooru.org/search.json?q=' + query
+        uri = 'https://derpibooru.org/api/v1/json/search/images?q=' + query
     rec_bytes = web.get(uri)
     jsonstring = json.loads(rec_bytes)
     dhits = jsonstring['total']
     if dhits > 0:
-        results = choice(jsonstring['search'])
-        url = 'https:' + results['image']
+        results = choice(jsonstring['images'])
+        url = 'https:' + results['representations']['full']
         uploader = results['uploader']
         uploaded = results['created_at']
         try:
