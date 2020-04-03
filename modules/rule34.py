@@ -121,6 +121,8 @@ def derpibooru_search(query, phenny):
             uploadedformat = time.strftime('%A %B %d, %Y at %I:%M:%S %p',timestamp1)
         except:
             isdateutil = False
+        if not uploader:
+            uploader = "Unknown"
         if isdateutil is True:
             return url + ' uploaded by ' + uploader + ' on ' + uploadedformat
         else:
