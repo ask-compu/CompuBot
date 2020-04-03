@@ -109,7 +109,7 @@ def derpibooru_search(query, phenny):
     dhits = jsonstring['total']
     if dhits > 0:
         results = choice(jsonstring['images'])
-        url = 'https:' + results['representations']['full']
+        url = results['representations']['full']
         uploader = results['uploader']
         uploaded = results['created_at']
         try:
