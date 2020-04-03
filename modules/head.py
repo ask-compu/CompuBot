@@ -626,6 +626,8 @@ def derpibooru(uri, phenny):
     
     created_zulu = postdata['created_at']
     uploader = postdata['uploader']
+    if not uploader:
+            uploader = "Unknown"
     upvotes = postdata['upvotes']
     downvotes = postdata['downvotes']
     width = postdata['width']
