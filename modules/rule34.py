@@ -100,11 +100,18 @@ tpc.commands = ['tpc', 'twentypercentcooler', 'ponies']
 def derpibooru_search(query, phenny):
     query = query.replace('!', '')
     query = web.quote(query)
+    from urllib.error import HTTPError
     if hasattr(phenny.config, 'derpibooru_key'):
         uri = 'https://derpibooru.org/api/v1/json/search/images?q=' + query + '&key=' + phenny.config.derpibooru_key
     else:
         uri = 'https://derpibooru.org/api/v1/json/search/images?q=' + query
-    rec_bytes = web.get(uri)
+    try:
+        rec_bytes = web.get(uri)
+    except HTTPError as err:
+        if err.code == 403:
+            return "Sorry! Derpibooru's API seems to be broken at the moment!"
+        else:
+            raise
     jsonstring = json.loads(rec_bytes)
     dhits = jsonstring['total']
     if dhits > 0:
