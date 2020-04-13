@@ -590,7 +590,14 @@ def derpibooru(uri, phenny):
     id = get_id(uri)
     if not id:
         return gettitle(uri)
-    json_data = web.get('https://derpibooru.org/api/v1/json/images/{0}'.format(id))
+    from urllib.error import HTTPError
+    try:
+        json_data = web.get('https://derpibooru.org/api/v1/json/images/{0}'.format(id))
+    except HTTPError as err:
+        if err.code == 403:
+            return "Sorry! Derpibooru's API seems to be broken at the moment!"
+        else:
+            raise
     postdataimage = json.loads(json_data, encoding='utf-8')
     postdata = postdataimage['image']
     if postdata['deletion_reason']:
