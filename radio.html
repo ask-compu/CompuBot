@@ -51,6 +51,36 @@ MRP.insert({
 </script>
 <!-- ENDS: AUTO-GENERATED MUSES RADIO PLAYER CODE -->
 <br />
+<script type ="text/javascript">
+function updateNowPlaying () {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://compupony.net:8000/status-json.xsl');
+    xhr.responseType = 'json';
+    xhr.onload = function(e) {
+        if (this.status == 200) {  
+        var nowplaying;
+        var listeners;
+        try {
+            nowplaying = "Now Playing: " + this.response["icestats"]["source"]["artist"] + " - " + this.response["icestats"]["source"]["title"];
+            listeners = "Listeners: " + this.response["icestats"]["source"]["listeners"];
+        }
+        catch {
+            nowplaying = "Offline";
+            listeners = 0;
+        };
+        document.getElementById("nowplaying").innerHTML = nowplaying;
+        document.getElementById("listeners").innerHTML = listeners;
+    };
+    };
+    xhr.send();
+};
+updateNowPlaying();
+setInterval(updateNowPlaying(), 10000);
+</script>
+<span id="nowplaying"></span>
+<br />
+<span id="listeners"></span>
+<br />
 <a href="http://www.compupony.net:8000/listen.ogg">If the radio player doesn't work click here</a>
 <br />
 <a href="http://compupony.net:8000/">Stats</a>
