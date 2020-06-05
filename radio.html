@@ -63,6 +63,8 @@ function updateNowPlaying () {
         try {
             nowplaying = "Now Playing: " + this.response["icestats"]["source"]["artist"] + " - " + this.response["icestats"]["source"]["title"];
             listeners = "Listeners: " + this.response["icestats"]["source"]["listeners"];
+            console.log(nowplaying)
+            console.log(listeners)
         }
         catch {
             nowplaying = "Offline";
