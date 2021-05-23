@@ -61,7 +61,12 @@ function updateNowPlaying () {
         var nowplaying;
         var listeners;
         try {
+          if not this.response["icestats"]["source"]["artist"] {
+            nowplaying = "Now Playing: " + this.response["icestats"]["source"]["server_name"];
+          }
+          else {
             nowplaying = "Now Playing: " + this.response["icestats"]["source"]["artist"] + " - " + this.response["icestats"]["source"]["title"];
+          }
             listeners = "Listeners: " + this.response["icestats"]["source"]["listeners"];
         }
         catch {
