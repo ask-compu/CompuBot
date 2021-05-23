@@ -45,8 +45,10 @@ function updateNowPlaying () {
         if (this.status == 200) {  
         var nowplaying;
         var listeners;
+        var artist;
         try {
-          if not this.response["icestats"]["source"]["artist"] {
+          artist = this.response["icestats"]["source"]["artist"];
+          if not artist {
             nowplaying = "Now Playing: " + this.response["icestats"]["source"]["server_name"];
           }
           else {
