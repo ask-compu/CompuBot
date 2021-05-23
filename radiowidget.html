@@ -20,7 +20,7 @@
 <script type="text/javascript" src="https://hosted.muses.org/mrp.js"></script>
 <script type="text/javascript">
 MRP.insert({
-'url':'http://www.compupony.net:8000/listen.ogg',
+'url':'http://yayponies.no:8000/listen.ogg',
 'codec':'ogg',
 'volume':100,
 'autoplay':true,
@@ -39,7 +39,7 @@ MRP.insert({
 <script type ="text/javascript">
 function updateNowPlaying () {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://compupony.net:8000/status-json.xsl');
+    xhr.open('GET', 'http://yayponies.no:8000/status-json.xsl');
     xhr.responseType = 'json';
     xhr.onload = function(e) {
         if (this.status == 200) {  
@@ -68,7 +68,7 @@ setInterval(updateNowPlaying, 10000);
 <br />
 <span id="listeners"></span>
 <br />
-<a href="http://www.compupony.net:8000/listen.ogg">If the radio player doesn't work click here</a>
+<a href="http://yayponies.no:8000/listen.ogg">If the radio player doesn't work click here</a>
 </center>
               <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
