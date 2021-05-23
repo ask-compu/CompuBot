@@ -48,7 +48,7 @@ function updateNowPlaying () {
         var artist;
         try {
           artist = this.response["icestats"]["source"]["artist"];
-          if !artist {
+          if !(artist) {
             nowplaying = "Now Playing: " + this.response["icestats"]["source"]["server_name"];
           }
           else {
