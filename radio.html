@@ -77,8 +77,15 @@ function updateNowPlaying () {
         };
         console.log(nowplaying)
         console.log(listeners)
+        document.getElementById('song-history').src = document.getElementById('song-history').src
         document.getElementById("nowplaying").innerHTML = nowplaying;
         document.getElementById("listeners").innerHTML = listeners;
+		
+		if (nowplaying == "Offline") {
+			document.title = "CompuFM Radio Stream";
+		} else {
+			document.title = nowplaying;
+		}
     };
     };
     xhr.send();
