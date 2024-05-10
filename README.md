@@ -56,4 +56,4 @@ Authors
 * Sean B. Palmer, http://inamidst.com/sbp/
 * mutantmonkey, http://mutantmonkey.in
 * Jordan Kinsley, http://jordantkinsley.org
-* Compu, http://www.compu.ml/
+* Compu, http://compubot.compupony.net/
