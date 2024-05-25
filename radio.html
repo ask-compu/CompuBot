@@ -43,7 +43,7 @@
 <script type="text/javascript" src="https://hosted.muses.org/mrp.js"></script>
 <script type="text/javascript">
 MRP.insert({
-'url':'http://yayponies.no:8000/listen.ogg',
+'url':'https://icecast.yayponies.no/listen.ogg',
 'codec':'ogg',
 'volume':100,
 'autoplay':true,
@@ -62,7 +62,7 @@ MRP.insert({
 <script type ="text/javascript">
 function updateNowPlaying () {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://yayponies.no:8000/status-json.xsl');
+    xhr.open('GET', 'https://icecast.yayponies.no/status-json.xsl');
     xhr.responseType = 'json';
     xhr.onload = function(e) {
         if (this.status == 200) {  
@@ -105,9 +105,9 @@ setInterval(updateNowPlaying, 10000);
 <br />
 <span id="listeners"></span>
 <br />
-  <a href="http://yayponies.no:8000/listen.ogg">If the radio player doesn't work click here</a>
+  <a href="https://icecast.yayponies.no/listen.ogg">If the radio player doesn't work click here</a>
 <br />
-  <a href="http://yayponies.no:8000/">Stats</a>
+  <a href="https://icecast.yayponies.no/">Stats</a>
 <br />
   <a href="/radiowidget">Radio Widget</a>
 <br />
